@@ -1,0 +1,56 @@
+# DON'T DELETE THIS FILE
+# From this file, the C AST Nodes are generated dynamically.
+
+## Empty nodes
+# Operators
+Add: 
+Sub:
+Mult:
+Div:
+Mod:
+
+# Comparator
+Eq:
+NotEq:
+Gt:
+GtE:
+Lt:
+LtE:
+
+# Bool operators
+And:
+Or:
+Not:
+USub:
+
+# Basic nodes
+Int: n=None
+Float: n=None
+Str: s=None
+Name: id
+
+Print: dest, values, sep, end
+
+# Flow control
+If: test, body, orelse
+While: test, body, orelse
+Pass:
+
+# Operations
+BinOp: op, left, right
+BoolOp: op, values
+UnaryOp: op, value
+
+# Assignments
+Assign: type, targets, value
+AugAssign: target, op, value
+
+# Function related
+FunctionDef: type, name, arguments
+Call: func, args
+Return: value
+
+# Others
+Attribute: value, attr
+Compare: left, ops, comparators
+Module: body=[]
