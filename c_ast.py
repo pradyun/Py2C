@@ -8,7 +8,7 @@ from textwrap import dedent
 class AST(object):
     """Abstract AST Node"""
     def __repr__(self):  # pragma: no cover  No tests (For debugging)
-        args = ", ".join(("{0}={1}".format(k, getattr(self, k)) for k in self._fields))
+        args = ", ".join(("{0}={1!r}".format(k, getattr(self, k)) for k in self._fields))
         return "{0}({1})".format(self.__class__.__name__, args)
 
     def __eq__(self, other):

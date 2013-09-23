@@ -48,8 +48,5 @@ class NumTestCase(ASTTestCase):
     def test_float_zero(self):
         self.template(ast.Num(0.0), c_ast.Float(0.0), "0 (float)")
 
-class CallTestCase(ASTTestCase):
-    """Tests for translation from Call"""
-
 if __name__ == '__main__':
     unittest.main()
