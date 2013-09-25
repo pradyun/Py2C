@@ -160,3 +160,9 @@ pip-log.txt
 
 # Mac crap 
 .DS_Store
+
+
+#--------------------------------------------------------
+# Pradyun's Stuff
+# I use a batch file to setup my dev env for Git and Python
+setupenv.bat
