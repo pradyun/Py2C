@@ -9,7 +9,7 @@ with support.project_imports():
 class BuiltinsTestCase(unittest.TestCase):
     """Tests for Built-ins defined in Pure Python"""
 
-    # Falis
+    # Fails
     # def test_range(self):
     #     range = python_builtins.range
     #     self.assertEqual(range(3), [0, 1, 2])
