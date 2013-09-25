@@ -16,7 +16,7 @@ def in_scope(obj, scope_dict, curr_scope):
     return False
 
 class ASTTranslator(ast.NodeVisitor):
-    """Translates Python code into C code
+    """Translates Python AST into C AST
 
     This is a NodeVisitor that visits the Python AST validates it for conversion
     and creates another AST, for C code (with type definitions and other stuff),
@@ -25,6 +25,8 @@ class ASTTranslator(ast.NodeVisitor):
     Attributes:
         errors: A list that contains the error-messages that of errors that
                 occurred during translation
+        functions: A list holding function names
+
     """
     def __init__(self):
         super(ASTTranslator, self).__init__()
@@ -32,13 +34,6 @@ class ASTTranslator(ast.NodeVisitor):
 
     def setup(self):
         self.errors = []
-        # Functions
-        self.functions = []
-        self.in_func = False
-        self.func_returns = []
-        # Variables
-        self.levels = defaultdict(set)
-        self.curr_level = 0
 
     # Errors
     def log_error(self, msg, node=None):
@@ -58,8 +53,7 @@ class ASTTranslator(ast.NodeVisitor):
         Returns:
             A C node, from the c_ast.py
         Raises:
-            Exception: Raised if the AST could not be converted,
-                       due to some error.
+            Exception: If the AST could not be converted, due to some error
                        Raised after printing those errors.
         """
         self.setup()
@@ -89,37 +83,33 @@ class ASTTranslator(ast.NodeVisitor):
     def visit_Module(self, node):
         return c_ast.Module(self.body(node.body))
 
-    def visit_Print(self, node):
-        def get_value(name, default):
-            x = None
-            if hasattr(node, name):
-                x = getattr(node, name)
-            if x is None:
-                x = default
-            return x
-
-        # Py3 compat
-        sep = get_value('sep', ' ')
-        end = get_value('end', '\n' if get_value('nl', False) else '')
-        dest = node.dest
-        values = map(self.visit, node.values)
-
-        return c_ast.Print(dest=dest, values=values, sep=sep, end=end)
-
-    def visit_Call(self, node):
-        if node.func.id == 'print': # is it so in Python 3?
-            print_node = ast.Print()
+    def visit_Print(self, node, py3=False):
+        if py3: # python 3 print function
             keywords = {}
             if node.keywords is not None:
                 for kw in node.keywords:
                     keywords[kw.arg] = kw.value
 
-            print_node.dest = keywords.get('file', None)
+            sep = keywords.get('sep', ast.Str(' ')).s
+            end = keywords.get('end', ast.Str('\n')).s
+            dest = keywords.get('file', None)
+            if dest is not None:
+                dest = self.visit(dest)
+            values = map(self.visit, node.args)
+        else:
+            sep = ' '
+            end = '\n' if node.nl else ' '
+            dest = node.dest
+            if dest is not None:
+                dest = self.visit(dest)
+            values = map(self.visit, node.values)
 
-            # some way to know it's Python 3  :)
-            print_node.sep = keywords.get('sep', ' ')
-            print_node.end = keywords.get('end', '\n')
-            return self.visit(print_node)
+        return c_ast.Print(dest=dest, values=values, sep=sep, end=end)
+
+    def visit_Call(self, node):
+        if node.func.id == 'print': # Python 3 print
+            return self.visit_Print(node, True)
+
         if node.keywords:
             self.log_error("Calls with keyword arguments not supported", node)
         if node.starargs is not None or node.kwargs is not None:
@@ -138,7 +128,10 @@ class ASTTranslator(ast.NodeVisitor):
             raise ValueError(msg.format(node.n.__class__.__name__))
 
     def visit_Name(self, node):
-        return c_ast.Name(id=node.id, ctx=node.ctx)
+        return c_ast.Name(id=node.id)
+
+    def visit_Str(self, node):
+        return c_ast.Str(s=node.s)
 
 
 def get_C_AST(py_ast):
@@ -150,7 +143,7 @@ def get_C_AST(py_ast):
         print vars(e)
 
 def main():
-    text = "print a()"
+    text = 'print a(1, 1.0, "a")'
     node = ast.parse(text)
     print ast.dump(node)
     t = ASTTranslator()
