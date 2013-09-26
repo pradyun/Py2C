@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ast
 import inspect
 import c_ast
@@ -49,9 +50,9 @@ class ASTTranslator(ast.NodeVisitor):
         if not self.errors:
             return
 
-        print "Error(s) occurred while translating Python AST into C ast"
+        print("Error(s) occurred while translating Python AST into C ast")
         for msg in self.errors:
-            print c_ast.indent(msg, ' - ')
+            print(c_ast.indent(msg, ' - '))
 
     def get_node(self, node):
         """Get the C AST from the Python AST `node`
@@ -181,8 +182,8 @@ if __name__ == '__main__':  # For the current development stuff
     # text = 'foo if bar else baz'
     # node = ast.parse(text)
     node = ast.BinOp(op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar"))
-    print ast.dump(node)
+    print(ast.dump(node))
     t = ASTTranslator()
-    print t.get_node(node)
+    print(t.get_node(node))
 
 
