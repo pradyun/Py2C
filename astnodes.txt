@@ -3,7 +3,7 @@
 
 ## Empty nodes
 # Operators
-Add: 
+Add:
 Sub:
 Mult:
 Div:
@@ -35,11 +35,13 @@ Print: dest, values, sep, end
 If: test, body, orelse
 While: test, body, orelse
 Pass:
+IfExp: test, body, orelse
+
 
 # Operations
 BinOp: op, left, right
 BoolOp: op, values
-UnaryOp: op, value
+UnaryOp: op, operand
 
 # Assignments
 Assign: type, targets, value

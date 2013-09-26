@@ -3,53 +3,56 @@ Here's a checklist of what all we need to get done before our first "release":
       - [x] Parse what all needs to be there in astnode.txt (By Pradyun)
       - [x] Have the entire C AST have a nice repr for debugging. (By Pradyun)
       - [x] Figure out AST node Equality checks (By Pradyun)
-   
-   - py2c.py
+
+   - ast_translator.py
       - Translate all nodes into C nodes:
          - Statements
             - [ ] Assert
-            - [ ] Assign
-            - [ ] AugAssign
             - [ ] Expr
             - [ ] If
             - [ ] For
             - [ ] While
             - [ ] With
             - [ ] Pass
-            - [ ] Print
+            - [x] Print
             - [ ] Delete
             - [ ] Return
             - [ ] Break
             - [ ] Continue
             - [ ] Raise
+
          - Expressions
             - [ ] Attribute
-            - [ ] Call
-            - [ ] Name
-            - [ ] Str
+            - [x] Call
+            - [x] Name
+            - [x] Str
             - [ ] Bytes
             - [x] Num
-            - [ ] Tuple
-            - [ ] List
-            - [ ] Set
-            - [ ] Dict
-            - [ ] BinOp
-            - [ ] BoolOp
+            - [x] BinOp
+            - [x] BoolOp
             - [ ] Compare
-            - [ ] UnaryOp
-            - [ ] Yield
+            - [x] UnaryOp
             - [ ] Lambda
             - [ ] SetComp
             - [ ] IfExp
             - [ ] Starred
             - [ ] Repr
+
          - Helper Nodes
-            - [ ] alias
+            - [ ] alias (imports)
             - [ ] comprehension
             - [ ] excepthandler
-            - [ ] arguments
+
          - Some Hurdles before complete implementation
             - [ ] FunctionDef
+            - [ ] Assign
+            - [ ] AugAssign
+            - [ ] Tuple
+            - [ ] List
+            - [ ] Set
+            - [ ] Dict
+            - [ ] Yield
+
          - Hard to implement
             - [ ] ClassDef
             - [ ] DictComp
