@@ -150,6 +150,7 @@ pip-log.txt
 
 # Unit test / coverage reports
 .coverage
+.coveragerc
 .tox
 
 #Translations
@@ -158,7 +159,7 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
-# Mac crap 
+# Mac crap
 .DS_Store
 
 
@@ -166,3 +167,4 @@ pip-log.txt
 # Pradyun's Stuff
 # I use a batch file to setup my dev env for Git and Python
 setupenv.bat
+test/.coverage_html/*

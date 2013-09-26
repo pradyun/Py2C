@@ -211,7 +211,6 @@ class GenerationTestCase(ParserTestCase):
         self.assertEqual(c_ast.indent("\nfoo"), '    foo')
 
 
-
 # -----------------------------------
 class ASTTestCase(unittest.TestCase):
     """Tests for AST node"""

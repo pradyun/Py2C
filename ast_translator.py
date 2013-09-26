@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 
 import ast
-from collections import defaultdict
+import inspect
 import c_ast
 c_ast.prepare()
 
-__all__ = ["ASTTranslator", "c_ast", "ast", "defaultdict", "get_C_AST"]
 
+__all__ = ["ASTTranslator", "c_ast"]
 
-
-def in_scope(obj, scope_dict, curr_scope):
-    for i in range(curr_scope+1):
-        if obj in scope_dict[i]:
-            return True
-    return False
 
 class ASTTranslator(ast.NodeVisitor):
     """Translates Python AST into C AST
@@ -24,9 +18,7 @@ class ASTTranslator(ast.NodeVisitor):
 
     Attributes:
         errors: A list that contains the error-messages that of errors that
-                occurred during translation
-        functions: A list holding function names
-
+                occurred during translation.
     """
     def __init__(self):
         super(ASTTranslator, self).__init__()
@@ -37,14 +29,29 @@ class ASTTranslator(ast.NodeVisitor):
 
     # Errors
     def log_error(self, msg, node=None):
+        import pprint
+        stack = inspect.stack()
+        if len(stack) > 1:
+            caller = stack[1][3]
+            # remove 'visit_'
+            if caller.startswith('visit_'):
+                caller = caller[6:]
+        else:
+            caller = None
+
+        if caller is not None:
+            msg = "(Node type: {0}) {1}".format(caller, msg)
         if hasattr(node, "lineno"):
-            msg = "Line ({0}): ".format(node.lineno) + msg
+            msg += "Check Line ({0}): {1}".format(node.lineno, msg)
         self.errors.append(msg)
 
     def print_errors(self):
+        if not self.errors:
+            return
+
+        print "Error(s) occurred while translating Python AST into C ast"
         for msg in self.errors:
-            print "ERROR: "+msg
-        print "-"*80
+            print c_ast.indent(msg, ' - ')
 
     def get_node(self, node):
         """Get the C AST from the Python AST `node`
@@ -60,7 +67,7 @@ class ASTTranslator(ast.NodeVisitor):
         retval = self.visit(node)
         if self.errors:
             self.print_errors()
-            raise Exception("Problems with Node provided.")
+            return None
         else:
             return retval
 
@@ -133,22 +140,49 @@ class ASTTranslator(ast.NodeVisitor):
     def visit_Str(self, node):
         return c_ast.Str(s=node.s)
 
+    def visit_BoolOp(self, node):
+        if isinstance(node.op, ast.And):
+            op = c_ast.And()
+        elif isinstance(node.op, ast.Or):
+            op = c_ast.Or()
+        values = map(self.visit, node.values)
+        return c_ast.BoolOp(op=op, values=values)
 
-def get_C_AST(py_ast):
-    """Translate Python AST in C AST"""
-    translator = ASTTranslator()
-    try:
-        return translator.visit(py_ast)
-    except Exception as e:
-        print vars(e)
+    def visit_BinOp(self, node):
+        classname = node.op.__class__.__name__
+        if isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)):
+            op = getattr(c_ast, classname)()
+        else:
+            self.log_error("Unknown operator: {0}".format(classname), node)
+            return None
 
-def main():
-    text = 'print a(1, 1.0, "a")'
-    node = ast.parse(text)
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        return c_ast.BinOp(left=left, op=op, right=right)
+
+    def visit_UnaryOp(self, node):
+        classname = node.op.__class__.__name__
+        if isinstance(node.op, (ast.And, ast.Not)):
+            op = getattr(c_ast, classname)()
+        else:
+            raise Exception("Unknown operator: {0}".format(classname))
+        operand = self.visit(node.operand)
+
+        return c_ast.UnaryOp(op=op, operand=operand)
+
+    def visit_IfExp(self, node):
+        return c_ast.IfExp(test=self.visit(node.test),
+                           body=self.visit(node.body),
+                           orelse=self.visit(node.orelse))
+
+
+
+if __name__ == '__main__':  # For the current development stuff
+    # text = 'foo if bar else baz'
+    # node = ast.parse(text)
+    node = ast.BinOp(op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar"))
     print ast.dump(node)
     t = ASTTranslator()
     print t.get_node(node)
 
 
-if __name__ == '__main__':
-    main()
