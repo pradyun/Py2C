@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
+import sys
 import ast
+import StringIO
 import unittest
 
 import support
 
 with support.project_imports():
-    import py2c
-    import c_ast
-
-c_ast.prepare()
+    import ast_translator
+    c_ast = ast_translator.c_ast
 
 
 class ASTTestCase(unittest.TestCase):
@@ -23,16 +23,64 @@ class ASTTestCase(unittest.TestCase):
         self.assertEqual(c_node, check_node, msg=msg)
 
     def setUp(self):
-        self.translator = py2c.ASTTranslator()
+        self.translator = ast_translator.ASTTranslator()
 
     def get_c_ast(self, py_node):
         self.node = py_node
         return self.translator.visit(self.node)
 
 
-class NumTestCase(ASTTestCase):
+class ErrorReportingTestCase(ASTTestCase):
+    """Tests for Error Reporting in ASTTranslator"""
+    def test_no_error(self):
+        node = ast.Module([])
+        self.translator.visit(node)
+        self.assertFalse(self.translator.errors)
+        try:
+            self.translator.get_node(node)
+        except Exception:
+            self.fail("translator.get_node() raised Exception unexpectedly!", )
 
+    def test_logging_one_error(self):
+        node = ast.BinOp(
+            op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar")
+        )
+        self.translator.visit(node)
+        self.assertTrue(self.translator.errors)
+        # monkey patch print_error to do nothing
+        self.translator.print_errors = lambda : None
+        self.translator.get_node(node)
+
+    def test_printing_one_error(self):
+        node = ast.BinOp(
+            op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar")
+        )
+        self.translator.visit(node)
+        self.assertTrue(self.translator.errors)
+
+        # Redirect sys.stdout
+        new = StringIO.StringIO()
+        old = sys.stdout
+        sys.stdout = new
+
+        self.translator.print_errors()
+        # restore sys.stdout
+        sys.stdout = old
+        # get output
+        output = new.getvalue()
+        new.close()
+
+        self.assertIn("error", output.lower())  # it's an error msg, mention it!
+        self.assertIn("ast", output.lower())  # Occured in AST
+        self.assertEqual(len(output.splitlines()), 1+1)
+
+
+#--------------------------------------------------------------------------
+# Node by Node tests
+#--------------------------------------------------------------------------
+class NumTestCase(ASTTestCase):
     """Tests for translation from Num"""
+
     def test_int_negative(self):
         self.template(ast.Num(-1), c_ast.Int(-1), "-ve integer")
 
@@ -185,6 +233,142 @@ class Print3TestCase(ASTTestCase):
                 starargs=None, kwargs=None
             ),
             c_ast.Print(values=[c_ast.Name(id="foo")], dest=None, sep=' ', end='')
+        )
+
+
+class BoolOpTestCase(ASTTestCase):
+    """Tests for translation from BoolOp"""
+
+    def test_boolop_and1(self):
+        self.template(
+            ast.BoolOp(op=ast.And(), values=[ast.Name(id='foo'),
+                                             ast.Name(id='bar')]
+            ),
+            c_ast.BoolOp(op=c_ast.And(), values=[c_ast.Name(id='foo'),
+                                                 c_ast.Name(id='bar')]
+            )
+        )
+
+    def test_boolop_and2(self):
+        self.template(
+            ast.BoolOp(op=ast.And(), values=[ast.Name(id='foo'),
+                                             ast.Name(id='bar'),
+                                             ast.Name(id='baz')]
+            ),
+            c_ast.BoolOp(op=c_ast.And(), values=[c_ast.Name(id='foo'),
+                                                 c_ast.Name(id='bar'),
+                                                 c_ast.Name(id='baz')]
+            )
+        )
+
+    def test_boolop_or1(self):
+        self.template(
+            ast.BoolOp(op=ast.Or(), values=[ast.Name(id='foo'),
+                                             ast.Name(id='bar')]
+            ),
+            c_ast.BoolOp(op=c_ast.Or(), values=[c_ast.Name(id='foo'),
+                                                 c_ast.Name(id='bar')]
+            )
+        )
+
+    def test_boolop_or2(self):
+        self.template(
+            ast.BoolOp(op=ast.Or(), values=[ast.Name(id='foo'),
+                                             ast.Name(id='bar'),
+                                             ast.Name(id='baz')]
+            ),
+            c_ast.BoolOp(op=c_ast.Or(), values=[c_ast.Name(id='foo'),
+                                                 c_ast.Name(id='bar'),
+                                                 c_ast.Name(id='baz')]
+            )
+        )
+
+
+class BinOpTestCase(ASTTestCase):
+    """Tests for translation from BinOp"""
+    def test_binop_Add(self):
+        self.template(
+            ast.BinOp(left=ast.Name(id='foo'), op=ast.Add(),
+                      right=ast.Name(id='b')),
+            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Add(),
+                        right=c_ast.Name(id='b'))
+        )
+
+    def test_binop_Sub(self):
+        self.template(
+            ast.BinOp(left=ast.Name(id='foo'), op=ast.Sub(),
+                      right=ast.Name(id='b')),
+            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Sub(),
+                        right=c_ast.Name(id='b'))
+        )
+
+    def test_binop_Mult(self):
+        self.template(
+            ast.BinOp(left=ast.Name(id='foo'), op=ast.Mult(),
+                      right=ast.Name(id='b')),
+            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Mult(),
+                        right=c_ast.Name(id='b'))
+        )
+
+    def test_binop_Div(self):
+        self.template(
+            ast.BinOp(left=ast.Name(id='foo'), op=ast.Div(),
+                      right=ast.Name(id='b')),
+            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Div(),
+                        right=c_ast.Name(id='b'))
+        )
+
+    def test_binop_Mod(self):
+        self.template(
+            ast.BinOp(left=ast.Name(id='foo'), op=ast.Mod(),
+                      right=ast.Name(id='b')),
+            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Mod(),
+                        right=c_ast.Name(id='b'))
+        )
+
+    def test_binop_invalid_op(self):
+        node = ast.BinOp(
+            op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar")
+        )
+        self.assertEqual(self.translator.visit(node), None)
+
+
+
+class UnaryOpTestCase(ASTTestCase):
+    """Tests for translation from UnaryOp"""
+    def test_unary_Not(self):
+        self.template(
+            ast.UnaryOp(op=ast.Not(), operand=ast.Name(id='foo')),
+            c_ast.UnaryOp(op=c_ast.Not(), operand=c_ast.Name(id='foo'))
+        )
+
+    def test_unary_And(self):
+        self.template(
+            ast.UnaryOp(op=ast.And(), operand=ast.Name(id='foo')),
+            c_ast.UnaryOp(op=c_ast.And(), operand=c_ast.Name(id='foo'))
+        )
+
+
+class IfExpTestCase(ASTTestCase):
+    """Tests for translation from IfExp"""
+    def test_ifexp(self):
+        self.template(
+            ast.IfExp(test=ast.Name(id='bar'), body=ast.Name(id='foo'),
+                      orelse=ast.Name(id='baz')),
+            c_ast.IfExp(test=c_ast.Name(id='bar'), body=c_ast.Name(id='foo'),
+                        orelse=c_ast.Name(id='baz'))
+        )
+
+
+class ModuleTestCase(ASTTestCase):
+    """Tests for translation from Module"""
+    def test_empty_module(self):
+        self.template(ast.Module([]), c_ast.Module([]))
+
+    def test_not_empty_module(self):
+        self.template(
+            ast.Module(body=[ast.Name(id='foo')]),
+            c_ast.Module(body=[c_ast.Name(id="foo")])
         )
 
 if __name__ == '__main__':
