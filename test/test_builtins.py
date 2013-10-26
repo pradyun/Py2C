@@ -3,9 +3,8 @@
 import sys
 import unittest
 
-import support
-with support.project_imports():
-    import python_builtins
+import py2c.python_builtins as python_builtins
+
 
 @unittest.skip("Not ready to use!")
 class BuiltinsTestCase(unittest.TestCase):
