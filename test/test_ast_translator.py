@@ -2,14 +2,12 @@
 
 import sys
 import ast
-import StringIO
+import io
 import unittest
 
-import support
 
-with support.project_imports():
-    import ast_translator
-    c_ast = ast_translator.c_ast
+import py2c.ast_translator as ast_translator
+c_ast = ast_translator.c_ast
 
 
 class ASTTestCase(unittest.TestCase):
@@ -59,7 +57,7 @@ class ErrorReportingTestCase(ASTTestCase):
         self.assertTrue(self.translator.errors)
 
         # Redirect sys.stdout
-        new = StringIO.StringIO()
+        new = io.StringIO()
         old = sys.stdout
         sys.stdout = new
 
