@@ -89,13 +89,13 @@ class Parser(object):
         init_string = self.create_init(args, verbose)
         s += indent(init_string)+'\n'
         if verbose:
-            print s
+            print(s)
         di = {self._parent.__name__: self._parent}
-        exec s in di
+        exec(s, di)
         return di[name], s
 
     def create_init(self, args, verbose):
-        "Creates the __init__ function from arguments and returns it"`
+        "Creates the __init__ function from arguments and returns it"
         cleaned_args = '['+(', '.join(repr(x.split('=')[0]) for x in args))+']'
         formed_args, setters = self.form_args(args)
         setters += indent('\n'.join("self.{0} = {0}".format(i.split('=')[0])

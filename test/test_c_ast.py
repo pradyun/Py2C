@@ -6,11 +6,8 @@ import StringIO
 
 import unittest
 
-import support
-with support.project_imports():
-    import c_ast
-    c_ast.prepare()
-
+import py2c.c_ast as c_ast
+c_ast.prepare()
 
 class ParserTestCase(unittest.TestCase):
     """Abstract TestCase: Tests for Parsing of structures"""

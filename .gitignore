@@ -28,7 +28,6 @@ local.properties
 # PDT-specific
 .buildpath
 
-
 #--------------------------------------------------------
 # Visual Studio
 #--------------------------------------------------------
@@ -104,7 +103,7 @@ ClientBin
 stylecop.*
 ~$*
 *.dbmdl
-Generated_Code #added for RIA/Silverlight projects
+Generated_Code # added for RIA/Silverlight projects
 
 # Backup & report files from converting an old project file to a newer
 # Visual Studio version. Backup files are not needed, because we have git ;-)
@@ -115,8 +114,11 @@ UpgradeLog*.XML
 
 
 #--------------------------------------------------------
-# Windows
+# OS stuff
 #--------------------------------------------------------
+
+# Mac crap
+.DS_Store
 
 # Windows image file caches
 Thumbs.db
@@ -124,15 +126,14 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
-
 #--------------------------------------------------------
 # Python
 #--------------------------------------------------------
 
+# Compiled files
 *.py[co]
 
 # Building/Installing "remains"
-
 *.egg
 *.egg-info
 dist
@@ -153,18 +154,23 @@ pip-log.txt
 .coveragerc
 .tox
 
-#Translations
-*.mo
-
-#Mr Developer
-.mr.developer.cfg
-
-# Mac crap
-.DS_Store
-
-
 #--------------------------------------------------------
 # Pradyun's Stuff
-# I use a batch file to setup my dev env for Git and Python
-setupenv.bat
+#--------------------------------------------------------
+
+# For checking test coverage
 test/.coverage_html/*
+
+# I keep the wiki pages in the same directory
+wiki/
+
+#--------------------------------------------------------
+# Misc
+#--------------------------------------------------------
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+README.html
