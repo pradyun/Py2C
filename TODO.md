@@ -1,8 +1,8 @@
 Here's a checklist of what all we need to get done before our first "release":
    - c_ast.py
-      - [x] Parse what all needs to be there in astnode.txt (By Pradyun)
-      - [x] Have the entire C AST have a nice repr for debugging. (By Pradyun)
-      - [x] Figure out AST node Equality checks (By Pradyun)
+      - [✓] Parse what all needs to be there in astnode.txt (By Pradyun)
+      - [✓] Have the entire C AST have a nice repr for debugging. (By Pradyun)
+      - [✓] Figure out AST node Equality checks (By Pradyun)
 
    - ast_translator.py
       - Translate all nodes into C nodes:
@@ -14,7 +14,7 @@ Here's a checklist of what all we need to get done before our first "release":
             - [ ] While
             - [ ] With
             - [ ] Pass
-            - [x] Print
+            - [✓] Print
             - [ ] Delete
             - [ ] Return
             - [ ] Break
@@ -23,15 +23,15 @@ Here's a checklist of what all we need to get done before our first "release":
 
          - Expressions
             - [ ] Attribute
-            - [x] Call
-            - [x] Name
-            - [x] Str
+            - [✓] Call
+            - [✓] Name
+            - [✓] Str
             - [ ] Bytes
-            - [x] Num
-            - [x] BinOp
-            - [x] BoolOp
+            - [✓] Num
+            - [✓] BinOp
+            - [✓] BoolOp
             - [ ] Compare
-            - [x] UnaryOp
+            - [✓] UnaryOp
             - [ ] Lambda
             - [ ] SetComp
             - [ ] IfExp

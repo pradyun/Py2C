@@ -49,6 +49,13 @@ option is passed to allow.
 
 
 ----------
+Although we do intend on supporting the standard library, we currently are focusing
+on converting the sources. This means that one needs to manually change the generated
+code, to support the changes. What one can do is write a "fixer" (not implemented yet)
+for the same, so that once the new C AST is generated, the fixer can visit it's nodes,
+and in turn change it to include the API changes etc.
+
+----------
 
 Note: Curently we are under-going a major code refactor, so we aren't producing 
 any output. But as a part of the conversion, we do have the code becoming much
