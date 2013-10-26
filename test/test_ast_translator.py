@@ -333,7 +333,6 @@ class BinOpTestCase(ASTTestCase):
         self.assertEqual(self.translator.visit(node), None)
 
 
-
 class UnaryOpTestCase(ASTTestCase):
     """Tests for translation from UnaryOp"""
     def test_unary_Not(self):

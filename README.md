@@ -8,7 +8,7 @@ The generated code can be run without Python installed and does not embed Python
 For example:
 
 ```python
-print("Hello World to Py2C!")
+print("Hello World!")
 ```
 
 would translate to something like
@@ -19,15 +19,34 @@ would translate to something like
 using namespace std;
 
 int main() {
-    cout<<"Hello World to Py2C!\n";
+    cout<<"Hello World!\n";
     return 0;
 }
 ```
+Or if you think it is ok to have a special header file in this file,
+
+```c
+#include "iostream"
+#include "pythonic.h"
+
+int main() {
+    Python::print("Hello World!");
+    return 0;
+}
+
 
 **Isn't this the same as Cython?**  
-No, Py2C aims to convert Python code to pure C/C++. Pure C/C++ is faster than
-C/C++ riddled with Python API calls which just give 5x improvement.
-Py2C aims to give almost the same performance as C/C+ code, *almost*.
+No, Cython converts Python code into C code with Python API calls, that does the
+same thing as the Python code. 
+Py2C, on the other hand, aims to convert Python code to readable C/C++. 
+Pure C/C++ is (usually) faster than C/C++ riddled with Python API calls which
+just give 5x improvement. Honestly, performance isn't something we are really
+bothered about, but we should be able to give a substantial boost.
+
+Although we shall try to convert the sources to as close to pure, readable C/C++
+code as directly possible, i.e. without any extra header files, unless the
+option is passed to allow.
+
 
 ----------
 
@@ -35,5 +54,4 @@ Note: Curently we are under-going a major code refactor, so we aren't producing
 any output. But as a part of the conversion, we do have the code becoming much
 more readable and maintainable. Since this project is still young, we haven't
 worked much on the wiki but it will be brought up to date once we start 
-generating C/C++.
-
+generating C/C++ code (some distance from here).
