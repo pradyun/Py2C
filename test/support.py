@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 class ProjectImportManager(object):
     """ContextManager: Allows for imports from the project in tests."""

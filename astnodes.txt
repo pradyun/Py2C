@@ -29,6 +29,7 @@ Float: n=None
 Str: s=None
 Name: id
 
+# A node for simplicity, a call to printf or << to cout is more complex in the AST!
 Print: dest, values, sep, end
 
 # Flow control
