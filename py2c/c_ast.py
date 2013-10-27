@@ -36,7 +36,7 @@ class Parser(object):
     """Loads the AST dynamically into classes
 
     This Parser parses the file passed in through """
-    def __init__(self, parent_class):
+    def __init__(self, parent_class=AST):
         super(Parser, self).__init__()
         self._parent = parent_class
 
@@ -62,7 +62,7 @@ class Parser(object):
         def split_args(li):
             "Splits [object, *attrs] into [object, attrs]"
             args = [
-                map(lambda a: a.strip(), arg.split(','))
+                [a.strip() for a in arg.split(',')]
                 for i, arg in enumerate(li[1:])
             ]
             return [li[0]] + (args if args and all(*args) else [[]])
@@ -70,7 +70,7 @@ class Parser(object):
         text = re.sub(r"#.*(\n|$)", "", text)  # remove comments
         lines = filter(lambda x: len(x) > 1, text.splitlines())
         data = map(lambda x: x.split(':'), lines)
-        self.data = map(split_args, data)
+        self.data = list(map(split_args, data))
         return True
 
     def setup_module(self, module=None, verbose=False):

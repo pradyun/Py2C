@@ -2,7 +2,7 @@
 
 import ast
 import inspect
-import c_ast
+from . import c_ast
 c_ast.prepare()
 
 
@@ -29,7 +29,6 @@ class ASTTranslator(ast.NodeVisitor):
 
     # Errors
     def log_error(self, msg, node=None):
-        import pprint
         stack = inspect.stack()
         if len(stack) > 1:
             caller = stack[1][3]
@@ -85,13 +84,13 @@ class ASTTranslator(ast.NodeVisitor):
                 return self.visit(value)
 
     def body(self, body):
-        return map(self.visit, body)
+        return list(map(self.visit, body))
 
     def visit_Module(self, node):
         return c_ast.Module(self.body(node.body))
 
     def visit_Print(self, node, py3=False):
-        if py3: # python 3 print function
+        if py3:  # python 3 print function
             keywords = {}
             if node.keywords is not None:
                 for kw in node.keywords:
@@ -110,11 +109,11 @@ class ASTTranslator(ast.NodeVisitor):
             if dest is not None:
                 dest = self.visit(dest)
             values = map(self.visit, node.values)
-
+        values = list(values)
         return c_ast.Print(dest=dest, values=values, sep=sep, end=end)
 
     def visit_Call(self, node):
-        if node.func.id == 'print': # Python 3 print
+        if node.func.id == 'print':  # Python 3 print
             return self.visit_Print(node, True)
 
         if node.keywords:
@@ -122,7 +121,7 @@ class ASTTranslator(ast.NodeVisitor):
         if node.starargs is not None or node.kwargs is not None:
             self.log_error("Calls with starred arguments not supported", node)
         func = self.visit(node.func)
-        args = map(self.visit, node.args)
+        args = list(map(self.visit, node.args))
         return c_ast.Call(func=func, args=args)
 
     def visit_Num(self, node):
@@ -145,7 +144,7 @@ class ASTTranslator(ast.NodeVisitor):
             op = c_ast.And()
         elif isinstance(node.op, ast.Or):
             op = c_ast.Or()
-        values = map(self.visit, node.values)
+        values = list(map(self.visit, node.values))
         return c_ast.BoolOp(op=op, values=values)
 
     def visit_BinOp(self, node):
@@ -175,8 +174,6 @@ class ASTTranslator(ast.NodeVisitor):
                            body=self.visit(node.body),
                            orelse=self.visit(node.orelse))
 
-
-
 if __name__ == '__main__':  # For the current development stuff
     # text = 'foo if bar else baz'
     # node = ast.parse(text)
@@ -184,5 +181,3 @@ if __name__ == '__main__':  # For the current development stuff
     print(ast.dump(node))
     t = ASTTranslator()
     print(t.get_node(node))
-
-
