@@ -7,7 +7,7 @@ import unittest
 import support
 
 import py2c.ast_translator as ast_translator
-c_ast = ast_translator.c_ast
+dual_ast = ast_translator.dual_ast
 
 
 class ASTTestCase(unittest.TestCase):
@@ -80,29 +80,29 @@ class NumTestCase(ASTTestCase):
     """Tests for translation from Num"""
 
     def test_int_negative(self):
-        self.template(ast.Num(-1), c_ast.Int(-1), "-ve integer")
+        self.template(ast.Num(-1), dual_ast.Int(-1), "-ve integer")
 
     def test_int_positive(self):
-        self.template(ast.Num(1), c_ast.Int(1), "+ve integer")
+        self.template(ast.Num(1), dual_ast.Int(1), "+ve integer")
 
     def test_int_zero(self):
-        self.template(ast.Num(0), c_ast.Int(0), "0 (int)")
+        self.template(ast.Num(0), dual_ast.Int(0), "0 (int)")
 
     def test_float_negative(self):
-        self.template(ast.Num(-1.0), c_ast.Float(-1.0), "-ve float")
+        self.template(ast.Num(-1.0), dual_ast.Float(-1.0), "-ve float")
 
     def test_float_positive(self):
-        self.template(ast.Num(1.0), c_ast.Float(1.0), "+ve float")
+        self.template(ast.Num(1.0), dual_ast.Float(1.0), "+ve float")
 
     def test_float_zero(self):
-        self.template(ast.Num(0.0), c_ast.Float(0.0), "0 (float)")
+        self.template(ast.Num(0.0), dual_ast.Float(0.0), "0 (float)")
 
 
 class StrTestCase(ASTTestCase):
     """Tests for translation from Str"""
 
     def test_string(self):
-        self.template(ast.Str("abc"), c_ast.Str("abc"))
+        self.template(ast.Str("abc"), dual_ast.Str("abc"))
 
 
 @unittest.skipUnless(sys.version_info[0] < 3, "Need Python 2 to run")
@@ -112,25 +112,25 @@ class Print2TestCase(ASTTestCase):
     def test_py2_print1(self):
         """Empty print"""
         self.template(ast.Print(values=[], dest=None, nl=True),
-            c_ast.Print(values=[], dest=None, sep=' ', end='\n'))
+            dual_ast.Print(values=[], dest=None, sep=' ', end='\n'))
 
     def test_py2_print2(self):
         """Empty print with dest"""
         self.template(ast.Print(values=[], dest=ast.Name(id="foo"), nl=True),
-            c_ast.Print(values=[], dest=c_ast.Name(id="foo"), sep=' ', end='\n')
+            dual_ast.Print(values=[], dest=dual_ast.Name(id="foo"), sep=' ', end='\n')
         )
 
     def test_py2_print3(self):
         """Empty print with no newline"""
         self.template(ast.Print(values=[], dest=ast.Name(id="foo"), nl=False),
-            c_ast.Print(values=[], dest=c_ast.Name(id="foo"), sep=' ', end=' ')
+            dual_ast.Print(values=[], dest=dual_ast.Name(id="foo"), sep=' ', end=' ')
         )
 
     def test_py2_print4(self):
         """Print with values, dest but no newline"""
         self.template(ast.Print(values=[ast.Name(id="foo")], dest=ast.Name(id="bar"),
                                 nl=False),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=c_ast.Name(id="bar"),
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=dual_ast.Name(id="bar"),
                         sep=' ', end=' ')
             )
 
@@ -138,14 +138,14 @@ class Print2TestCase(ASTTestCase):
         """Print with values, dest, newline"""
         self.template(ast.Print(values=[ast.Name(id="foo")],
                                 dest=ast.Name(id="bar"), nl=True),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=c_ast.Name(id="bar"),
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=dual_ast.Name(id="bar"),
                         sep=' ', end='\n')
             )
 
     def test_py2_print6(self):
         """Print with values, no dest or newline"""
         self.template(ast.Print(values=[ast.Name(id="foo")], dest=None, nl=False),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=None, sep=' ', end=' ')
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=None, sep=' ', end=' ')
         )
 
 
@@ -159,7 +159,7 @@ class Print3TestCase(ASTTestCase):
             ast.Call(func=ast.Name(id='print'), args=[], keywords=[],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[], dest=None, sep=' ', end='\n')
+            dual_ast.Print(values=[], dest=None, sep=' ', end='\n')
         )
 
     def test_py3_print2(self):
@@ -170,7 +170,7 @@ class Print3TestCase(ASTTestCase):
                      keywords=[ast.keyword(arg='file', value=ast.Name(id="foo"))],
                      starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[], dest=c_ast.Name(id="foo"), sep=' ', end='\n')
+            dual_ast.Print(values=[], dest=dual_ast.Name(id="foo"), sep=' ', end='\n')
         )
 
     def test_py3_print3(self):
@@ -181,7 +181,7 @@ class Print3TestCase(ASTTestCase):
                 keywords=[ast.keyword(arg='end', value=ast.Str(s=''))],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[], dest=None, sep=' ', end='')
+            dual_ast.Print(values=[], dest=None, sep=' ', end='')
         )
 
     def test_py3_print4(self):
@@ -193,7 +193,7 @@ class Print3TestCase(ASTTestCase):
                           ast.keyword(arg='end',  value=ast.Str(s=''))],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[], dest=c_ast.Name(id="foo"),
+            dual_ast.Print(values=[], dest=dual_ast.Name(id="foo"),
                         sep=' ', end='')
         )
 
@@ -206,7 +206,7 @@ class Print3TestCase(ASTTestCase):
                           ast.keyword(arg='end', value=ast.Str(s=''))],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=c_ast.Name(id="bar"),
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=dual_ast.Name(id="bar"),
                         sep=' ', end='')
         )
 
@@ -219,7 +219,7 @@ class Print3TestCase(ASTTestCase):
                           ast.keyword(arg='end', value=ast.Str(s=''))],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=c_ast.Name(id="bar"),
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=dual_ast.Name(id="bar"),
                         sep=' ', end='')
         )
 
@@ -231,7 +231,7 @@ class Print3TestCase(ASTTestCase):
                 keywords=[ast.keyword(arg='end', value=ast.Str(s=''))],
                 starargs=None, kwargs=None
             ),
-            c_ast.Print(values=[c_ast.Name(id="foo")], dest=None, sep=' ', end='')
+            dual_ast.Print(values=[dual_ast.Name(id="foo")], dest=None, sep=' ', end='')
         )
 
 
@@ -243,8 +243,8 @@ class BoolOpTestCase(ASTTestCase):
             ast.BoolOp(op=ast.And(), values=[ast.Name(id='foo'),
                                              ast.Name(id='bar')]
             ),
-            c_ast.BoolOp(op=c_ast.And(), values=[c_ast.Name(id='foo'),
-                                                 c_ast.Name(id='bar')]
+            dual_ast.BoolOp(op=dual_ast.And(), values=[dual_ast.Name(id='foo'),
+                                                 dual_ast.Name(id='bar')]
             )
         )
 
@@ -254,9 +254,9 @@ class BoolOpTestCase(ASTTestCase):
                                              ast.Name(id='bar'),
                                              ast.Name(id='baz')]
             ),
-            c_ast.BoolOp(op=c_ast.And(), values=[c_ast.Name(id='foo'),
-                                                 c_ast.Name(id='bar'),
-                                                 c_ast.Name(id='baz')]
+            dual_ast.BoolOp(op=dual_ast.And(), values=[dual_ast.Name(id='foo'),
+                                                 dual_ast.Name(id='bar'),
+                                                 dual_ast.Name(id='baz')]
             )
         )
 
@@ -265,8 +265,8 @@ class BoolOpTestCase(ASTTestCase):
             ast.BoolOp(op=ast.Or(), values=[ast.Name(id='foo'),
                                              ast.Name(id='bar')]
             ),
-            c_ast.BoolOp(op=c_ast.Or(), values=[c_ast.Name(id='foo'),
-                                                 c_ast.Name(id='bar')]
+            dual_ast.BoolOp(op=dual_ast.Or(), values=[dual_ast.Name(id='foo'),
+                                                 dual_ast.Name(id='bar')]
             )
         )
 
@@ -276,9 +276,9 @@ class BoolOpTestCase(ASTTestCase):
                                              ast.Name(id='bar'),
                                              ast.Name(id='baz')]
             ),
-            c_ast.BoolOp(op=c_ast.Or(), values=[c_ast.Name(id='foo'),
-                                                 c_ast.Name(id='bar'),
-                                                 c_ast.Name(id='baz')]
+            dual_ast.BoolOp(op=dual_ast.Or(), values=[dual_ast.Name(id='foo'),
+                                                 dual_ast.Name(id='bar'),
+                                                 dual_ast.Name(id='baz')]
             )
         )
 
@@ -289,40 +289,40 @@ class BinOpTestCase(ASTTestCase):
         self.template(
             ast.BinOp(left=ast.Name(id='foo'), op=ast.Add(),
                       right=ast.Name(id='b')),
-            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Add(),
-                        right=c_ast.Name(id='b'))
+            dual_ast.BinOp(left=dual_ast.Name(id='foo'), op=dual_ast.Add(),
+                        right=dual_ast.Name(id='b'))
         )
 
     def test_binop_Sub(self):
         self.template(
             ast.BinOp(left=ast.Name(id='foo'), op=ast.Sub(),
                       right=ast.Name(id='b')),
-            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Sub(),
-                        right=c_ast.Name(id='b'))
+            dual_ast.BinOp(left=dual_ast.Name(id='foo'), op=dual_ast.Sub(),
+                        right=dual_ast.Name(id='b'))
         )
 
     def test_binop_Mult(self):
         self.template(
             ast.BinOp(left=ast.Name(id='foo'), op=ast.Mult(),
                       right=ast.Name(id='b')),
-            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Mult(),
-                        right=c_ast.Name(id='b'))
+            dual_ast.BinOp(left=dual_ast.Name(id='foo'), op=dual_ast.Mult(),
+                        right=dual_ast.Name(id='b'))
         )
 
     def test_binop_Div(self):
         self.template(
             ast.BinOp(left=ast.Name(id='foo'), op=ast.Div(),
                       right=ast.Name(id='b')),
-            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Div(),
-                        right=c_ast.Name(id='b'))
+            dual_ast.BinOp(left=dual_ast.Name(id='foo'), op=dual_ast.Div(),
+                        right=dual_ast.Name(id='b'))
         )
 
     def test_binop_Mod(self):
         self.template(
             ast.BinOp(left=ast.Name(id='foo'), op=ast.Mod(),
                       right=ast.Name(id='b')),
-            c_ast.BinOp(left=c_ast.Name(id='foo'), op=c_ast.Mod(),
-                        right=c_ast.Name(id='b'))
+            dual_ast.BinOp(left=dual_ast.Name(id='foo'), op=dual_ast.Mod(),
+                        right=dual_ast.Name(id='b'))
         )
 
     def test_binop_invalid_op(self):
@@ -337,13 +337,13 @@ class UnaryOpTestCase(ASTTestCase):
     def test_unary_Not(self):
         self.template(
             ast.UnaryOp(op=ast.Not(), operand=ast.Name(id='foo')),
-            c_ast.UnaryOp(op=c_ast.Not(), operand=c_ast.Name(id='foo'))
+            dual_ast.UnaryOp(op=dual_ast.Not(), operand=dual_ast.Name(id='foo'))
         )
 
     def test_unary_And(self):
         self.template(
             ast.UnaryOp(op=ast.And(), operand=ast.Name(id='foo')),
-            c_ast.UnaryOp(op=c_ast.And(), operand=c_ast.Name(id='foo'))
+            dual_ast.UnaryOp(op=dual_ast.And(), operand=dual_ast.Name(id='foo'))
         )
 
 
@@ -353,20 +353,20 @@ class IfExpTestCase(ASTTestCase):
         self.template(
             ast.IfExp(test=ast.Name(id='bar'), body=ast.Name(id='foo'),
                       orelse=ast.Name(id='baz')),
-            c_ast.IfExp(test=c_ast.Name(id='bar'), body=c_ast.Name(id='foo'),
-                        orelse=c_ast.Name(id='baz'))
+            dual_ast.IfExp(test=dual_ast.Name(id='bar'), body=dual_ast.Name(id='foo'),
+                        orelse=dual_ast.Name(id='baz'))
         )
 
 
 class ModuleTestCase(ASTTestCase):
     """Tests for translation from Module"""
     def test_empty_module(self):
-        self.template(ast.Module([]), c_ast.Module([]))
+        self.template(ast.Module([]), dual_ast.Module([]))
 
     def test_not_empty_module(self):
         self.template(
             ast.Module(body=[ast.Name(id='foo')]),
-            c_ast.Module(body=[c_ast.Name(id="foo")])
+            dual_ast.Module(body=[dual_ast.Name(id="foo")])
         )
 
 if __name__ == '__main__':

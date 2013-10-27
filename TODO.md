@@ -50,11 +50,11 @@ Here's a checklist of what all we need to get done before our first "release":
             - [ ] Tuple
             - [ ] List
             - [ ] Set
-            - [ ] Dict
             - [ ] Yield
 
          - Hard to implement
             - [ ] ClassDef
+            - [ ] Dict
             - [ ] DictComp
             - [ ] Nonlocal
             - [ ] TryExcept
