@@ -2,9 +2,9 @@
 
 import sys
 import ast
-import io
 import unittest
 
+import support
 
 import py2c.ast_translator as ast_translator
 c_ast = ast_translator.c_ast
@@ -57,7 +57,7 @@ class ErrorReportingTestCase(ASTTestCase):
         self.assertTrue(self.translator.errors)
 
         # Redirect sys.stdout
-        new = io.StringIO()
+        new = support.StringIO()
         old = sys.stdout
         sys.stdout = new
 
@@ -105,6 +105,7 @@ class StrTestCase(ASTTestCase):
         self.template(ast.Str("abc"), c_ast.Str("abc"))
 
 
+@unittest.skipUnless(sys.version_info[0] < 3, "Need Python 2 to run")
 class Print2TestCase(ASTTestCase):
     """Tests for translation from Print (Python 2)"""
 
