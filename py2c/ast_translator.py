@@ -2,11 +2,11 @@
 
 import ast
 import inspect
-from . import c_ast
-c_ast.prepare()
+from . import dual_ast
+dual_ast.prepare()
 
 
-__all__ = ["ASTTranslator", "c_ast"]
+__all__ = ["ASTTranslator", "dual_ast"]
 
 
 class ASTTranslator(ast.NodeVisitor):
@@ -50,14 +50,14 @@ class ASTTranslator(ast.NodeVisitor):
 
         print("Error(s) occurred while translating Python AST into C ast")
         for msg in self.errors:
-            print(c_ast.indent(msg, ' - '))
+            print(dual_ast.indent(msg, ' - '))
 
     def get_node(self, node):
         """Get the C AST from the Python AST `node`
         Args:
             node: The Python AST to be converted to C AST
         Returns:
-            A C node, from the c_ast.py
+            A C node, from the dual_ast.py
         Raises:
             Exception: If the AST could not be converted, due to some error
                        Raised after printing those errors.
@@ -87,7 +87,7 @@ class ASTTranslator(ast.NodeVisitor):
         return list(map(self.visit, body))
 
     def visit_Module(self, node):
-        return c_ast.Module(self.body(node.body))
+        return dual_ast.Module(self.body(node.body))
 
     def visit_Print(self, node, py3=False):
         if py3:  # python 3 print function
@@ -110,7 +110,7 @@ class ASTTranslator(ast.NodeVisitor):
                 dest = self.visit(dest)
             values = map(self.visit, node.values)
         values = list(values)
-        return c_ast.Print(dest=dest, values=values, sep=sep, end=end)
+        return dual_ast.Print(dest=dest, values=values, sep=sep, end=end)
 
     def visit_Call(self, node):
         if node.func.id == 'print':  # Python 3 print
@@ -122,55 +122,55 @@ class ASTTranslator(ast.NodeVisitor):
             self.log_error("Calls with starred arguments not supported", node)
         func = self.visit(node.func)
         args = list(map(self.visit, node.args))
-        return c_ast.Call(func=func, args=args)
+        return dual_ast.Call(func=func, args=args)
 
     def visit_Num(self, node):
         if isinstance(node.n, int):
-            return c_ast.Int(n=node.n)
+            return dual_ast.Int(n=node.n)
         elif isinstance(node.n, float):
-            return c_ast.Float(n=node.n)
+            return dual_ast.Float(n=node.n)
         else:
             msg = "Only ints and floats supported, {0} numbers not supported"
             raise ValueError(msg.format(node.n.__class__.__name__))
 
     def visit_Name(self, node):
-        return c_ast.Name(id=node.id)
+        return dual_ast.Name(id=node.id)
 
     def visit_Str(self, node):
-        return c_ast.Str(s=node.s)
+        return dual_ast.Str(s=node.s)
 
     def visit_BoolOp(self, node):
         if isinstance(node.op, ast.And):
-            op = c_ast.And()
+            op = dual_ast.And()
         elif isinstance(node.op, ast.Or):
-            op = c_ast.Or()
+            op = dual_ast.Or()
         values = list(map(self.visit, node.values))
-        return c_ast.BoolOp(op=op, values=values)
+        return dual_ast.BoolOp(op=op, values=values)
 
     def visit_BinOp(self, node):
         classname = node.op.__class__.__name__
         if isinstance(node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)):
-            op = getattr(c_ast, classname)()
+            op = getattr(dual_ast, classname)()
         else:
             self.log_error("Unknown operator: {0}".format(classname), node)
             return None
 
         left = self.visit(node.left)
         right = self.visit(node.right)
-        return c_ast.BinOp(left=left, op=op, right=right)
+        return dual_ast.BinOp(left=left, op=op, right=right)
 
     def visit_UnaryOp(self, node):
         classname = node.op.__class__.__name__
         if isinstance(node.op, (ast.And, ast.Not)):
-            op = getattr(c_ast, classname)()
+            op = getattr(dual_ast, classname)()
         else:
             raise Exception("Unknown operator: {0}".format(classname))
         operand = self.visit(node.operand)
 
-        return c_ast.UnaryOp(op=op, operand=operand)
+        return dual_ast.UnaryOp(op=op, operand=operand)
 
     def visit_IfExp(self, node):
-        return c_ast.IfExp(test=self.visit(node.test),
+        return dual_ast.IfExp(test=self.visit(node.test),
                            body=self.visit(node.body),
                            orelse=self.visit(node.orelse))
 

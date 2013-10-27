@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""This file has all the nodes needed to support both Python and C ASTs.
+It makes it possible to translate Python code to C code.
+"""
+
 import os
 import re
 from textwrap import dedent

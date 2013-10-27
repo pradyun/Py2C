@@ -1,8 +1,8 @@
 Here's a checklist of what all we need to get done before our first "release":
    - c_ast.py
-      - [✓] Parse what all needs to be there in astnode.txt (By Pradyun)
-      - [✓] Have the entire C AST have a nice repr for debugging. (By Pradyun)
-      - [✓] Figure out AST node Equality checks (By Pradyun)
+      - [o] Parse what all needs to be there in astnode.txt (By Pradyun)
+      - [o] Have the entire C AST have a nice repr for debugging. (By Pradyun)
+      - [o] Figure out AST node Equality checks (By Pradyun)
 
    - ast_translator.py
       - Translate all nodes into C nodes:
@@ -14,7 +14,7 @@ Here's a checklist of what all we need to get done before our first "release":
             - [ ] While
             - [ ] With
             - [ ] Pass
-            - [✓] Print
+            - [o] Print
             - [ ] Delete
             - [ ] Return
             - [ ] Break
@@ -23,15 +23,15 @@ Here's a checklist of what all we need to get done before our first "release":
 
          - Expressions
             - [ ] Attribute
-            - [✓] Call
-            - [✓] Name
-            - [✓] Str
+            - [o] Call
+            - [o] Name
+            - [o] Str
             - [ ] Bytes
-            - [✓] Num
-            - [✓] BinOp
-            - [✓] BoolOp
+            - [o] Num
+            - [o] BinOp
+            - [o] BoolOp
             - [ ] Compare
-            - [✓] UnaryOp
+            - [o] UnaryOp
             - [ ] Lambda
             - [ ] SetComp
             - [ ] IfExp
@@ -50,11 +50,11 @@ Here's a checklist of what all we need to get done before our first "release":
             - [ ] Tuple
             - [ ] List
             - [ ] Set
-            - [ ] Dict
             - [ ] Yield
 
          - Hard to implement
             - [ ] ClassDef
+            - [ ] Dict
             - [ ] DictComp
             - [ ] Nonlocal
             - [ ] TryExcept

@@ -164,6 +164,9 @@ test/.coverage_html/*
 # I keep the wiki pages in the same directory
 wiki/
 
+# Used to clean the directory during branch switches
+clean.bat
+
 #--------------------------------------------------------
 # Misc
 #--------------------------------------------------------
