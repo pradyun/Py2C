@@ -6,14 +6,14 @@ import support
 
 import unittest
 
-import py2c.c_ast as c_ast
-c_ast.prepare()
+import py2c.dual_ast as dual_ast
+dual_ast.prepare()
 
 class ParserTestCase(unittest.TestCase):
     """Abstract TestCase: Tests for Parsing of structures"""
 
     def setUp(self):
-        self.parser = c_ast.Parser()
+        self.parser = dual_ast.Parser()
 
     def template(self, test_string, expected):
         self.test_string = test_string
@@ -202,10 +202,10 @@ class GeneratsupportnTestCase(ParserTestCase):
 
     def test_indent1(self):
         "Tests for indent functsupportn"
-        self.assertEqual(c_ast.indent("foo"), '    '+'foo')
-        self.assertEqual(c_ast.indent("foo\nbar"), '    foo\n    bar')
-        self.assertEqual(c_ast.indent("foo\n"), '    '+'foo')
-        self.assertEqual(c_ast.indent("\nfoo"), '    foo')
+        self.assertEqual(dual_ast.indent("foo"), '    '+'foo')
+        self.assertEqual(dual_ast.indent("foo\nbar"), '    foo\n    bar')
+        self.assertEqual(dual_ast.indent("foo\n"), '    '+'foo')
+        self.assertEqual(dual_ast.indent("\nfoo"), '    foo')
 
 
 # -----------------------------------
@@ -219,8 +219,8 @@ class ASTTestCase(unittest.TestCase):
             di = dict((chr(i), i) for i in range(97, 103))
             node.__dict__.update(di)
 
-        node1 = c_ast.AST()
-        node2 = c_ast.AST()
+        node1 = dual_ast.AST()
+        node2 = dual_ast.AST()
         # add fields and attributes
         setup_node(node1)
         setup_node(node2)
@@ -229,16 +229,16 @@ class ASTTestCase(unittest.TestCase):
 
     def test_equality_equal2(self):
         "Test for equality with node when has children nodes"
-        node1 = c_ast.Print(dest=c_ast.Name(id='foo'), values=[],
+        node1 = dual_ast.Print(dest=dual_ast.Name(id='foo'), values=[],
                                     sep=' ', end='\n')
-        node2 = c_ast.Print(dest=c_ast.Name(id='foo'), values=[],
+        node2 = dual_ast.Print(dest=dual_ast.Name(id='foo'), values=[],
                                     sep=' ', end='\n')
         self.assertEqual(node1, node2)
 
     def test_equality_with_extra_attrs(self):
         "Test for equality on nodes wth equal fields, and extra attributes"
-        node1 = c_ast.AST()
-        node2 = c_ast.AST()
+        node1 = dual_ast.AST()
+        node2 = dual_ast.AST()
 
         # add fields and attributes
         node1._fields = map(chr, range(97, 103))
@@ -252,8 +252,8 @@ class ASTTestCase(unittest.TestCase):
 
     def test_equality_diff_fields(self):
         "Test for inequality on the basis of _fields attribute"
-        node1 = c_ast.AST()
-        node2 = c_ast.AST()
+        node1 = dual_ast.AST()
+        node2 = dual_ast.AST()
 
         # add fields and attributes
         node1._fields = list(map(chr, range(97, 103)))
@@ -266,14 +266,14 @@ class ASTTestCase(unittest.TestCase):
 
     def test_equality_diff_type(self):
         "Test for inequality on the basis of type"
-        node1 = c_ast.AST()
+        node1 = dual_ast.AST()
 
         self.assertNotEqual(node1, "I'm not equal to a Node")
 
     def test_equality_diff_attrs(self):
         "Test for equality on the basis of attributes"
-        node1 = c_ast.AST()
-        node2 = c_ast.AST()
+        node1 = dual_ast.AST()
+        node2 = dual_ast.AST()
 
         # add fields and attributes
         node1._fields = map(chr, range(97, 103))

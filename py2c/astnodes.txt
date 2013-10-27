@@ -1,7 +1,8 @@
-# DON'T DELETE THIS FILE
-# From this file, the C AST Nodes are generated dynamically.
+# From this file, the dual AST Nodes are generated dynamically.
 
-## Empty nodes
+#===============================================================================
+# Python Specific
+#-------------------------------------------------------------------------------
 # Operators
 Add:
 Sub:
