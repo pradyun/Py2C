@@ -2,7 +2,7 @@
 
 import sys
 import textwrap
-import StringIO
+import support
 
 import unittest
 
@@ -17,7 +17,7 @@ class ParserTestCase(unittest.TestCase):
 
     def template(self, test_string, expected):
         self.test_string = test_string
-        self.parser.prepare(StringIO.StringIO(test_string))
+        self.parser.prepare(support.StringIO(str(test_string)))
         self.assertEqual(self.parser.data, expected)
 
 
@@ -111,8 +111,8 @@ class PropertyTestCase(ParserTestCase):
         self.assertRaises(TypeError, self.parser.prepare, 1)
 
 
-class GenerationTestCase(ParserTestCase):
-    """Tests for Generation of classes from Data"""
+class GeneratsupportnTestCase(ParserTestCase):
+    """Tests for Generatsupportn of classes from Data"""
 
     def get_result(self, data):
         self.parser.data = data
@@ -123,7 +123,7 @@ class GenerationTestCase(ParserTestCase):
     def basic_checks(self, di, name):
         self.assertEqual(len(di.keys()), 1,
                          'Invalid number of properties generated')
-        self.assertEqual(di.keys()[0], name, 'The variable name is not same')
+        self.assertEqual(list(di.keys())[0], name, 'The variable name is not same')
         self.assertEqual(di[name].__name__, name, "Names don't match")
 
     def check_instance(self, instance, args):
@@ -136,7 +136,7 @@ class GenerationTestCase(ParserTestCase):
         di = self.get_result([['foo', []]])
         self.basic_checks(di, 'foo')
 
-        # Check __init__ function arguments
+        # Check __init__ functsupportn arguments
         self.assertRaises(TypeError, di['foo'], 1)
         self.assertRaises(TypeError, di['foo'], 1, 2)
 
@@ -147,7 +147,7 @@ class GenerationTestCase(ParserTestCase):
         di = self.get_result([['foo', ['bar']]])
         self.basic_checks(di, 'foo')
 
-        # Check __init__ function arguments
+        # Check __init__ functsupportn arguments
         self.assertRaises(TypeError, di['foo'])
         self.assertRaises(TypeError, di['foo'], 1, 2)
 
@@ -158,7 +158,7 @@ class GenerationTestCase(ParserTestCase):
         di = self.get_result([['foo', ['bar', 'baz']]])
         self.basic_checks(di, 'foo')
 
-        # Check __init__ function arguments
+        # Check __init__ functsupportn arguments
         self.assertRaises(TypeError, di['foo'])
         self.assertRaises(TypeError, di['foo'], 1)
 
@@ -179,7 +179,7 @@ class GenerationTestCase(ParserTestCase):
         data = [['foo', ['bar']]]
         self.parser.data = data
         di = {}
-        str_out = StringIO.StringIO("") # a StringIO that replaces sys.stdout
+        str_out = support.StringIO() # a StringIO that replaces sys.stdout
         # replace sys.stdout
         old_sysout = sys.stdout
         sys.stdout = str_out
@@ -201,7 +201,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_indent1(self):
-        "Tests for indent function"
+        "Tests for indent functsupportn"
         self.assertEqual(c_ast.indent("foo"), '    '+'foo')
         self.assertEqual(c_ast.indent("foo\nbar"), '    foo\n    bar')
         self.assertEqual(c_ast.indent("foo\n"), '    '+'foo')
@@ -215,9 +215,10 @@ class ASTTestCase(unittest.TestCase):
     def test_equality_equal1(self):
         "Test for equality for really equal Nodes"
         def setup_node(node):
-            node._fields = map(chr, range(97, 103))
+            node._fields = list(map(chr, range(97, 103)))
             di = dict((chr(i), i) for i in range(97, 103))
             node.__dict__.update(di)
+
         node1 = c_ast.AST()
         node2 = c_ast.AST()
         # add fields and attributes
@@ -255,7 +256,7 @@ class ASTTestCase(unittest.TestCase):
         node2 = c_ast.AST()
 
         # add fields and attributes
-        node1._fields = map(chr, range(97, 103))
+        node1._fields = list(map(chr, range(97, 103)))
         di = dict((chr(i), i) for i in range(97, 103))
         node1.__dict__.update(di)
         node2.__dict__.update(di)

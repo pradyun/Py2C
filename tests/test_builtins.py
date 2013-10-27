@@ -30,7 +30,7 @@ class BuiltinsTestCase(unittest.TestCase):
         c = long(50 * sys.maxint)
 
         self.assertEqual(range(a, a+2), [a, a+1])
-        self.assertEqual(range(a+2, a, -1L), [a+2, a+1])
+        self.assertEqual(range(a+2, a, -1), [a+2, a+1])
         self.assertEqual(range(a+4, a, -2), [a+4, a+2])
 
         seq = range(a, b, c)
