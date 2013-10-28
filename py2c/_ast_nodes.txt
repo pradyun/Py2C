@@ -1,0 +1,48 @@
+#-------------------------------------------------------------------------------
+# From this file, the dual AST nodes is dynamically generated.
+#
+# Syntax of definitions in EBNF:
+#
+#     Node = NAME, ':', '[', [node_attrs], ']';
+#     node_attrs = attr, [{',', attr}], [','];
+#     attr = attr_simple | attr_child | attr_list_simple | attr_list_children;
+#     val = '[', ']' | '(', ')' | NAME;
+#     attr_simple = NAME ['=', val];
+#     attr_child = '(', NAME, ':' ,attr_simple, ')';
+#     attr_list_simple = '$', attr_simple;
+#     attr_list_children = '$', attr_child;
+#
+# In this definition of tokens,
+#  - The token values are optionally typed. Any object can't be assign in a
+#    place where a child token should be. Only none or the token that isinstance
+#    of the class specified is allowed.
+#
+#-------------------------------------------------------------------------------
+
+
+# Operators
+Add:  []
+Sub:  []
+Mult: []
+Div:  []
+Mod:  []
+
+# Comparator
+Eq:   []
+NotEq:[]
+Gt:   []
+GtE:  []
+Lt:   []
+LtE:  []
+
+# Bool operators
+And:  []
+Or:   []
+Not:  []
+USub: []
+
+# Basic nodes
+Int: [(int: n)]
+Float: [(float: n)]
+Str: [(str: s)]
+Name: [(str: id)]
