@@ -20,6 +20,7 @@ setup(
     package_data = {
         '': ['*.txt', '*.rst'], # include any *.txt or *.rst files
     },
+    install_requires=["ply"],
     zip_safe=False,
     # Metadata
     description=description,
