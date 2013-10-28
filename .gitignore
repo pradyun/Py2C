@@ -176,4 +176,11 @@ clean.bat
 
 # Mr Developer
 .mr.developer.cfg
+
+# Used in testing how the readme looks
 README.html
+
+# Package Specific
+*parser.out
+*parsetab.py
+py2c/dual_ast.py

@@ -1,0 +1,392 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    COMMENT
+
+Grammar
+
+Rule 0     S' -> results
+Rule 1     empty -> <empty>
+Rule 2     results -> results result
+Rule 3     results -> result
+Rule 4     result -> NAME : [ node_attrs_opt ]
+Rule 5     node_attrs_opt -> attr more_attrs_maybe comma_opt
+Rule 6     node_attrs_opt -> empty
+Rule 7     more_attrs_maybe -> more_attrs_maybe , attr
+Rule 8     more_attrs_maybe -> empty
+Rule 9     comma_opt -> ,
+Rule 10    comma_opt -> empty
+Rule 11    attr -> attr_simple
+Rule 12    attr -> attr_child
+Rule 13    attr -> list_attr_child
+Rule 14    attr -> list_attr_simple
+Rule 15    attr_simple -> NAME equal_to_val_opt
+Rule 16    attr_child -> ( NAME : attr_simple )
+Rule 17    list_attr_child -> $ attr_child
+Rule 18    list_attr_simple -> $ attr_simple
+Rule 19    equal_to_val_opt -> = VALUE
+Rule 20    equal_to_val_opt -> empty
+
+Terminals, with rules where they appear
+
+$                    : 17 18
+(                    : 16
+)                    : 16
+,                    : 7 9
+:                    : 4 16
+=                    : 19
+COMMENT              : 
+NAME                 : 4 15 16
+VALUE                : 19
+[                    : 4
+]                    : 4
+error                : 
+
+Nonterminals, with rules where they appear
+
+attr                 : 5 7
+attr_child           : 12 17
+attr_simple          : 11 16 18
+comma_opt            : 5
+empty                : 6 8 10 20
+equal_to_val_opt     : 15
+list_attr_child      : 13
+list_attr_simple     : 14
+more_attrs_maybe     : 5 7
+node_attrs_opt       : 4
+result               : 2 3
+results              : 2 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . results
+    (2) results -> . results result
+    (3) results -> . result
+    (4) result -> . NAME : [ node_attrs_opt ]
+
+    NAME            shift and go to state 1
+
+    result                         shift and go to state 2
+    results                        shift and go to state 3
+
+state 1
+
+    (4) result -> NAME . : [ node_attrs_opt ]
+
+    :               shift and go to state 4
+
+
+state 2
+
+    (3) results -> result .
+
+    NAME            reduce using rule 3 (results -> result .)
+    $end            reduce using rule 3 (results -> result .)
+
+
+state 3
+
+    (0) S' -> results .
+    (2) results -> results . result
+    (4) result -> . NAME : [ node_attrs_opt ]
+
+    NAME            shift and go to state 1
+
+    result                         shift and go to state 5
+
+state 4
+
+    (4) result -> NAME : . [ node_attrs_opt ]
+
+    [               shift and go to state 6
+
+
+state 5
+
+    (2) results -> results result .
+
+    NAME            reduce using rule 2 (results -> results result .)
+    $end            reduce using rule 2 (results -> results result .)
+
+
+state 6
+
+    (4) result -> NAME : [ . node_attrs_opt ]
+    (5) node_attrs_opt -> . attr more_attrs_maybe comma_opt
+    (6) node_attrs_opt -> . empty
+    (11) attr -> . attr_simple
+    (12) attr -> . attr_child
+    (13) attr -> . list_attr_child
+    (14) attr -> . list_attr_simple
+    (1) empty -> .
+    (15) attr_simple -> . NAME equal_to_val_opt
+    (16) attr_child -> . ( NAME : attr_simple )
+    (17) list_attr_child -> . $ attr_child
+    (18) list_attr_simple -> . $ attr_simple
+
+    ]               reduce using rule 1 (empty -> .)
+    NAME            shift and go to state 8
+    (               shift and go to state 7
+    $               shift and go to state 9
+
+    attr_simple                    shift and go to state 14
+    attr                           shift and go to state 15
+    empty                          shift and go to state 16
+    list_attr_simple               shift and go to state 10
+    node_attrs_opt                 shift and go to state 11
+    attr_child                     shift and go to state 12
+    list_attr_child                shift and go to state 13
+
+state 7
+
+    (16) attr_child -> ( . NAME : attr_simple )
+
+    NAME            shift and go to state 17
+
+
+state 8
+
+    (15) attr_simple -> NAME . equal_to_val_opt
+    (19) equal_to_val_opt -> . = VALUE
+    (20) equal_to_val_opt -> . empty
+    (1) empty -> .
+
+    =               shift and go to state 20
+    ,               reduce using rule 1 (empty -> .)
+    ]               reduce using rule 1 (empty -> .)
+    )               reduce using rule 1 (empty -> .)
+
+    empty                          shift and go to state 18
+    equal_to_val_opt               shift and go to state 19
+
+state 9
+
+    (17) list_attr_child -> $ . attr_child
+    (18) list_attr_simple -> $ . attr_simple
+    (16) attr_child -> . ( NAME : attr_simple )
+    (15) attr_simple -> . NAME equal_to_val_opt
+
+    (               shift and go to state 7
+    NAME            shift and go to state 8
+
+    attr_simple                    shift and go to state 21
+    attr_child                     shift and go to state 22
+
+state 10
+
+    (14) attr -> list_attr_simple .
+
+    ,               reduce using rule 14 (attr -> list_attr_simple .)
+    ]               reduce using rule 14 (attr -> list_attr_simple .)
+
+
+state 11
+
+    (4) result -> NAME : [ node_attrs_opt . ]
+
+    ]               shift and go to state 23
+
+
+state 12
+
+    (12) attr -> attr_child .
+
+    ,               reduce using rule 12 (attr -> attr_child .)
+    ]               reduce using rule 12 (attr -> attr_child .)
+
+
+state 13
+
+    (13) attr -> list_attr_child .
+
+    ,               reduce using rule 13 (attr -> list_attr_child .)
+    ]               reduce using rule 13 (attr -> list_attr_child .)
+
+
+state 14
+
+    (11) attr -> attr_simple .
+
+    ,               reduce using rule 11 (attr -> attr_simple .)
+    ]               reduce using rule 11 (attr -> attr_simple .)
+
+
+state 15
+
+    (5) node_attrs_opt -> attr . more_attrs_maybe comma_opt
+    (7) more_attrs_maybe -> . more_attrs_maybe , attr
+    (8) more_attrs_maybe -> . empty
+    (1) empty -> .
+
+    ,               reduce using rule 1 (empty -> .)
+    ]               reduce using rule 1 (empty -> .)
+
+    more_attrs_maybe               shift and go to state 24
+    empty                          shift and go to state 25
+
+state 16
+
+    (6) node_attrs_opt -> empty .
+
+    ]               reduce using rule 6 (node_attrs_opt -> empty .)
+
+
+state 17
+
+    (16) attr_child -> ( NAME . : attr_simple )
+
+    :               shift and go to state 26
+
+
+state 18
+
+    (20) equal_to_val_opt -> empty .
+
+    ,               reduce using rule 20 (equal_to_val_opt -> empty .)
+    ]               reduce using rule 20 (equal_to_val_opt -> empty .)
+    )               reduce using rule 20 (equal_to_val_opt -> empty .)
+
+
+state 19
+
+    (15) attr_simple -> NAME equal_to_val_opt .
+
+    ,               reduce using rule 15 (attr_simple -> NAME equal_to_val_opt .)
+    ]               reduce using rule 15 (attr_simple -> NAME equal_to_val_opt .)
+    )               reduce using rule 15 (attr_simple -> NAME equal_to_val_opt .)
+
+
+state 20
+
+    (19) equal_to_val_opt -> = . VALUE
+
+    VALUE           shift and go to state 27
+
+
+state 21
+
+    (18) list_attr_simple -> $ attr_simple .
+
+    ,               reduce using rule 18 (list_attr_simple -> $ attr_simple .)
+    ]               reduce using rule 18 (list_attr_simple -> $ attr_simple .)
+
+
+state 22
+
+    (17) list_attr_child -> $ attr_child .
+
+    ,               reduce using rule 17 (list_attr_child -> $ attr_child .)
+    ]               reduce using rule 17 (list_attr_child -> $ attr_child .)
+
+
+state 23
+
+    (4) result -> NAME : [ node_attrs_opt ] .
+
+    NAME            reduce using rule 4 (result -> NAME : [ node_attrs_opt ] .)
+    $end            reduce using rule 4 (result -> NAME : [ node_attrs_opt ] .)
+
+
+state 24
+
+    (5) node_attrs_opt -> attr more_attrs_maybe . comma_opt
+    (7) more_attrs_maybe -> more_attrs_maybe . , attr
+    (9) comma_opt -> . ,
+    (10) comma_opt -> . empty
+    (1) empty -> .
+
+    ,               shift and go to state 29
+    ]               reduce using rule 1 (empty -> .)
+
+    comma_opt                      shift and go to state 28
+    empty                          shift and go to state 30
+
+state 25
+
+    (8) more_attrs_maybe -> empty .
+
+    ,               reduce using rule 8 (more_attrs_maybe -> empty .)
+    ]               reduce using rule 8 (more_attrs_maybe -> empty .)
+
+
+state 26
+
+    (16) attr_child -> ( NAME : . attr_simple )
+    (15) attr_simple -> . NAME equal_to_val_opt
+
+    NAME            shift and go to state 8
+
+    attr_simple                    shift and go to state 31
+
+state 27
+
+    (19) equal_to_val_opt -> = VALUE .
+
+    ,               reduce using rule 19 (equal_to_val_opt -> = VALUE .)
+    ]               reduce using rule 19 (equal_to_val_opt -> = VALUE .)
+    )               reduce using rule 19 (equal_to_val_opt -> = VALUE .)
+
+
+state 28
+
+    (5) node_attrs_opt -> attr more_attrs_maybe comma_opt .
+
+    ]               reduce using rule 5 (node_attrs_opt -> attr more_attrs_maybe comma_opt .)
+
+
+state 29
+
+    (7) more_attrs_maybe -> more_attrs_maybe , . attr
+    (9) comma_opt -> , .
+    (11) attr -> . attr_simple
+    (12) attr -> . attr_child
+    (13) attr -> . list_attr_child
+    (14) attr -> . list_attr_simple
+    (15) attr_simple -> . NAME equal_to_val_opt
+    (16) attr_child -> . ( NAME : attr_simple )
+    (17) list_attr_child -> . $ attr_child
+    (18) list_attr_simple -> . $ attr_simple
+
+    ]               reduce using rule 9 (comma_opt -> , .)
+    NAME            shift and go to state 8
+    (               shift and go to state 7
+    $               shift and go to state 9
+
+    attr_simple                    shift and go to state 14
+    attr                           shift and go to state 32
+    list_attr_simple               shift and go to state 10
+    attr_child                     shift and go to state 12
+    list_attr_child                shift and go to state 13
+
+state 30
+
+    (10) comma_opt -> empty .
+
+    ]               reduce using rule 10 (comma_opt -> empty .)
+
+
+state 31
+
+    (16) attr_child -> ( NAME : attr_simple . )
+
+    )               shift and go to state 33
+
+
+state 32
+
+    (7) more_attrs_maybe -> more_attrs_maybe , attr .
+
+    ,               reduce using rule 7 (more_attrs_maybe -> more_attrs_maybe , attr .)
+    ]               reduce using rule 7 (more_attrs_maybe -> more_attrs_maybe , attr .)
+
+
+state 33
+
+    (16) attr_child -> ( NAME : attr_simple ) .
+
+    ,               reduce using rule 16 (attr_child -> ( NAME : attr_simple ) .)
+    ]               reduce using rule 16 (attr_child -> ( NAME : attr_simple ) .)
+
