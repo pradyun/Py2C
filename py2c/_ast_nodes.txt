@@ -9,8 +9,8 @@
 #     val = '[', ']' | '(', ')' | NAME;
 #     attr_simple = NAME ['=', val];
 #     attr_child = '(', NAME, ':' ,attr_simple, ')';
-#     attr_list_simple = '$', attr_simple;
-#     attr_list_children = '$', attr_child;
+#     attr_list_simple = '*', attr_simple;
+#     attr_list_children = '*', attr_child;
 #
 # In this definition of tokens,
 #  - The token values are optionally typed. Any object can't be assign in a
@@ -46,3 +46,34 @@ Int: [(int: n)]
 Float: [(float: n)]
 Str: [(str: s)]
 Name: [(str: id)]
+
+# A node for simplicity, a call to printf or << to cout is more complex in the AST!
+Print: [dest, values, sep, end]
+
+# Flow control
+Pass: []
+Continue: []
+If: [test, *body, orelse]
+While: [test, *body, orelse]
+IfExp: [test, *body, orelse]
+
+
+# Operations
+BinOp: [op, left, right]
+BoolOp: [op, values]
+UnaryOp: [op, operand]
+
+# Assignments
+Assign: [type, targets, value]
+AugAssign: [target, op, value]
+
+# Function related
+FunctionDef: [type, name, arguments]
+Call: [func, args]
+Return: [value]
+
+# Others
+Attribute: [value, attr]
+Compare: [left, ops, comparators]
+Module: [*body=[]]
+

@@ -3,7 +3,6 @@
 import ast
 import inspect
 from . import dual_ast
-dual_ast.prepare()
 
 
 __all__ = ["ASTTranslator", "dual_ast"]

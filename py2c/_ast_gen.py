@@ -34,7 +34,7 @@ PREFIX = dedent("""
             have_args = bool(args)
             self._fields = []
             self._type_nodes = []
-            for (i, (name, default, type_, is_list)) in self._attrs:
+            for (i, (name, default, type_, is_list)) in enumerate(self._attrs):
                 self._fields.append(name)
                 if have_args:
                     setattr(self, name, args[i])
@@ -46,7 +46,7 @@ PREFIX = dedent("""
         def __eq__(self, other):
             if type(self) != type(other):
                 return False
-            elif self._fields != other._fields:
+            elif self._attrs != other._attrs:
                 return False
             else:
                 for i in self._fields:
@@ -73,22 +73,34 @@ def indent(string, indent_with='    '):
 
 # Helper classes (Function as AST nodes of configuration file)
 class Attr(object):
-    def __init__(self, name, default=None, type=None):
+    def __init__(self, name, default=None, type=None, is_list=False):
         super(Attr, self).__init__()
         self.name = name
         self.default = default
         self.type = type
-        self.is_list = False
+        self.is_list = is_list
 
     def __repr__(self):
-        return "({0.name!r}, {0.default!r}, {0.type}, {0.is_list})".format(self)
+        return "Attr"+str(self)
+
+    def __str__(self):
+        return "({0.name!r}, {0.default!r}, {0.type!r}, {0.is_list})".format(self)
+
+    def __eq__(self, other):
+        return all(
+            getattr(self, i) == getattr(other, i)
+            for i in ["name", "type", "default", "is_list"]
+        )
+
+    def __ne__(self, other):
+        return not self == other
 
 
 class Node(object):
     """docstring for Node"""
-    def __init__(self, parent_class, name, attrs):
+    _parent_class = 'AST'
+    def __init__(self, name, attrs):
         super(Node, self).__init__()
-        self._parent_class = parent_class
         self.name = name
         self.attrs = attrs
 
@@ -96,13 +108,22 @@ class Node(object):
         s = dedent("""
             class {self.name}({self._parent_class}):
                 def __init__(self, *args, **kwargs):
-                     self._attrs = {self.attrs}
-                     super({self.name}, self).__init__(*args, **kwargs)
+                    self._attrs = {self.attrs}
+                    super({self.name}, self).__init__(*args, **kwargs)
         """).strip('\n')+'\n'
         return s.format(self=self)
 
     def __repr__(self):
-        return "Node({0.name}, {0.attrs})".format(self)
+        return "Node({0.name!r}, {0.attrs})".format(self)
+
+    def __eq__(self, other):
+        return all(
+            (hasattr(other, i) and getattr(self, i) == getattr(other, i))
+            for i in ["attrs", "_parent_class", "name"]
+        )
+
+    def __ne__(self, other):
+        return not self == other
 #-------------------------------------------------------------------------------
 # AST Nodes parser
 #-------------------------------------------------------------------------------
@@ -118,7 +139,7 @@ class Parser(object):
     end_text = r"~EOL~"
     # Lexer Stuff
     tokens = ["NAME", "END"]
-    literals = "[]()$,:="
+    literals = "[]()*,:="
     t_NAME = r"[_a-zA-Z][_a-zA-Z0-9]*"
     t_END = end_text + "$"
     # Can be a name, list, tuple
@@ -133,7 +154,7 @@ class Parser(object):
 
     def p_result(self, p):
         "result : NAME ':' '[' node_attrs_opt ']' END"
-        p[0] = Node(self.parent_class, p[1], p[4])
+        p[0] = Node(p[1], p[4])
 
     def p_node_attrs_opt1(self, p):
         "node_attrs_opt : attr more_attrs_maybe comma_opt"
@@ -156,38 +177,31 @@ class Parser(object):
                      | empty
         """
 
-    def p_attr(self, p):
-        """attr : attr_simple
-                | attr_typed
-                | list_attr_typed
-                | list_attr_simple
-        """
-        p[0] = p[1]
-
     def p_equal_val_opt(self, p):
         """equal_val_opt : '=' val
                          | empty
         """
         if len(p) > 2:
-            return p[2]
-        else:
-            return None
+            p[0] = p[2]
 
-    def p_attr1_1(self, p):
+    def p_attr(self, p):
+        """attr : attr_simple
+                | attr_typed
+                | list_attr
+        """
+        p[0] = p[1]
+
+    def p_attr1(self, p):
         "attr_simple : NAME equal_val_opt"
-        p[0] = Attr(p[1], p[3], None)
+        p[0] = Attr(p[1], p[2], None)
 
-    def p_attr2_2(self, p):
+    def p_attr2(self, p):
         "attr_typed : '(' NAME ':' NAME equal_val_opt ')'"
         p[0] = Attr(p[4], p[5], p[2])
 
     def p_attr3(self, p):
-        "list_attr_typed : '$' attr_typed"
-        p[2].is_list = True
-        p[0] = p[2]
-
-    def p_attr4(self, p):
-        "list_attr_simple : '$' attr_simple"
+        """list_attr : '*' attr_simple
+                     | '*' attr_typed"""
         p[2].is_list = True
         p[0] = p[2]
 
@@ -214,7 +228,7 @@ class Parser(object):
         self.data = []
 
         self.lexer = ply.lex.lex(module=self)
-        self.parser = ply.yacc.yacc(module=self, start="result", debug=True)
+        self.parser = ply.yacc.yacc(module=self, start="result")
         self.prefix = PREFIX
 
     def prepare(self, text):
@@ -226,7 +240,7 @@ class Parser(object):
             if i.strip()
         ]
 
-    def write_module(self, fname):
+    def write_module(self, f):
         s = ""
         s += self.prefix
         for obj in self.data:
@@ -234,15 +248,16 @@ class Parser(object):
             s += obj.to_source()
 
         # ``s`` contains the text to be written to the file
-        with open(fname, "w") as f:
-            f.write(s.strip('\n') + '\n')
+        f.write(s.strip('\n') + '\n')
 
 
 # Export Nodes
 from os.path import join, dirname
-def prepare(module='dual_ast.py'):
+def prepare(module=None):
     p = Parser()
     p.prepare(open(join(dirname(__file__), "_ast_nodes.txt")).read())
+    if module is None:
+        module = open('dual_ast.py', 'w')
     p.write_module(module)
 
 if __name__ == '__main__':
