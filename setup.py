@@ -1,6 +1,5 @@
-import os
-import sys
-from setuptools import setup, find_packages
+
+from setuptools import setup
 
 # Description of package
 description = (
@@ -17,8 +16,8 @@ setup(
     name="py2c",
     version="0.1dev",
     packages=["py2c"],
-    package_data = {
-        '': ['*.txt', '*.rst'], # include any *.txt or *.rst files
+    package_data={
+        '': ['*.cfg'],  # include any configration files
     },
     install_requires=["ply"],
     zip_safe=False,
