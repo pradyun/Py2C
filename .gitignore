@@ -74,5 +74,5 @@ README.html
 # Package Specific
 *parser.out
 *parsetab.py
-py2c/dual_ast.py
+py2c/_dual_ast.py
 *.coveragerc
