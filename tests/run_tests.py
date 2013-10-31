@@ -2,9 +2,12 @@
 """
 import os, unittest
 
-if __name__ == "__main__":
+def main():
     unittest.TextTestRunner(verbosity=1).run(
         unittest.defaultTestLoader.discover(
             os.path.dirname(__file__), "test_*.py"
         )
     )
+
+if __name__ == "__main__":
+    main()

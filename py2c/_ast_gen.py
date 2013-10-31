@@ -292,13 +292,13 @@ from os.path import join, dirname
 ast_nodes_fname = join(dirname(__file__), "_ast_nodes.cfg")
 
 
-def prepare(file):
+def generate(file):
     p = Parser()
     p.prepare(open(ast_nodes_fname).read())
     p.write_module(file)
 
 if __name__ == '__main__':
-    with open('dual_ast.py', 'w') as f:
+    with open('_dual_ast.py', 'w') as f:
         f.truncate()
-        prepare(f)
+        generate(f)
     print("Generated 'dual_ast.py'")
