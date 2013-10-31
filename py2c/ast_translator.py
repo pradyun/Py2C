@@ -3,7 +3,6 @@
 import ast
 import inspect
 from . import dual_ast
-dual_ast.prepare()
 
 
 __all__ = ["ASTTranslator", "dual_ast"]
@@ -50,7 +49,7 @@ class ASTTranslator(ast.NodeVisitor):
 
         print("Error(s) occurred while translating Python AST into C ast")
         for msg in self.errors:
-            print(dual_ast.indent(msg, ' - '))
+            print(' - '+msg)
 
     def get_node(self, node):
         """Get the C AST from the Python AST `node`
