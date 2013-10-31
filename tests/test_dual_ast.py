@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import sys
-import textwrap
 import unittest
 
 import support
@@ -15,6 +13,7 @@ class DummyNode(dual_ast.AST):
         self._attrs = attrs
         super(DummyNode, self).__init__(*args, **kwargs)
 
+
 # -----------------------------------
 class ASTTestCase(unittest.TestCase):
     """Tests for AST node"""
@@ -26,7 +25,7 @@ class ASTTestCase(unittest.TestCase):
 
     def test_equality_equal1(self):
         "Test for equality for really equal Nodes"
-        attrs = [("foo", None, None, False), ('bar', 'list', '[]', True)]
+        attrs = [("foo", None, False), ('bar', '[]', True)]
 
         node1 = DummyNode(attrs)
         node2 = DummyNode(attrs)
@@ -36,18 +35,17 @@ class ASTTestCase(unittest.TestCase):
     def test_equality_equal2(self):
         "Test for equality with node when it has children nodes"
         node1 = DummyNode(dest=DummyNode(id='foo'), values=[],
-                                    sep=' ', end='\n')
+                          sep=' ', end='\n')
         node2 = DummyNode(dest=DummyNode(id='foo'), values=[],
-                                    sep=' ', end='\n')
+                          sep=' ', end='\n')
         self.assertEqual(node1, node2)
 
     def test_equality_with_extra_attrs(self):
         "Test for (in)equality on nodes with in-equal attributes"
-        node1 = DummyNode([("foo", None, None, False)])
-        node2 = DummyNode([("foo", None, None, False), ("bar", None, None, False)])
+        node1 = DummyNode([("foo", None, False)])
+        node2 = DummyNode([("foo", None, False), ("bar", None, False)])
 
         self.assertNotEqual(node1, node2, str(node1._attrs) + str(node2._attrs))
-
 
     def test_equality_diff_type(self):
         "Test for inequality on the basis of type"

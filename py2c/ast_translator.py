@@ -49,7 +49,7 @@ class ASTTranslator(ast.NodeVisitor):
 
         print "Error(s) occurred while translating Python AST into C ast"
         for msg in self.errors:
-            print(dual_ast.indent(msg, ' - '))
+            print(' - '+msg)
 
     def get_node(self, node):
         """Get the C AST from the Python AST `node`
