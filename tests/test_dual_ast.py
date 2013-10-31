@@ -19,7 +19,7 @@ class ASTTestCase(unittest.TestCase):
     """Tests for AST node"""
 
     def test_init1(self):
-        "A no-subclass directly invoked"
+        "A no-subclass directly invocation of init method of AST"
         with self.assertRaises(AttributeError):
             dual_ast.AST()
 
@@ -45,7 +45,7 @@ class ASTTestCase(unittest.TestCase):
         node1 = DummyNode([("foo", None, False)])
         node2 = DummyNode([("foo", None, False), ("bar", None, False)])
 
-        self.assertNotEqual(node1, node2, str(node1._attrs) + str(node2._attrs))
+        self.assertNotEqual(node1, node2)
 
     def test_equality_diff_type(self):
         "Test for inequality on the basis of type"
