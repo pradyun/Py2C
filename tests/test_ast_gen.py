@@ -143,9 +143,7 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar]",
             """
             class FooBar(AST):
-                def __init__(self, *args, **kwargs):
-                    self._attrs = [('bar', None, False)]
-                    super(FooBar, self).__init__(*args, **kwargs)
+                _attrs = [('bar', None, False)]
             """
         )
 
@@ -154,12 +152,10 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar, baz]",
             """
             class FooBar(AST):
-                def __init__(self, *args, **kwargs):
-                    self._attrs = [
-                        ('bar', None, False),
-                        ('baz', None, False)
-                    ]
-                    super(FooBar, self).__init__(*args, **kwargs)
+                _attrs = [
+                    ('bar', None, False),
+                    ('baz', None, False)
+                ]
             """
         )
 
@@ -168,9 +164,7 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar=None]",
             """
             class FooBar(AST):
-                def __init__(self, *args, **kwargs):
-                    self._attrs = [('bar', 'None', False)]
-                    super(FooBar, self).__init__(*args, **kwargs)
+                _attrs = [('bar', 'None', False)]
             """
         )
 
@@ -179,13 +173,11 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [foo=False, bar=True, baz]",
             """
             class FooBar(AST):
-                def __init__(self, *args, **kwargs):
-                    self._attrs = [
-                        ('foo', 'False', False),
-                        ('bar', 'True', False),
-                        ('baz', None, False)
-                    ]
-                    super(FooBar, self).__init__(*args, **kwargs)
+                _attrs = [
+                    ('foo', 'False', False),
+                    ('bar', 'True', False),
+                    ('baz', None, False)
+                ]
             """
         )
 
@@ -194,151 +186,13 @@ class GenerationTestCase(ParserTestCase):
             "FooBar(Base): [foo=False, bar=True, baz]",
             """
             class FooBar(Base):
-                def __init__(self, *args, **kwargs):
-                    self._attrs = [
-                        ('foo', 'False', False),
-                        ('bar', 'True', False),
-                        ('baz', None, False)
-                    ]
-                    super(FooBar, self).__init__(*args, **kwargs)
+                _attrs = [
+                    ('foo', 'False', False),
+                    ('bar', 'True', False),
+                    ('baz', None, False)
+                ]
             """
         )
-
-
-# As implemented for Issue 13857 in Python 3.3
-# Replicated to stay compatible with earlier Python versions
-class IndentTestCase(unittest.TestCase):
-    # The examples used for tests. If any of these change, the expected
-    # results in the various test cases must also be updated.
-    # The round-trip cases are separate, because textwrap.dedent doesn't
-    # handle Windows line endings
-    ROUNDTRIP_CASES = (
-        # Basic test case
-        "Hi.\nThis is a test.\nTesting.",
-        # Include a blank line
-        "Hi.\nThis is a test.\n\nTesting.",
-        # Include leading and trailing blank lines
-        "\nHi.\nThis is a test.\nTesting.\n",
-    )
-    CASES = ROUNDTRIP_CASES + (
-        # Use Windows line endings
-        "Hi.\r\nThis is a test.\r\nTesting.\r\n",
-        # Pathological case
-        "\nHi.\r\nThis is a test.\n\r\nTesting.\r\n\n",
-    )
-
-    def test_indent_nomargin_default(self):
-        # indent should do nothing if 'prefix' is empty.
-        for text in self.CASES:
-            self.assertEqual(ast_gen.indent(text, ''), text)
-
-    def test_indent_nomargin_explicit_default(self):
-        # The same as test_indent_nomargin, but explicitly requesting
-        # the default behavior by passing None as the predicate
-        for text in self.CASES:
-            self.assertEqual(ast_gen.indent(text, '', None), text)
-
-    def test_indent_nomargin_all_lines(self):
-        # The same as test_indent_nomargin, but using the optional
-        # predicate argument
-        predicate = lambda line: True
-        for text in self.CASES:
-            self.assertEqual(ast_gen.indent(text, '', predicate), text)
-
-    def test_indent_no_lines(self):
-        # Explicitly skip indenting any lines
-        predicate = lambda line: False
-        for text in self.CASES:
-            self.assertEqual(ast_gen.indent(text, '    ', predicate), text)
-
-    def test_roundtrip_spaces(self):
-        # A whitespace prefix should round-trip with dedent
-        for text in self.ROUNDTRIP_CASES:
-            self.assertEqual(dedent(ast_gen.indent(text, '    ')), text)
-
-    def test_roundtrip_tabs(self):
-        # A whitespace prefix should round-trip with dedent
-        for text in self.ROUNDTRIP_CASES:
-            self.assertEqual(dedent(ast_gen.indent(text, '\t\t')), text)
-
-    def test_roundtrip_mixed(self):
-        # A whitespace prefix should round-trip with dedent
-        for text in self.ROUNDTRIP_CASES:
-            self.assertEqual(dedent(ast_gen.indent(text, ' \t  \t ')), text)
-
-    def test_indent_default(self):
-        # Test default indenting of lines that are not whitespace only
-        prefix = '  '
-        expected = (
-            # Basic test case
-            "  Hi.\n  This is a test.\n  Testing.",
-            # Include a blank line
-            "  Hi.\n  This is a test.\n\n  Testing.",
-            # Include leading and trailing blank lines
-            "\n  Hi.\n  This is a test.\n  Testing.\n",
-            # Use Windows line endings
-            "  Hi.\r\n  This is a test.\r\n  Testing.\r\n",
-            # Pathological case
-            "\n  Hi.\r\n  This is a test.\n\r\n  Testing.\r\n\n",
-        )
-        for text, expect in zip(self.CASES, expected):
-            self.assertEqual(ast_gen.indent(text, prefix), expect)
-
-    def test_indent_explicit_default(self):
-        # Test default indenting of lines that are not whitespace only
-        prefix = '  '
-        expected = (
-            # Basic test case
-            "  Hi.\n  This is a test.\n  Testing.",
-            # Include a blank line
-            "  Hi.\n  This is a test.\n\n  Testing.",
-            # Include leading and trailing blank lines
-            "\n  Hi.\n  This is a test.\n  Testing.\n",
-            # Use Windows line endings
-            "  Hi.\r\n  This is a test.\r\n  Testing.\r\n",
-            # Pathological case
-            "\n  Hi.\r\n  This is a test.\n\r\n  Testing.\r\n\n",
-        )
-        for text, expect in zip(self.CASES, expected):
-            self.assertEqual(ast_gen.indent(text, prefix, None), expect)
-
-    def test_indent_all_lines(self):
-        # Add 'prefix' to all lines, including whitespace-only ones.
-        prefix = '  '
-        expected = (
-            # Basic test case
-            "  Hi.\n  This is a test.\n  Testing.",
-            # Include a blank line
-            "  Hi.\n  This is a test.\n  \n  Testing.",
-            # Include leading and trailing blank lines
-            "  \n  Hi.\n  This is a test.\n  Testing.\n",
-            # Use Windows line endings
-            "  Hi.\r\n  This is a test.\r\n  Testing.\r\n",
-            # Pathological case
-            "  \n  Hi.\r\n  This is a test.\n  \r\n  Testing.\r\n  \n",
-        )
-        predicate = lambda line: True
-        for text, expect in zip(self.CASES, expected):
-            self.assertEqual(ast_gen.indent(text, prefix, predicate), expect)
-
-    def test_indent_empty_lines(self):
-        # Add 'prefix' solely to whitespace-only lines.
-        prefix = '  '
-        expected = (
-            # Basic test case
-            "Hi.\nThis is a test.\nTesting.",
-            # Include a blank line
-            "Hi.\nThis is a test.\n  \nTesting.",
-            # Include leading and trailing blank lines
-            "  \nHi.\nThis is a test.\nTesting.\n",
-            # Use Windows line endings
-            "Hi.\r\nThis is a test.\r\nTesting.\r\n",
-            # Pathological case
-            "  \nHi.\r\nThis is a test.\n  \r\nTesting.\r\n  \n",
-        )
-        predicate = lambda line: not line.strip()
-        for text, expect in zip(self.CASES, expected):
-            self.assertEqual(ast_gen.indent(text, prefix, predicate), expect)
 
 
 if __name__ == '__main__':

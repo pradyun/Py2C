@@ -6,7 +6,7 @@ Python API calls. The generated code can be run without Python headers as it
 does not embed Python.
 
 > Note: Curently it isn't producing any output. The starting design itself is 
-  extensible with a lot of scope for improvement if needed.
+  extensible with a lot of scope for improvement if needed.<br>
 
 > Since this project is still young, I haven't worked much on the wiki but it
   will be brought up to date once the generaters start generating C/C++ code

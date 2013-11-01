@@ -1,6 +1,7 @@
 """
 Contains the compatibility related stuff to allow for compatibility across\
-Python versions"""
+Python versions
+"""
 import sys
 
 # Compatibility across versions
