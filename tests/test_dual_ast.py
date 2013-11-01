@@ -2,7 +2,6 @@
 
 import unittest
 
-import support
 import py2c.dual_ast as dual_ast
 
 
@@ -54,9 +53,31 @@ class ASTTestCase(unittest.TestCase):
         self.assertNotEqual(node1, "I'm not equal to a Node")
 
     # A really important and useful test. Create the node_names list!!
-    def test_Nodes_exist(self):
+    def test_nodes_exist(self):
         "Checks if to see that all required nodes exist in '_dual_ast.py'"
-        node_names = []
+
+        node_names = [
+            # Python AST nodes
+            "AST", "Add", "And", "Assert", "Assign", "Attribute", "AugAssign",
+            "AugLoad", "AugStore", "BinOp", "BitAnd", "BitOr", "BitXor",
+            "BoolOp", "Break", "Bytes", "Call", "ClassDef", "Compare",
+            "Continue", "Del", "Delete", "Dict", "DictComp", "Div",
+            "Ellipsis", "Eq", "ExceptHandler", "Exec", "Expr", "Expression",
+            "ExtSlice", "FloorDiv", "For", "FunctionDef", "GeneratorExp",
+            "Global", "Gt", "GtE", "If", "IfExp", "Import", "ImportFrom",
+            "In", "Index", "Interactive", "Invert", "Is", "IsNot", "LShift",
+            "Lambda", "List", "ListComp", "Load", "Lt", "LtE", "Mod",
+            "Module", "Mult", "Name", "Nonlocal", "Not", "NotEq", "NotIn",
+            "Num", "Or", "Param", "Pass", "Pow", "Print", "RShift", "Raise",
+            "Repr", "Return", "Set", "SetComp", "Slice", "Starred", "Store",
+            "Str", "Sub", "Subscript", "Suite", "Try", "TryExcept",
+            "TryFinally", "Tuple", "UAdd", "USub", "UnaryOp", "While", "With",
+            "Yield", "YieldFrom", "alias", "arg", "arguments", "boolop",
+            "cmpop", "comprehension", "excepthandler", "expr", "expr_context",
+            "keyword", "mod", "operator", "slice", "stmt", "unaryop",
+            "withitem",
+            # C AST nodes
+        ]
         missing = []
         for name in node_names:
             if not hasattr(dual_ast, name):

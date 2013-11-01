@@ -26,7 +26,7 @@ def all(iterable):
 def sum(iterable, start=0):
     """sum(sequence[, start]) -> value
 
-    Returns the sum of a sequence of numbers (NOT strings) plus the value
+    Returns the sum of the items of a sequence plus the value
     of parameter 'start' (which defaults to 0).  When the sequence is
     empty, returns start."""
     total = start

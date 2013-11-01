@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 """
-It makes it possible to translate Python code to C code.
+AST nodes file generator
+This file generates the dual_ast that we use to translate Python code to C code.
+It makes it possible to translate Python code to C code without multiple AST
+systems.
 """
 
 import re
 from textwrap import dedent
 
+# indented to allow for code-collapsing
 PREFIX = dedent("""
     #!/usr/bin/env python
     # -*- coding: utf-8 -*-
@@ -125,9 +129,7 @@ class Node(object):
     def to_source(self):
         s = dedent("""
             class {self.name}({self.parent_class}):
-                def __init__(self, *args, **kwargs):
-                    {0}
-                    super({self.name}, self).__init__(*args, **kwargs)
+                {0}
         """).strip('\n')+'\n'
         return s.format(self.form_attrs(), self=self)
 
@@ -140,12 +142,13 @@ class Node(object):
             val = []
             for attr in self.attrs:
                 val.append(attr.to_source())
-            # Get the attribute one on each line
-            val = indent(",\n".join(val), " "*12)
+            # Attributes: one on each line (do we need that??)
+            # We could do with all attributes on the same line.
+            val = indent(",\n".join(val), " "*8)
             # List bracket adjustment
-            val = "\n"+val+"\n"+" "*8
+            val = "\n"+val+"\n"+" "*4
 
-        return "self._attrs = [{0}]".format(val)
+        return "_attrs = [{0}]".format(val)
 
     def __repr__(self):
         return "Node({0.name!r}, {0.attrs!r})".format(self)
@@ -169,10 +172,12 @@ import ply.yacc
 class BaseError(Exception):
     pass
 
-class LexerError(Exception):  # noqa
+
+class LexerError(Exception):
     pass
 
-class ParsingError(Exception):  # noqa
+
+class ParsingError(Exception):
     pass
 
 
@@ -313,4 +318,4 @@ if __name__ == '__main__':
     with open('_dual_ast.py', 'w') as f:
         f.truncate()
         generate(f)
-    print("Generated 'dual_ast.py'")
+    print("Generated '_dual_ast.py'")

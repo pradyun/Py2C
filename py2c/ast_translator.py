@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-
+"""Work needs to be done on this one!"""
 import ast
 import inspect
-from . import dual_ast
+from py2c import dual_ast
 
 
 __all__ = ["ASTTranslator", "dual_ast"]
@@ -41,6 +41,8 @@ class ASTTranslator(ast.NodeVisitor):
             msg = "(Node type: {0}) {1}".format(caller, msg)
         if hasattr(node, "lineno"):
             msg += "Check Line ({0}): {1}".format(node.lineno, msg)
+        elif hasattr(caller, "lineno"):
+            msg += "Check Line ({0}): {1}".format(caller.lineno, msg)
         self.errors.append(msg)
 
     def print_errors(self):
