@@ -138,7 +138,7 @@ class GenerationTestCase(ParserTestCase):
             fake.getvalue().strip(), dedent(expected_output).strip()
         )
 
-    def test_output_single_nodefault(self):
+    def test_single_nodefault(self):
         self.check_output(
             "FooBar: [bar]",
             """
@@ -149,7 +149,7 @@ class GenerationTestCase(ParserTestCase):
             """
         )
 
-    def test_output_multiple_nodefault(self):
+    def test_multiple_nodefault(self):
         self.check_output(
             "FooBar: [bar, baz]",
             """
@@ -163,7 +163,7 @@ class GenerationTestCase(ParserTestCase):
             """
         )
 
-    def test_output_single_default(self):
+    def test_single_default(self):
         self.check_output(
             "FooBar: [bar=None]",
             """
@@ -174,11 +174,26 @@ class GenerationTestCase(ParserTestCase):
             """
         )
 
-    def test_output_multiple_default(self):
+    def test_multiple_default(self):
         self.check_output(
             "FooBar: [foo=False, bar=True, baz]",
             """
             class FooBar(AST):
+                def __init__(self, *args, **kwargs):
+                    self._attrs = [
+                        ('foo', 'False', False),
+                        ('bar', 'True', False),
+                        ('baz', None, False)
+                    ]
+                    super(FooBar, self).__init__(*args, **kwargs)
+            """
+        )
+
+    def test_base(self):
+        self.check_output(
+            "FooBar(Base): [foo=False, bar=True, baz]",
+            """
+            class FooBar(Base):
                 def __init__(self, *args, **kwargs):
                     self._attrs = [
                         ('foo', 'False', False),
