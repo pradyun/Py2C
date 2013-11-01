@@ -53,5 +53,18 @@ class ASTTestCase(unittest.TestCase):
 
         self.assertNotEqual(node1, "I'm not equal to a Node")
 
+    # A really important and useful test. Create the node_names list!!
+    def test_Nodes_exist(self):
+        "Checks if to see that all required nodes exist in '_dual_ast.py'"
+        node_names = []
+        missing = []
+        for name in node_names:
+            if not hasattr(dual_ast, name):
+                missing.append(name)
+        if missing:
+            msg = "The following nodes are missing: "+", ".join(missing)
+            self.fail(msg)
+
+
 if __name__ == '__main__':
     unittest.main()
