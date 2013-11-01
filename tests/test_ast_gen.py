@@ -189,7 +189,7 @@ class GenerationTestCase(ParserTestCase):
             """
         )
 
-    def test_multiple_default(self):
+    def test_base(self):
         self.check_output(
             "FooBar(Base): [foo=False, bar=True, baz]",
             """
