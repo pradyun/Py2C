@@ -24,10 +24,9 @@ setup(
     # Metadata
     description=description,
     long_description=long_description,
-    author="Ramchandra Apte",
-    author_email="maniandram01@gmail.com",
-    maintainer="Pradyun S. Gedam",
-    maintainer_email="pradyunsg@gmail.com",
+    author="Pradyun S. Gedam",
+    author_email="pradyunsg@gmail.com",
+    url="https://github.com/pradyun/Py2C",
     classifiers=[
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',

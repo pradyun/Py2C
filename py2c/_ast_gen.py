@@ -112,16 +112,19 @@ class Attr(object):
 
 class Node(object):
     """docstring for Node"""
-    _parent_class = 'AST'
+    base_parent_class = 'AST'
 
-    def __init__(self, name, attrs):
+    def __init__(self, name, attrs, parent_class=None):
         super(Node, self).__init__()
+        if parent_class is None:
+            parent_class = self.base_parent_class
         self.name = name
         self.attrs = attrs
+        self.parent_class = parent_class
 
     def to_source(self):
         s = dedent("""
-            class {self.name}({self._parent_class}):
+            class {self.name}({self.parent_class}):
                 def __init__(self, *args, **kwargs):
                     {0}
                     super({self.name}, self).__init__(*args, **kwargs)
@@ -150,7 +153,7 @@ class Node(object):
     def __eq__(self, other):
         return all(
             (hasattr(other, i) and getattr(self, i) == getattr(other, i))
-            for i in ["attrs", "_parent_class", "name"]
+            for i in ["attrs", "parent_class", "name"]
         )
 
     def __ne__(self, other):
@@ -196,8 +199,17 @@ class Parser(object):
         "empty : "
 
     def p_result(self, p):
-        "result : NAME ':' '[' node_attrs_opt ']' END"
-        p[0] = Node(p[1], p[4])
+        "result : NAME name_in_parens_opt ':' '[' node_attrs_opt ']' END"
+        p[0] = Node(p[1], p[5], p[2])
+
+    def p_name_in_parens_opt(self, p):
+        """name_in_parens_opt : '(' NAME ')'
+                              | empty
+        """
+        if len(p) > 2:
+            p[0] = p[2]
+        else:
+            p[0] = None
 
     def p_node_attrs_opt1(self, p):
         "node_attrs_opt : attr more_attrs_maybe comma_opt"

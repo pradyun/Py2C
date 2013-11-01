@@ -5,11 +5,12 @@ into human-readable C code, a bit like what humans would write. The code has no
 Python API calls. The generated code can be run without Python headers as it 
 does not embed Python.
 
-> Note: Curently we are under-going a major code refactor, so we aren't
-> producing any output. But as a part of the conversion, we do have the code
-> becoming much more readable and maintainable. Since this project is still
-> young, we haven't worked much on the wiki but it will be brought up to date
-> once we start generating C/C++ code (some distance from here).
+> Note: Curently it isn't producing any output. The starting design itself is 
+  extensible with a lot of scope for improvement if needed.
+
+> Since this project is still young, I haven't worked much on the wiki but it
+  will be brought up to date once the generaters start generating C/C++ code
+  (some time before that happens).
 
 Here's Py2C in action on Hello World:
 
