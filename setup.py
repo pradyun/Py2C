@@ -9,7 +9,6 @@ description = (
 
 long_description = open("README.md").read()
 
-
 # The main setup call
 setup(
     # Package data
