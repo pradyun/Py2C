@@ -116,12 +116,12 @@ class Attr(object):
 
 class Node(object):
     """docstring for Node"""
-    base_parent_class = 'AST'
+    default_parent_class = 'AST'
 
     def __init__(self, name, attrs, parent_class=None):
         super(Node, self).__init__()
         if parent_class is None:
-            parent_class = self.base_parent_class
+            parent_class = self.default_parent_class
         self.name = name
         self.attrs = attrs
         self.parent_class = parent_class
@@ -185,15 +185,12 @@ class Parser(object):
     """Loads the AST dynamically into classes
 
     This Parser parses the file passed in through method::``prepare``"""
-    # This text is added to the end of each line, to signify the end of line
-    end_text = r"~EOL~"
     # Lexer Stuff
-    tokens = ["NAME", "END"]
+    tokens = ["NAME"]
     literals = "[]()*,:="
     t_NAME = r"[_a-zA-Z][_a-zA-Z0-9]*"
-    t_END = end_text + "$"
     # Can be a name, list, tuple
-    t_ignore = "\t "
+    t_ignore = "\n\t "
 
     def t_error(self, t):
         msg = "Unexpected character: {0!r} in Line {1}"
@@ -203,8 +200,16 @@ class Parser(object):
     def p_empty(self, p):
         "empty : "
 
+    def p_goal1(self, p):
+        "goal : result goal"
+        p[0] = [p[1]] + p[2]
+
+    def p_goal2(self, p):
+        "goal : empty"
+        p[0] = []
+
     def p_result(self, p):
-        "result : NAME name_in_parens_opt ':' '[' node_attrs_opt ']' END"
+        "result : NAME name_in_parens_opt ':' '[' node_attrs_opt ']'"
         p[0] = Node(p[1], p[5], p[2])
 
     def p_name_in_parens_opt(self, p):
@@ -276,7 +281,7 @@ class Parser(object):
         self.data = []
 
         self.lexer = ply.lex.lex(module=self)
-        self.parser = ply.yacc.yacc(module=self, start="result")
+        self.parser = ply.yacc.yacc(module=self, start="goal")
         self.prefix = PREFIX
 
     def remove_comments(self, text):
@@ -285,11 +290,7 @@ class Parser(object):
     def prepare(self, text):
         # Parse the data
         text = self.remove_comments(text)
-        self.data = [
-            self.parser.parse(i + self.end_text)
-            for i in text.splitlines()
-            if i.strip()
-        ]
+        self.data = self.parser.parse(text)
 
     def write_module(self, f):
         s = ""

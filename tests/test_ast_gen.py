@@ -194,6 +194,20 @@ class GenerationTestCase(ParserTestCase):
             """
         )
 
+    def test_multiline(self):
+        self.check_output(
+            "FooBar: [\n\tfoo=False,\n\t\tbar=True,\nbaz\n]",
+            """
+            class FooBar(AST):
+                _attrs = [
+                    ('foo', 'False', False),
+                    ('bar', 'True', False),
+                    ('baz', None, False)
+                ]
+            """
+        )
+
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=1)

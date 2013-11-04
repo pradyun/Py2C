@@ -11,32 +11,33 @@ we generate it for the user on first run.
 Note: For development, just change the ``DEV`` variable to ``True``.
       Then, the module will be rebuilt (and replaced) even if it exists.
 """
+from . import _ast_gen as ast_gen
+
 from os.path import join, realpath, dirname, exists
 
 FNAME = join(dirname(realpath(__file__)), "_dual_ast.py")
-DEV = False
+# If true, the module will be rebuilt (and replaced) even if it exists.
+BUILD = True
 
 def generate_module():
-    from . import _ast_gen as ast_gen
-
     with open(FNAME, "w") as f:
         f.truncate()
         ast_gen.generate(f)
-    if not DEV:
-        print("Generated '_dual_ast.py'")
 
-if DEV:
+# Build if the file doesn't exist
+if not BUILD and not exists(FNAME):
+    BUILD = True
+if BUILD:
     generate_module()
-else:
-    if not exists(FNAME):
-        generate_module()
 
+# The module exists, import it
 from . import _dual_ast
-# don't export private names
+
+# Don't export private names
 __all__ = filter(lambda x: not x.startswith("_"), dir(_dual_ast))
 
 # Remove all the declared names from namespace before import!
-del DEV, FNAME, join, realpath, dirname, exists, generate_module, _dual_ast
+del (BUILD, FNAME, join, realpath, dirname, exists, generate_module, _dual_ast, ast_gen)
 
-# The file should exist by now.
+# The file should exist by now. Import the stuff!
 from ._dual_ast import *
