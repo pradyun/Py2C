@@ -57,34 +57,70 @@ class ASTTestCase(unittest.TestCase):
         "Checks if to see that all required nodes exist in '_dual_ast.py'"
 
         node_names = [
-            # Python AST nodes
-            "AST", "Add", "And", "Assert", "Assign", "Attribute", "AugAssign",
-            "AugLoad", "AugStore", "BinOp", "BitAnd", "BitOr", "BitXor",
-            "BoolOp", "Break", "Bytes", "Call", "ClassDef", "Compare",
-            "Continue", "Del", "Delete", "Dict", "DictComp", "Div",
-            "Ellipsis", "Eq", "ExceptHandler", "Exec", "Expr", "Expression",
-            "ExtSlice", "FloorDiv", "For", "FunctionDef", "GeneratorExp",
-            "Global", "Gt", "GtE", "If", "IfExp", "Import", "ImportFrom",
-            "In", "Index", "Interactive", "Invert", "Is", "IsNot", "LShift",
-            "Lambda", "List", "ListComp", "Load", "Lt", "LtE", "Mod",
-            "Module", "Mult", "Name", "Nonlocal", "Not", "NotEq", "NotIn",
-            "Num", "Or", "Param", "Pass", "Pow", "Print", "RShift", "Raise",
-            "Repr", "Return", "Set", "SetComp", "Slice", "Starred", "Store",
-            "Str", "Sub", "Subscript", "Suite", "Try", "TryExcept",
-            "TryFinally", "Tuple", "UAdd", "USub", "UnaryOp", "While", "With",
-            "Yield", "YieldFrom", "alias", "arg", "arguments", "boolop",
-            "cmpop", "comprehension", "excepthandler", "expr", "expr_context",
-            "keyword", "mod", "operator", "slice", "stmt", "unaryop",
-            "withitem",
-            # C AST nodes
+            # The all important node
+            "AST",
+            ## Base nodes
+            "boolop", "cmpop", "expr", "expr_context", "mod", "operator",
+            "slice", "stmt", "unaryop",
+            ## Common Nodes
+            "BinOp", "BoolOp", "Break", "Expression", "If", "Interactive",
+            "Module", "Return", "Str", "Suite", "UnaryOp", "While",
+            ## Python nodes
+            "Add", "And", "Assert", "Assign", "Attribute", "AugAssign",
+            "AugLoad", "AugStore", "BitAnd", "BitOr", "BitXor", "Bytes", "Call",
+            "ClassDef", "Compare", "Continue", "Del", "Delete", "Dict",
+            "DictComp", "Div", "Ellipsis", "Eq", "ExceptHandler", "Exec",
+            "Expr", "Expression", "ExtSlice", "FloorDiv", "FunctionDef",
+            "GeneratorExp", "Global", "Gt", "GtE", "IfExp", "Import",
+            "ImportFrom", "In", "Index", "Invert", "Is", "IsNot", "LShift",
+            "Lambda", "List", "ListComp", "Load", "Lt", "LtE", "Mod","Mult",
+            "Name", "Nonlocal", "Not", "NotEq", "NotIn", "Num", "Or", "Param",
+            "Pass", "Pow", "Print", "Py_For", "RShift", "Raise", "Repr", "Set",
+            "SetComp", "Slice", "Starred", "Store", "Sub", "Subscript", "Try",
+            "TryExcept", "TryFinally", "Tuple", "UAdd", "USub", "With", "Yield",
+            "YieldFrom",
+            # Helper Nodes
+            "alias", "arg", "arguments", "comprehension","excepthandler",
+            "keyword", "withitem",
+            ## C nodes
+            "Block", "C_For", "Case", "Char", "Decl", "Default", "DoWhile",
+            "EnumDecl", "EnumItem", "Float", "Goto", "Int", "Label", "Switch",
         ]
+
         missing = []
         for name in node_names:
             if not hasattr(dual_ast, name):
                 missing.append(name)
+
+        extra = []
+        for name in dir(dual_ast):
+            if name not in node_names and not name.startswith("_"):
+                extra.append(name)
+
+        if not (missing or extra):
+            return
+
+        # If we are here, we have failed the test
+        msg = ["dual_ast has "]
+        write = msg.append
+
+        if missing and extra:
+            write("missing and extra")
+        elif missing:
+            write("missing")
+        elif extra:
+            write("extra")
+
+        write(" attributes")
+
         if missing:
-            msg = "The following nodes are missing: "+", ".join(missing)
-            self.fail(msg)
+            write("\nMissing: ")
+            write(", ".join(missing))
+        if extra:
+            write("\nExtra: ")
+            write(", ".join(extra))
+
+        self.fail("".join(msg))
 
 
 if __name__ == '__main__':
