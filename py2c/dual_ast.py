@@ -8,7 +8,7 @@ the specification in '_ast_nodes.cfg' and then imports it.
 This way, we guarantee that even if we don't ship the '_dual_ast.py' file,
 we generate it for the user on first run.
 
-Note: For development, just change the ``DEV`` variable to ``True``.
+Note: For development, just change the ``BUILD`` variable to ``True``.
       Then, the module will be rebuilt (and replaced) even if it exists.
 """
 from . import _ast_gen as ast_gen

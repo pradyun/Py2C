@@ -3,6 +3,8 @@
 import os, unittest
 from os.path import join, dirname, realpath
 
+CHECK_COVERAGE = True
+
 try:
     import coverage
 except ImportError:
@@ -11,7 +13,7 @@ else:
     HAVE_COVERAGE = True
 
 def main():
-    if HAVE_COVERAGE:
+    if HAVE_COVERAGE and CHECK_COVERAGE:
         cov = coverage.coverage()
         cov.start()
     unittest.TextTestRunner(verbosity=1).run(
@@ -19,7 +21,7 @@ def main():
             os.path.dirname(__file__), "test_*.py"
         )
     )
-    if HAVE_COVERAGE:
+    if HAVE_COVERAGE and CHECK_COVERAGE:
         cov.stop()
         import time
         # In Sublime Text 2, helps prevent mixing of outputs
@@ -27,11 +29,14 @@ def main():
         src_path = join(dirname(dirname(realpath(__file__))), "py2c")
 
         cov.exclude(r'if\s+__name__\s*==\s*.__main__.:', which='exclude')
+        cov.exclude(r'return\s+not\s+\w+\s*==\s*\w+', which='exclude')
+
 
         cov.report(
             omit=[
                 "*parsetab.py",
                 os.path.join(src_path, "_dual_ast.py"),
+                os.path.join(src_path, "dual_ast.py"),
                 os.path.join(src_path, "python_builtins.py"),
             ],
             include=[

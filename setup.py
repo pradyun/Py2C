@@ -16,7 +16,8 @@ classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'Programming Language :: C',
     'Programming Language :: C++',
-    # Supports Python 2.7 & 3.3 only (Might work with other versions though)
+    # Support for Python 2.7 & 3.3 guarenteed
+    # Might support other versions, but not so sure (yet).
     'Programming Language :: Python :: 2',
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
