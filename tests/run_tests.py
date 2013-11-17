@@ -29,13 +29,12 @@ def main():
         src_path = join(dirname(dirname(realpath(__file__))), "py2c")
 
         cov.exclude(r'if\s+__name__\s*==\s*.__main__.:', which='exclude')
-        cov.exclude(r'return\s+not\s+\w+\s*==\s*\w+', which='exclude')
+        cov.exclude(r'return[ ]+not[ ]+\w+[ ]*==[ ]*\w+', which='exclude')
 
 
         cov.report(
             omit=[
                 "*parsetab.py",
-                os.path.join(src_path, "_dual_ast.py"),
                 os.path.join(src_path, "dual_ast.py"),
                 os.path.join(src_path, "python_builtins.py"),
             ],

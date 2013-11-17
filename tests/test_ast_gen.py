@@ -76,42 +76,43 @@ class PropertyTestCase(ParserTestCase):
     def test_property_1arg(self):
         self.template(
             "foo: [bar]",
-            [Node('foo', [Attr('bar', None, False)])]
+            [Node('foo', [Attr('bar', None)])]
         )
 
     def test_property_multi_arg(self):
         self.template(
             "foo: [bar, baz]",
             [Node('foo', [
-                Attr('bar', None, False), Attr('baz', None, False)])]
+                Attr('bar', None), Attr('baz', None)])]
         )
 
     def test_property_1arg_default(self):
         self.template(
             "foo: [bar=None]",
-            [Node('foo', [Attr('bar', 'None', False)])]
+            [Node('foo', [Attr('bar', 'None')])]
         )
 
     def test_property_multi_arg_default(self):
         self.template(
             "foo: [bar, baz=None]",
             [Node('foo', [
-                Attr('bar', None, False),
-                Attr('baz', 'None', False)
+                Attr('bar', None),
+                Attr('baz', 'None')
             ])]
         )
 
-    def test_default(self):
+    def test_default_conversion(self):
         "Tests for default values' conversion to sources"
         self.template(
-            "foo: [a=True, b=False, c=None, d=[], e=(), f]",
+            'foo: [a=True, b=False, c=None, d=[], e=(), f="", g="\n"]',
             [Node('foo', [
-                Attr('a', 'True', False),
-                Attr('b', 'False', False),
-                Attr('c', 'None', False),
-                Attr('d', [], False),
-                Attr('e', (), False),
-                Attr('f', None, False),
+                Attr('a', 'True'),
+                Attr('b', 'False'),
+                Attr('c', 'None'),
+                Attr('d', '[]'),
+                Attr('e', '()'),
+                Attr('f', '""'),
+                Attr('g', '"\n"'),
             ])]
         )
 
@@ -146,7 +147,9 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar]",
             """
             class FooBar(AST):
-                _attrs = [('bar', None, False)]
+                _fields = ['bar']
+                def __init__(self, bar):
+                    self.bar = bar
             """
         )
 
@@ -155,10 +158,10 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar, baz]",
             """
             class FooBar(AST):
-                _attrs = [
-                    ('bar', None, False),
-                    ('baz', None, False)
-                ]
+                _fields = ['bar', 'baz']
+                def __init__(self, bar, baz):
+                    self.bar = bar
+                    self.baz = baz
             """
         )
 
@@ -167,46 +170,48 @@ class GenerationTestCase(ParserTestCase):
             "FooBar: [bar=None]",
             """
             class FooBar(AST):
-                _attrs = [('bar', 'None', False)]
+                _fields = ['bar']
+                def __init__(self, bar=None):
+                    self.bar = bar
             """
         )
 
     def test_multiple_default(self):
         self.template(
-            "FooBar: [foo=False, bar=True, baz]",
+            "FooBar: [foo, bar=True, baz=False]",
             """
             class FooBar(AST):
-                _attrs = [
-                    ('foo', 'False', False),
-                    ('bar', 'True', False),
-                    ('baz', None, False)
-                ]
+                _fields = ['foo', 'bar', 'baz']
+                def __init__(self, foo, bar=True, baz=False):
+                    self.foo = foo
+                    self.bar = bar
+                    self.baz = baz
             """
         )
 
     def test_base(self):
         self.template(
-            "FooBar(Base): [foo=False, bar=True, baz]",
+            "FooBar(Base): [foo, bar=True, baz=False]",
             """
             class FooBar(Base):
-                _attrs = [
-                    ('foo', 'False', False),
-                    ('bar', 'True', False),
-                    ('baz', None, False)
-                ]
+                _fields = ['foo', 'bar', 'baz']
+                def __init__(self, foo, bar=True, baz=False):
+                    self.foo = foo
+                    self.bar = bar
+                    self.baz = baz
             """
         )
 
     def test_multiline(self):
         self.template(
-            "FooBar: [\n\tfoo=False,\n\t\tbar=True,\nbaz\n]",
+            "FooBar: [\n\tfoo,\n\t\tbar\n=\tTrue\n,baz=False]",
             """
             class FooBar(AST):
-                _attrs = [
-                    ('foo', 'False', False),
-                    ('bar', 'True', False),
-                    ('baz', None, False)
-                ]
+                _fields = ['foo', 'bar', 'baz']
+                def __init__(self, foo, bar=True, baz=False):
+                    self.foo = foo
+                    self.bar = bar
+                    self.baz = baz
             """
         )
 
@@ -214,17 +219,17 @@ class GenerationTestCase(ParserTestCase):
 class ReprTestCase(unittest.TestCase):
     """Tests for __repr__ methods of the helper classes"""
     def test_repr_Attr(self):
-        attr1 = Attr("a", "None", False)
-        attr2 = Attr("a", None, True)
-        attr3 = Attr("a", [], False)
-        self.assertEqual(repr(attr1), "Attr('a', 'None', False)")
-        self.assertEqual(repr(attr2), "Attr('a', None, True)")
-        self.assertEqual(repr(attr3), "Attr('a', [], False)")
+        attr1 = Attr("a", "None")
+        attr2 = Attr("a", None)
+        attr3 = Attr("a", [])
+        self.assertEqual(repr(attr1), "Attr('a', 'None')")
+        self.assertEqual(repr(attr2), "Attr('a', None)")
+        self.assertEqual(repr(attr3), "Attr('a', [])")
 
     def test_repr_Node(self):
-        node1 = Node("a", [Attr('a', [], True)])
+        node1 = Node("a", [Attr('a', [])])
         node2 = Node("a", [])
-        self.assertEqual(repr(node1), "Node('a', [Attr('a', [], True)])")
+        self.assertEqual(repr(node1), "Node('a', [Attr('a', [])])")
         self.assertEqual(repr(node2), "Node('a', [])")
 
 
