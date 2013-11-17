@@ -182,12 +182,12 @@ class Print2TestCase(NodeTestCase):
         self.template(
             ast.Print(
                 values=[],
-                dest=ast.Name(id="foo"),
+                dest=ast.Name(id="foo", ctx=ast.Load()),
                 nl=True
             ),
             dual_ast.Print(
                 values=[],
-                dest=dual_ast.Name(id="foo"),
+                dest=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 sep=' ',
                 end='\n'
             )
@@ -199,12 +199,12 @@ class Print2TestCase(NodeTestCase):
         self.template(
             ast.Print(
                 values=[],
-                dest=ast.Name(id="foo"),
+                dest=ast.Name(id="foo", ctx=ast.Load()),
                 nl=False
             ),
             dual_ast.Print(
                 values=[],
-                dest=dual_ast.Name(id="foo"),
+                dest=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 sep=' ',
                 end=' '
             )
@@ -215,13 +215,13 @@ class Print2TestCase(NodeTestCase):
         # print >>bar, foo,
         self.template(
             ast.Print(
-                values=[ast.Name(id="foo")],
-                dest=ast.Name(id="bar"),
+                values=[ast.Name(id="foo", ctx=ast.Load())],
+                dest=ast.Name(id="bar", ctx=ast.Load()),
                 nl=False
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
-                dest=dual_ast.Name(id="bar"),
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
+                dest=dual_ast.Name(id="bar", ctx=dual_ast.Load()),
                 sep=' ',
                 end=' '
             )
@@ -232,13 +232,13 @@ class Print2TestCase(NodeTestCase):
         # print >>bar, foo
         self.template(
             ast.Print(
-                values=[ast.Name(id="foo")],
-                dest=ast.Name(id="bar"),
+                values=[ast.Name(id="foo", ctx=ast.Load())],
+                dest=ast.Name(id="bar", ctx=ast.Load()),
                 nl=True
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
-                dest=dual_ast.Name(id="bar"),
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
+                dest=dual_ast.Name(id="bar", ctx=dual_ast.Load()),
                 sep=' ',
                 end='\n'
             )
@@ -249,12 +249,12 @@ class Print2TestCase(NodeTestCase):
         # print foo,
         self.template(
             ast.Print(
-                values=[ast.Name(id="foo")],
+                values=[ast.Name(id="foo", ctx=ast.Load())],
                 dest=None,
                 nl=False
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
                 dest=None,
                 sep=' ',
                 end=' '
@@ -266,12 +266,12 @@ class Print2TestCase(NodeTestCase):
         # print foo
         self.template(
             ast.Print(
-                values=[ast.Name(id="foo")],
+                values=[ast.Name(id="foo", ctx=ast.Load())],
                 dest=None,
                 nl=True
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
                 dest=None,
                 sep=' ',
                 end='\n'
@@ -287,7 +287,7 @@ class Print3TestCase(NodeTestCase):
         # print()
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
+                func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[],
                 starargs=None,
@@ -306,17 +306,17 @@ class Print3TestCase(NodeTestCase):
         # print(file=foo)
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
+                func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id="foo"))
+                    ast.keyword(arg='file', value=ast.Name(id="foo", ctx=ast.Load()))
                 ],
                 starargs=None,
                 kwargs=None
             ),
             dual_ast.Print(
                 values=[],
-                dest=dual_ast.Name(id="foo"),
+                dest=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 sep=' ',
                 end='\n'
             )
@@ -327,7 +327,7 @@ class Print3TestCase(NodeTestCase):
         # print(end='')
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
+                func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[
                     ast.keyword(arg='end', value=ast.Str(s=''))
@@ -348,10 +348,10 @@ class Print3TestCase(NodeTestCase):
         # print(file=foo, end='')
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
+                func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id='foo')),
+                    ast.keyword(arg='file', value=ast.Name(id="foo", ctx=ast.Load())),
                     ast.keyword(arg='end',  value=ast.Str(s=''))
                 ],
                 starargs=None,
@@ -359,7 +359,7 @@ class Print3TestCase(NodeTestCase):
             ),
             dual_ast.Print(
                 values=[],
-                dest=dual_ast.Name(id="foo"),
+                dest=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 sep=' ',
                 end=''
             )
@@ -370,18 +370,18 @@ class Print3TestCase(NodeTestCase):
         # print(foo, file=bar, end='')
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
-                args=[ast.Name(id='foo')],
+                func=ast.Name(id="print", ctx=ast.Load()),
+                args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id='bar')),
+                    ast.keyword(arg='file', value=ast.Name(id="bar", ctx=ast.Load())),
                     ast.keyword(arg='end', value=ast.Str(s=''))
                 ],
                 starargs=None,
                 kwargs=None
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
-                dest=dual_ast.Name(id="bar"),
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
+                dest=dual_ast.Name(id="bar", ctx=dual_ast.Load()),
                 sep=' ',
                 end=''
             )
@@ -392,19 +392,19 @@ class Print3TestCase(NodeTestCase):
         # print(foo, file=bar)
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
-                args=[ast.Name(id='foo')],
+                func=ast.Name(id="print", ctx=ast.Load()),
+                args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id='bar'))
+                    ast.keyword(arg='file', value=ast.Name(id="bar", ctx=ast.Load()))
                 ],
                 starargs=None,
                 kwargs=None
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
-                dest=dual_ast.Name(id="bar"),
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
+                dest=dual_ast.Name(id="bar", ctx=dual_ast.Load()),
                 sep=' ',
-                end=''
+                end='\n'
             )
         )
 
@@ -413,8 +413,8 @@ class Print3TestCase(NodeTestCase):
         # print(foo, end='')
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
-                args=[ast.Name(id='foo')],
+                func=ast.Name(id="print", ctx=ast.Load()),
+                args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
                     ast.keyword(arg='end', value=ast.Str(s=''))
                 ],
@@ -422,7 +422,7 @@ class Print3TestCase(NodeTestCase):
                 kwargs=None
             ),
             dual_ast.Print(
-                values=[dual_ast.Name(id="foo")],
+                values=[dual_ast.Name(id="foo", ctx=dual_ast.Load())],
                 dest=None,
                 sep=' ',
                 end=''
@@ -434,8 +434,8 @@ class Print3TestCase(NodeTestCase):
         # print(foo, incorrect_kwd='')
         self.template(
             ast.Call(
-                func=ast.Name(id='print'),
-                args=[ast.Name(id='foo')],
+                func=ast.Name(id="print", ctx=ast.Load()),
+                args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
                     ast.keyword(arg='incorrect_kwd', value=ast.Str(s=''))
                 ],
@@ -453,14 +453,14 @@ class CallTestCase(NodeTestCase):
         # foo()
         self.template(
             ast.Call(
-                func=ast.Name(id='foo'),
+                func=ast.Name(id="foo", ctx=ast.Load()),
                 args=[],
                 keywords=[],
                 starargs=None,
                 kwargs=None
             ),
             dual_ast.Call(
-                func=dual_ast.Name(id='foo'),
+                func=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 args=[]
             )
         )
@@ -469,15 +469,15 @@ class CallTestCase(NodeTestCase):
         # foo(bar)
         self.template(
             ast.Call(
-                func=ast.Name(id='foo'),
-                args=[ast.Name(id='bar')],
+                func=ast.Name(id="foo", ctx=ast.Load()),
+                args=[ast.Name(id="bar", ctx=ast.Load())],
                 keywords=[],
                 starargs=None,
                 kwargs=None
             ),
             dual_ast.Call(
-                func=dual_ast.Name(id='foo'),
-                args=[dual_ast.Name(id='bar')]
+                func=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                args=[dual_ast.Name(id="bar", ctx=dual_ast.Load())]
             )
         )
 
@@ -485,7 +485,7 @@ class CallTestCase(NodeTestCase):
         # foo(unexpected_kwd='')
         self.template(
             ast.Call(
-                func=ast.Name(id='foo'),
+                func=ast.Name(id="foo", ctx=ast.Load()),
                 args=[],
                 keywords=[
                     ast.keyword(arg='unexpected_kwd', value=ast.Str(s=''))
@@ -501,10 +501,10 @@ class CallTestCase(NodeTestCase):
         # foo(*starred)
         self.template(
             ast.Call(
-                func=ast.Name(id='foo'),
+                func=ast.Name(id="foo", ctx=ast.Load()),
                 args=[],
                 keywords=[],
-                starargs=ast.Name(id='starred'),
+                starargs=ast.Name(id="starred", ctx=ast.Load()),
                 kwargs=None
             ),
             None
@@ -520,15 +520,15 @@ class BoolOpTestCase(NodeTestCase):
             ast.BoolOp(
                 op=ast.And(),
                 values=[
-                    ast.Name(id='foo'),
-                    ast.Name(id='bar')
+                    ast.Name(id="foo", ctx=ast.Load()),
+                    ast.Name(id="bar", ctx=ast.Load())
                 ]
             ),
             dual_ast.BoolOp(
                 op=dual_ast.And(),
                 values=[
-                    dual_ast.Name(id='foo'),
-                    dual_ast.Name(id='bar')
+                    dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="bar", ctx=dual_ast.Load())
                 ]
             )
         )
@@ -538,17 +538,17 @@ class BoolOpTestCase(NodeTestCase):
             ast.BoolOp(
                 op=ast.And(),
                 values=[
-                    ast.Name(id='foo'),
-                    ast.Name(id='bar'),
-                    ast.Name(id='baz'),
+                    ast.Name(id="foo", ctx=ast.Load()),
+                    ast.Name(id="bar", ctx=ast.Load()),
+                    ast.Name(id="baz", ctx=ast.Load()),
                 ]
             ),
             dual_ast.BoolOp(
                 op=dual_ast.And(),
                 values=[
-                    dual_ast.Name(id='foo'),
-                    dual_ast.Name(id='bar'),
-                    dual_ast.Name(id='baz'),
+                    dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="bar", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="baz", ctx=dual_ast.Load()),
                 ]
             )
         )
@@ -558,15 +558,15 @@ class BoolOpTestCase(NodeTestCase):
             ast.BoolOp(
                 op=ast.Or(),
                 values=[
-                    ast.Name(id='foo'),
-                    ast.Name(id='bar')
+                    ast.Name(id="foo", ctx=ast.Load()),
+                    ast.Name(id="bar", ctx=ast.Load())
                 ]
             ),
             dual_ast.BoolOp(
                 op=dual_ast.Or(),
                 values=[
-                    dual_ast.Name(id='foo'),
-                    dual_ast.Name(id='bar')
+                    dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="bar", ctx=dual_ast.Load())
                 ]
             )
         )
@@ -576,17 +576,17 @@ class BoolOpTestCase(NodeTestCase):
             ast.BoolOp(
                 op=ast.Or(),
                 values=[
-                    ast.Name(id='foo'),
-                    ast.Name(id='bar'),
-                    ast.Name(id='baz')
+                    ast.Name(id="foo", ctx=ast.Load()),
+                    ast.Name(id="bar", ctx=ast.Load()),
+                    ast.Name(id="baz", ctx=ast.Load())
                 ]
             ),
             dual_ast.BoolOp(
                 op=dual_ast.Or(),
                 values=[
-                    dual_ast.Name(id='foo'),
-                    dual_ast.Name(id='bar'),
-                    dual_ast.Name(id='baz')
+                    dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="bar", ctx=dual_ast.Load()),
+                    dual_ast.Name(id="baz", ctx=dual_ast.Load())
                 ]
             )
         )
@@ -594,7 +594,7 @@ class BoolOpTestCase(NodeTestCase):
     def test_binop_invalid_op(self):
         node = ast.BoolOp(
             op='Blah',
-            values=[ast.Name(id="foo"), ast.Name(id="bar")]
+            values=[ast.Name(id="foo"), ast.Name(id="bar", ctx=ast.Load())]
         )
         self.assertEqual(self.translator.visit(node), None)
 
@@ -604,78 +604,78 @@ class BinOpTestCase(NodeTestCase):
     def test_binop_Add(self):
         self.template(
             ast.BinOp(
-                left=ast.Name(id='foo'),
+                left=ast.Name(id="foo", ctx=ast.Load()),
                 op=ast.Add(),
-                right=ast.Name(id='b')
+                right=ast.Name(id="b", ctx=ast.Load())
             ),
             dual_ast.BinOp(
-                left=dual_ast.Name(id='foo'),
+                left=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 op=dual_ast.Add(),
-                right=dual_ast.Name(id='b')
+                right=dual_ast.Name(id="b", ctx=dual_ast.Load())
             )
         )
 
     def test_binop_Sub(self):
         self.template(
             ast.BinOp(
-                left=ast.Name(id='foo'),
+                left=ast.Name(id="foo", ctx=ast.Load()),
                 op=ast.Sub(),
-                right=ast.Name(id='b')
+                right=ast.Name(id="b", ctx=ast.Load())
             ),
             dual_ast.BinOp(
-                left=dual_ast.Name(id='foo'),
+                left=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 op=dual_ast.Sub(),
-                right=dual_ast.Name(id='b')
+                right=dual_ast.Name(id="b", ctx=dual_ast.Load())
             )
         )
 
     def test_binop_Mult(self):
         self.template(
             ast.BinOp(
-                left=ast.Name(id='foo'),
+                left=ast.Name(id="foo", ctx=ast.Load()),
                 op=ast.Mult(),
-                right=ast.Name(id='b')
+                right=ast.Name(id="b", ctx=ast.Load())
             ),
             dual_ast.BinOp(
-                left=dual_ast.Name(id='foo'),
+                left=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 op=dual_ast.Mult(),
-                right=dual_ast.Name(id='b')
+                right=dual_ast.Name(id="b", ctx=dual_ast.Load())
             )
         )
 
     def test_binop_Div(self):
         self.template(
             ast.BinOp(
-                left=ast.Name(id='foo'),
+                left=ast.Name(id="foo", ctx=ast.Load()),
                 op=ast.Div(),
-                right=ast.Name(id='b')
+                right=ast.Name(id="b", ctx=ast.Load())
             ),
             dual_ast.BinOp(
-                left=dual_ast.Name(id='foo'),
+                left=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 op=dual_ast.Div(),
-                right=dual_ast.Name(id='b')
+                right=dual_ast.Name(id="b", ctx=dual_ast.Load())
             )
         )
 
     def test_binop_Mod(self):
         self.template(
             ast.BinOp(
-                left=ast.Name(id='foo'),
+                left=ast.Name(id="foo", ctx=ast.Load()),
                 op=ast.Mod(),
-                right=ast.Name(id='b')
+                right=ast.Name(id="b", ctx=ast.Load())
             ),
             dual_ast.BinOp(
-                left=dual_ast.Name(id='foo'),
+                left=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
                 op=dual_ast.Mod(),
-                right=dual_ast.Name(id='b')
+                right=dual_ast.Name(id="b", ctx=dual_ast.Load())
             )
         )
 
     def test_binop_invalid_op(self):
         node = ast.BinOp(
             op='Blah',  # Not a valid operator
-            left=ast.Name(id="foo"),
-            right=ast.Name(id="bar")
+            left=ast.Name(id="foo", ctx=ast.Load()),
+            right=ast.Name(id="bar", ctx=ast.Load())
         )
         self.assertEqual(self.translator.visit(node), None)
         self.assertTrue(self.translator.errors)
@@ -687,11 +687,11 @@ class UnaryOpTestCase(NodeTestCase):
         self.template(
             ast.UnaryOp(
                 op=ast.Not(),
-                operand=ast.Name(id='foo')
+                operand=ast.Name(id="foo", ctx=ast.Load())
             ),
             dual_ast.UnaryOp(
                 op=dual_ast.Not(),
-                operand=dual_ast.Name(id='foo')
+                operand=dual_ast.Name(id="foo", ctx=dual_ast.Load())
             )
         )
 
@@ -699,11 +699,11 @@ class UnaryOpTestCase(NodeTestCase):
         self.template(
             ast.UnaryOp(
                 op=ast.UAdd(),
-                operand=ast.Name(id='foo')
+                operand=ast.Name(id="foo", ctx=ast.Load())
             ),
             dual_ast.UnaryOp(
                 op=dual_ast.UAdd(),
-                operand=dual_ast.Name(id='foo')
+                operand=dual_ast.Name(id="foo", ctx=dual_ast.Load())
             )
         )
 
@@ -711,11 +711,11 @@ class UnaryOpTestCase(NodeTestCase):
         self.template(
             ast.UnaryOp(
                 op=ast.USub(),
-                operand=ast.Name(id='foo')
+                operand=ast.Name(id="foo", ctx=ast.Load())
             ),
             dual_ast.UnaryOp(
                 op=dual_ast.USub(),
-                operand=dual_ast.Name(id='foo')
+                operand=dual_ast.Name(id="foo", ctx=dual_ast.Load())
             )
         )
 
@@ -723,18 +723,18 @@ class UnaryOpTestCase(NodeTestCase):
         self.template(
             ast.UnaryOp(
                 op=ast.Invert(),
-                operand=ast.Name(id='foo')
+                operand=ast.Name(id="foo", ctx=ast.Load())
             ),
             dual_ast.UnaryOp(
                 op=dual_ast.Invert(),
-                operand=dual_ast.Name(id='foo')
+                operand=dual_ast.Name(id="foo", ctx=dual_ast.Load())
             )
         )
 
     def test_unary_invalid_op(self):
         node = ast.UnaryOp(
             op='Blah',  # Not a valid operator
-            operand=ast.Name(id="foo")
+            operand=ast.Name(id="foo", ctx=ast.Load())
         )
         self.assertEqual(self.translator.visit(node), None)
         self.assertTrue(self.translator.errors)
@@ -745,14 +745,14 @@ class IfExpTestCase(NodeTestCase):
     def test_ifexp(self):
         self.template(
             ast.IfExp(
-                test=ast.Name(id='bar'),
-                body=ast.Name(id='foo'),
-                orelse=ast.Name(id='baz')
+                test=ast.Name(id="bar", ctx=ast.Load()),
+                body=ast.Name(id="foo", ctx=ast.Load()),
+                orelse=ast.Name(id="baz", ctx=ast.Load())
             ),
             dual_ast.IfExp(
-                test=dual_ast.Name(id='bar'),
-                body=dual_ast.Name(id='foo'),
-                orelse=dual_ast.Name(id='baz')
+                test=dual_ast.Name(id="bar", ctx=dual_ast.Load()),
+                body=dual_ast.Name(id="foo", ctx=dual_ast.Load()),
+                orelse=dual_ast.Name(id="baz", ctx=dual_ast.Load())
             )
         )
 
@@ -768,12 +768,35 @@ class ModuleTestCase(NodeTestCase):
     def test_not_empty_module(self):
         self.template(
             ast.Module(
-                body=[ast.Name(id='foo')]
+                body=[ast.Name(id='foo', ctx=ast.Load())]
             ),
             dual_ast.Module(
-                body=[dual_ast.Name(id="foo")]
+                body=[dual_ast.Name(id="foo", ctx=dual_ast.Load())]
             )
         )
+
+
+class ContextTestCase(NodeTestCase):
+    """Tests for translation from expr_context nodes"""
+        # Context
+
+    def test_AugLoad(self):
+        self.template(ast.AugLoad(), dual_ast.AugLoad())
+
+    def test_AugStore(self):
+        self.template(ast.AugStore(), dual_ast.AugStore())
+
+    def test_Del(self):
+        self.template(ast.Del(), dual_ast.Del())
+
+    def test_Load(self):
+        self.template(ast.Load(), dual_ast.Load())
+
+    def test_Param(self):
+        self.template(ast.Param(), dual_ast.Param())
+
+    def test_Store(self):
+        self.template(ast.Store(), dual_ast.Store())
 
 
 if __name__ == '__main__':

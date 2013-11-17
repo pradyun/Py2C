@@ -87,6 +87,22 @@ class Py2DualTranslator(ast.NodeVisitor):
     def visit_Module(self, node):
         return dual_ast.Module(self.body(node.body))
 
+    # Constants or Variable names
+    def visit_Name(self, node):
+        return dual_ast.Name(id=node.id, ctx=self.visit(node.ctx))
+
+    def visit_Str(self, node):
+        return dual_ast.Str(s=node.s)
+
+    def visit_Num(self, node):
+        if isinstance(node.n, int):
+            return dual_ast.Int(n=node.n)
+        elif isinstance(node.n, float):
+            return dual_ast.Float(n=node.n)
+        else:
+            msg = "Only ints and floats supported, {0} numbers not supported"
+            self.log_error(msg.format(node.n.__class__.__name__))
+
     def visit_Print(self, node, py3=False):
         if py3:  # 'print' function call
             keywords = {}
@@ -131,20 +147,24 @@ class Py2DualTranslator(ast.NodeVisitor):
 
         return dual_ast.Call(func=func, args=args)
 
-    def visit_Num(self, node):
-        if isinstance(node.n, int):
-            return dual_ast.Int(n=node.n)
-        elif isinstance(node.n, float):
-            return dual_ast.Float(n=node.n)
-        else:
-            msg = "Only ints and floats supported, {0} numbers not supported"
-            self.log_error(msg.format(node.n.__class__.__name__))
+    # Context
+    def visit_AugLoad(self, node):
+        return dual_ast.AugLoad()
 
-    def visit_Name(self, node):
-        return dual_ast.Name(id=node.id)
+    def visit_AugStore(self, node):
+        return dual_ast.AugStore()
 
-    def visit_Str(self, node):
-        return dual_ast.Str(s=node.s)
+    def visit_Del(self, node):
+        return dual_ast.Del()
+
+    def visit_Load(self, node):
+        return dual_ast.Load()
+
+    def visit_Param(self, node):
+        return dual_ast.Param()
+
+    def visit_Store(self, node):
+        return dual_ast.Store()
 
     def visit_BoolOp(self, node):
         classname = node.op.__class__.__name__

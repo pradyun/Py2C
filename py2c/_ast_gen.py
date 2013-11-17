@@ -31,29 +31,8 @@ PREFIX = dedent("""
 
     class AST(object):
         '''Abstract AST Node'''
-        def __init__(self, *args, **kwargs):
-            if not hasattr(self, '_attrs'):
-                raise AttributeError(
-                    "An AST object should have an '_attrs' attribute"
-                )
-            if args and len(args) != len(self._attrs):
-                msg = "{0} constructor takes 0 or {1} positional arguments"
-                raise TypeError(msg.format(self.__class__.__name__, len(self._attrs)))  # noqa
-
-            have_args = bool(args)
-            self._fields = []
-            for (i, (name, default, is_list)) in enumerate(self._attrs):
-                self._fields.append(name)
-                if have_args:
-                    setattr(self, name, args[i])
-                else:  # Guarantee attribute
-                    setattr(self, name, default)
-            self.__dict__.update(kwargs)
-
         def __eq__(self, other):
             if type(self) != type(other):
-                return False
-            elif self._attrs != other._attrs:
                 return False
             else:
                 for i in self._fields:
@@ -66,10 +45,15 @@ PREFIX = dedent("""
 
         def __repr__(self):
             attrs = ", ".join(
-                "{0}={1}".format(field, getattr(self, field))
+                "{0}={1!r}".format(field, getattr(self, field))
                 for field in self._fields
             )
             return "{self.__class__.__name__}({attrs})".format(self=self, attrs=attrs)  # noqa
+
+        def _get_val(self, text):
+            # print(text)
+            return eval(text)
+
     # ---------------------------------------------------------------------
     # The rest is auto-generated.
     # ---------------------------------------------------------------------
@@ -98,22 +82,27 @@ def indent(text, prefix, predicate=None):
 
 # Helper classes (Function as AST nodes of configuration file)
 class Attr(object):
-    def __init__(self, name, default=None, is_list=False):
+    def __init__(self, name, default=None):
         super(Attr, self).__init__()
         self.name = name
         self.default = default
-        self.is_list = is_list
 
     def __repr__(self):
-        return "Attr({0.name!r}, {0.default!r}, {0.is_list!r})".format(self)
+        return "Attr({0.name!r}, {0.default!r})".format(self)
 
-    def to_source(self):
-        return "({0.name!r}, {0.default!r}, {0.is_list!r})".format(self)
+    def signature(self):
+        s = "{self.name}"
+        if self.default is not None:
+            s += "={self.default}"
+        return s.format(self=self)
+
+    def setter(self):
+        return "self.{0} = {0}".format(self.name)
 
     def __eq__(self, other):
         return all(
             getattr(self, i) == getattr(other, i)
-            for i in ["name", "default", "is_list"]
+            for i in ["name", "default"]
         )
 
     def __ne__(self, other):
@@ -135,26 +124,27 @@ class Node(object):
     def to_source(self):
         s = dedent("""
             class {self.name}({self.parent_class}):
-                {0}
-        """).strip('\n')+'\n'
-        return s.format(self.form_attrs(), self=self)
+                _fields = {_fields}
+                def __init__({signature}):
+            {setters}
+        """)
+        return s.format(
+            self=self,
+            signature=self._signature(),
+            setters=self._setters(),
+            _fields=list(map(lambda x: x.name, self.attrs))
+        )
 
-    def form_attrs(self):  # #cleanup# Dirty
-        if not self.attrs:
-            val = ''
-        elif len(self.attrs) == 1:
-            val = self.attrs[0].to_source()
-        else:
-            val = []
-            for attr in self.attrs:
-                val.append(attr.to_source())
-            # Attributes: one on each line (do we need that??)
-            # We could do with all attributes on the same line.
-            val = indent(",\n".join(val), " "*8)
-            # List bracket adjustment
-            val = "\n"+val+"\n"+" "*4
+    def _signature(self):
+        return ", ".join(
+            ["self"] + list(map(lambda x: x.signature(), self.attrs))
+        )
 
-        return "_attrs = [{0}]".format(val)
+    def _setters(self):
+        return indent(
+            "\n".join(map(lambda x: x.setter(), self.attrs)) or "pass",
+            " "*8
+        )
 
     def __repr__(self):
         return "Node({0.name!r}, {0.attrs!r})".format(self)
@@ -190,18 +180,46 @@ class ParsingError(Exception):
 class Parser(object):
     """Loads the AST dynamically into classes
 
-    This Parser parses the file passed in through method::``prepare``"""
+    This Parser parses the file passed in through method::``prepare``
+    """
+    #----------------------------------------------------------------------
+    # Lexer
+    states = [
+        ('string', 'exclusive')
+    ]
     # Lexer Stuff
-    tokens = ["NAME"]
+    tokens = ["NAME", "STRING"]
     literals = "[]()*,:="
-    t_NAME = r"[_a-zA-Z][_a-zA-Z0-9]*"
-    # Can be a name, list, tuple
+    t_string_ignore = ""
     t_ignore = "\n\t "
+    t_NAME = r"[_a-zA-Z][_a-zA-Z0-9]*"
+
+    def t_INITIAL_stringstart(self, t):
+        r'"'
+        self.str_start = t.lexpos
+        t.lexer.begin("string")
+
+    def t_string_end(self, t):
+        r'(?<!\\)"'
+        end = t.lexpos
+        t.type = "STRING"
+        t.lexpos = self.str_start
+        t.value = t.lexer.lexdata[self.str_start:end+1]
+        t.lexer.begin("INITIAL")
+        return t
+
+    # For bad characters, we just skip over it
+    def t_string_error(self, t):
+        t.lexer.skip(1)
 
     def t_error(self, t):
-        msg = "Unexpected character: {0!r} in Line {1}"
-        raise LexerError(msg.format(t.value[0], t.lineno))
+        msg = "Unexpected character: {char!r} in Line {lineno}"
+        raise LexerError(msg.format(
+            char=t.value[0],
+            lineno=t.lineno
+        ))
 
+    #----------------------------------------------------------------------
     # Parser Stuff
     def p_empty(self, p):
         "empty : "
@@ -256,24 +274,23 @@ class Parser(object):
             p[0] = p[2]
 
     def p_attr(self, p):
-        "attr : star_opt NAME equal_val_opt"
-        p[0] = Attr(p[2], p[3], p[1])
-
-    def p_star_opt(self, p):
-        """star_opt : '*'
-                    | empty"""
-        p[0] = (p[1] == '*')
+        "attr : NAME equal_val_opt"
+        p[0] = Attr(p[1], p[2])
 
     def p_val1(self, p):
         "val : '[' ']'"
-        p[0] = []
+        p[0] = '[]'
 
     def p_val2(self, p):
         "val : '(' ')'"
-        p[0] = ()
+        p[0] = '()'
 
     def p_val3(self, p):
         "val : NAME"
+        p[0] = p[1]
+
+    def p_val4(self, p):
+        "val : STRING"
         p[0] = p[1]
 
     def p_error(self, t):
@@ -283,7 +300,6 @@ class Parser(object):
     # The rest of the things
     def __init__(self):
         super(Parser, self).__init__()
-
         self.data = []
 
         self.lexer = ply.lex.lex(module=self)
@@ -296,7 +312,10 @@ class Parser(object):
     def prepare(self, text):
         # Parse the data
         text = self.remove_comments(text)
-        self.data = self.parser.parse(text)
+        # self.lexer.input(text)
+        # for i in self.lexer:
+        #     print(i)
+        self.data = self.parser.parse(text, lexer=self.lexer)
 
     def write_module(self, f):
         s = ""
@@ -326,3 +345,7 @@ if __name__ == '__main__':
         f.truncate()
         generate(f)
     print("Generated '_dual_ast.py'")
+    # import sys
+    # p = Parser()
+    # p.prepare('Print(stmt) : [dest, values, sep=" ", end="\\n"]')
+    # p.write_module(sys.stdout)
