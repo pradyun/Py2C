@@ -53,7 +53,7 @@ class ASTTestCase(unittest.TestCase):
         self.assertNotEqual(node1, "I'm not equal to a Node")
 
     # A really important and useful test. Create the node_names list!!
-    def test_nodes_exist(self):
+    def test_nodes_exist(self):  # noqa
         "Checks if to see that all required nodes exist in '_dual_ast.py'"
 
         node_names = [
@@ -63,29 +63,50 @@ class ASTTestCase(unittest.TestCase):
             "boolop", "cmpop", "expr", "expr_context", "mod", "operator",
             "slice", "stmt", "unaryop",
             ## Common Nodes
-            "BinOp", "BoolOp", "Break", "Expression", "If", "Interactive",
-            "Module", "Return", "Str", "Suite", "UnaryOp", "While",
+            "Module",  # Holds all code
+
+            "BinOp",  # comparision
+                "Add", "Div", "FloorDiv", "LShift", "Mod", "Mult", "Pow",  # noqa
+                "RShift", "Sub",
+                "BitAnd", "BitOr", "BitXor",
+            "BoolOp",
+                "And", "Or",
+            "UnaryOp",
+                "UAdd", "USub", "Not", "Invert",
+            # flow control/logic
+            "Break", "If", "FunctionDef", "Return", "While",
+            # Others
+            "Str",
             ## Python nodes
-            "Add", "And", "Assert", "Assign", "Attribute", "AugAssign",
-            "AugLoad", "AugStore", "BitAnd", "BitOr", "BitXor", "Bytes", "Call",
-            "ClassDef", "Compare", "Continue", "Del", "Delete", "Dict",
-            "DictComp", "Div", "Ellipsis", "Eq", "ExceptHandler", "Exec",
-            "Expr", "Expression", "ExtSlice", "FloorDiv", "FunctionDef",
-            "GeneratorExp", "Global", "Gt", "GtE", "IfExp", "Import",
-            "ImportFrom", "In", "Index", "Invert", "Is", "IsNot", "LShift",
-            "Lambda", "List", "ListComp", "Load", "Lt", "LtE", "Mod","Mult",
-            "Name", "Nonlocal", "Not", "NotEq", "NotIn", "Num", "Or", "Param",
-            "Pass", "Pow", "Print", "Py_For", "RShift", "Raise", "Repr", "Set",
-            "SetComp", "Slice", "Starred", "Store", "Sub", "Subscript", "Try",
-            "TryExcept", "TryFinally", "Tuple", "UAdd", "USub", "With", "Yield",
+            # Comparision
+            "Is", "IsNot", "In", "NotIn",
+            # Simple statements
+            "Assert", "Assign", "AugAssign", "Pass", "Del", "Print", "Yield",
+            "Raise", "Import", "ImportFrom", "Global", "Exec",
+            "Attribute",
+            "AugLoad", "AugStore", "Bytes", "Call",
+            "ClassDef", "Compare", "Continue", "Delete", "Dict",
+            "DictComp", "Ellipsis", "Eq", "ExceptHandler",
+            "Expr", "ExtSlice",
+            "GeneratorExp", "Gt", "GtE", "IfExp", "Index",
+            "Lambda", "List", "ListComp", "Load", "Lt", "LtE",
+            "Name", "Nonlocal", "NotEq", "Num", "Param",
+            "Py_For", "Repr", "Set",
+            "SetComp", "Slice", "Starred", "Store", "Subscript", "Try",
+            "TryExcept", "TryFinally", "Tuple", "With",
             "YieldFrom",
             # Helper Nodes
-            "alias", "arg", "arguments", "comprehension","excepthandler",
+            "alias", "arg", "arguments", "comprehension", "excepthandler",
             "keyword", "withitem",
             ## C nodes
             "Block", "C_For", "Case", "Char", "Decl", "Default", "DoWhile",
             "EnumDecl", "EnumItem", "Float", "Goto", "Int", "Label", "Switch",
         ]
+        # Make sure there are no duplicate elements
+        self.assertSequenceEqual(
+            sorted(list(set(node_names))),
+            sorted(node_names)
+        )
 
         missing = []
         for name in node_names:
@@ -97,9 +118,6 @@ class ASTTestCase(unittest.TestCase):
             if name not in node_names and not name.startswith("_"):
                 extra.append(name)
 
-        if not (missing or extra):
-            return
-
         # If we are here, we have failed the test
         msg = ["dual_ast has "]
         write = msg.append
@@ -110,6 +128,8 @@ class ASTTestCase(unittest.TestCase):
             write("missing")
         elif extra:
             write("extra")
+        else:
+            return
 
         write(" attributes")
 
