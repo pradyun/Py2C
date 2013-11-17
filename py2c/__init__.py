@@ -1,2 +1,3 @@
+from . import dual_ast
 from . import ast_translator
-dual_ast = ast_translator.dual_ast
+

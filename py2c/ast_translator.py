@@ -5,22 +5,22 @@ import inspect
 from py2c import dual_ast
 
 
-__all__ = ["ASTTranslator", "dual_ast"]
+__all__ = ["Py2DualTranslator", "dual_ast"]
 
 
-class ASTTranslator(ast.NodeVisitor):
-    """Translates Python AST into C AST
+class Py2DualTranslator(ast.NodeVisitor):
+    """Translates Python AST into dual AST
 
     This is a NodeVisitor that visits the Python AST validates it for conversion
-    and creates another AST, for C code (with type definitions and other stuff),
-    from which C code is generated.
+    and creates another AST, for dual code (with type definitions and other stuff),
+    from which dual code is generated.
 
     Attributes:
         errors: A list that contains the error-messages that of errors that
                 occurred during translation.
     """
     def __init__(self):
-        super(ASTTranslator, self).__init__()
+        super(Py2DualTranslator, self).__init__()
         self.setup()
 
     def setup(self):
@@ -49,16 +49,16 @@ class ASTTranslator(ast.NodeVisitor):
         if not self.errors:
             return
 
-        print "Error(s) occurred while translating Python AST into C ast"
+        print("Error(s) occurred while translating Python AST into dual ast")
         for msg in self.errors:
             print(' - '+msg)
 
     def get_node(self, node):
-        """Get the C AST from the Python AST `node`
+        """Get the dual AST from the Python AST `node`
         Args:
-            node: The Python AST to be converted to C AST
+            node: The Python AST to be converted to dual AST
         Returns:
-            A C node, from the dual_ast.py
+            A dual node, from the dual_ast.py
         Raises:
             Exception: If the AST could not be converted, due to some error
                        Raised after printing those errors.
@@ -91,15 +91,20 @@ class ASTTranslator(ast.NodeVisitor):
         return dual_ast.Module(self.body(node.body))
 
     def visit_Print(self, node, py3=False):
-        if py3:  # python 3 print function
+        if py3:  # 'print' function call
             keywords = {}
             if node.keywords is not None:
                 for kw in node.keywords:
                     keywords[kw.arg] = kw.value
 
-            sep = keywords.get('sep', ast.Str(' ')).s
-            end = keywords.get('end', ast.Str('\n')).s
-            dest = keywords.get('file', None)
+            sep = keywords.pop('sep', ast.Str(' ')).s
+            end = keywords.pop('end', ast.Str('\n')).s
+            dest = keywords.pop('file', None)
+            if keywords:
+                self.log_error(
+                    "Unexpected arguments to `print` function call", node
+                )
+                return None
             if dest is not None:
                 dest = self.visit(dest)
             values = map(self.visit, node.args)
@@ -119,10 +124,14 @@ class ASTTranslator(ast.NodeVisitor):
 
         if node.keywords:
             self.log_error("Calls with keyword arguments not supported", node)
-        if node.starargs is not None or node.kwargs is not None:
+            return
+        if not (node.starargs is None and node.kwargs is None):
             self.log_error("Calls with starred arguments not supported", node)
+            return
+
         func = self.visit(node.func)
         args = list(map(self.visit, node.args))
+
         return dual_ast.Call(func=func, args=args)
 
     def visit_Num(self, node):
@@ -132,7 +141,7 @@ class ASTTranslator(ast.NodeVisitor):
             return dual_ast.Float(n=node.n)
         else:
             msg = "Only ints and floats supported, {0} numbers not supported"
-            raise ValueError(msg.format(node.n.__class__.__name__))
+            self.log_error(msg.format(node.n.__class__.__name__))
 
     def visit_Name(self, node):
         return dual_ast.Name(id=node.id)
@@ -141,10 +150,15 @@ class ASTTranslator(ast.NodeVisitor):
         return dual_ast.Str(s=node.s)
 
     def visit_BoolOp(self, node):
-        if isinstance(node.op, ast.And):
-            op = dual_ast.And()
-        elif isinstance(node.op, ast.Or):
-            op = dual_ast.Or()
+        classname = node.op.__class__.__name__
+        if isinstance(node.op, (ast.And, ast.Or)):
+            op = getattr(dual_ast, classname)()
+        else:
+            self.log_error(
+                "Unknown boolean operator: {0}".format(classname), node
+            )
+            return None
+
         values = list(map(self.visit, node.values))
         return dual_ast.BoolOp(op=op, values=values)
 
@@ -162,10 +176,11 @@ class ASTTranslator(ast.NodeVisitor):
 
     def visit_UnaryOp(self, node):
         classname = node.op.__class__.__name__
-        if isinstance(node.op, (ast.And, ast.Not)):
+        if isinstance(node.op, (ast.UAdd, ast.USub, ast.Invert, ast.Not)):
             op = getattr(dual_ast, classname)()
         else:
-            raise Exception("Unknown operator: {0}".format(classname))
+            self.log_error("Unknown operator: {0}".format(classname))
+            return
         operand = self.visit(node.operand)
 
         return dual_ast.UnaryOp(op=op, operand=operand)
@@ -180,5 +195,5 @@ if __name__ == '__main__':  # For the current development stuff
     # node = ast.parse(text)
     node = ast.BinOp(op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar"))
     print ast.dump(node)
-    t = ASTTranslator()
+    t = Py2DualTranslator()
     print t.get_node(node)
