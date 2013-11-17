@@ -104,12 +104,14 @@ class PropertyTestCase(ParserTestCase):
     def test_default(self):
         "Tests for default values' conversion to sources"
         self.template(
-            "foo: [a=True, b=False, c=None, d]",
+            "foo: [a=True, b=False, c=None, d=[], e=(), f]",
             [Node('foo', [
                 Attr('a', 'True', False),
                 Attr('b', 'False', False),
                 Attr('c', 'None', False),
-                Attr('d', None, False),
+                Attr('d', [], False),
+                Attr('e', (), False),
+                Attr('f', None, False),
             ])]
         )
 
@@ -123,8 +125,9 @@ class PropertyTestCase(ParserTestCase):
 
 class GenerationTestCase(ParserTestCase):
     """Tests for generated sources"""
-
-    def check_output(self, text, expected_output):
+    # Override 'template' for this test has a different one
+    # Still is a ParserTestCase
+    def template(self, text, expected_output):
         # Remove the prefix
         self.parser.prefix = ""
         # Give the parser the nodes text to prepare data for generating source
@@ -139,7 +142,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_single_nodefault(self):
-        self.check_output(
+        self.template(
             "FooBar: [bar]",
             """
             class FooBar(AST):
@@ -148,7 +151,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_multiple_nodefault(self):
-        self.check_output(
+        self.template(
             "FooBar: [bar, baz]",
             """
             class FooBar(AST):
@@ -160,7 +163,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_single_default(self):
-        self.check_output(
+        self.template(
             "FooBar: [bar=None]",
             """
             class FooBar(AST):
@@ -169,7 +172,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_multiple_default(self):
-        self.check_output(
+        self.template(
             "FooBar: [foo=False, bar=True, baz]",
             """
             class FooBar(AST):
@@ -182,7 +185,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_base(self):
-        self.check_output(
+        self.template(
             "FooBar(Base): [foo=False, bar=True, baz]",
             """
             class FooBar(Base):
@@ -195,7 +198,7 @@ class GenerationTestCase(ParserTestCase):
         )
 
     def test_multiline(self):
-        self.check_output(
+        self.template(
             "FooBar: [\n\tfoo=False,\n\t\tbar=True,\nbaz\n]",
             """
             class FooBar(AST):
@@ -206,6 +209,23 @@ class GenerationTestCase(ParserTestCase):
                 ]
             """
         )
+
+
+class ReprTestCase(unittest.TestCase):
+    """Tests for __repr__ methods of the helper classes"""
+    def test_repr_Attr(self):
+        attr1 = Attr("a", "None", False)
+        attr2 = Attr("a", None, True)
+        attr3 = Attr("a", [], False)
+        self.assertEqual(repr(attr1), "Attr('a', 'None', False)")
+        self.assertEqual(repr(attr2), "Attr('a', None, True)")
+        self.assertEqual(repr(attr3), "Attr('a', [], False)")
+
+    def test_repr_Node(self):
+        node1 = Node("a", [Attr('a', [], True)])
+        node2 = Node("a", [])
+        self.assertEqual(repr(node1), "Node('a', [Attr('a', [], True)])")
+        self.assertEqual(repr(node2), "Node('a', [])")
 
 
 

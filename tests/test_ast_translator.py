@@ -2,7 +2,9 @@
 
 import sys
 import ast
+import random
 import unittest
+import contextlib
 
 import support
 
@@ -33,50 +35,87 @@ class ErrorReportingTestCase(unittest.TestCase):
     def setUp(self):
         self.translator = ast_translator.Py2DualTranslator()
 
-    def test_no_error(self):
-        node = ast.Module([])
-        self.translator.visit(node)
-        self.assertFalse(self.translator.errors)
-        try:
-            self.translator.get_node(node)
-        except Exception:
-            self.fail("translator.get_node() raised Exception unexpectedly!", )
-
-    def test_logging_one_error(self):
-        node = ast.BinOp(
-            op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar")
-        )
-        self.translator.visit(node)
-        self.assertTrue(self.translator.errors)
-        # monkey patch print_error to do nothing
-        self.translator.print_errors = lambda: None
-        self.translator.get_node(node)
-
-    def test_printing_one_error(self):
-        node = ast.BinOp(
-            op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar")
-        )
-        self.translator.visit(node)
-        self.assertTrue(self.translator.errors)
-
+    @contextlib.contextmanager
+    def patch_stdout(self):
         # Redirect sys.stdout
         new = support.StringIO()
         old = sys.stdout
         sys.stdout = new
+        yield new
 
-        self.translator.print_errors()
-        # restore sys.stdout
         sys.stdout = old
-        # get output
-        output = new.getvalue()
-        new.close()
 
-        # SHould mention the following words
+    def test_initial_errors(self):
+        self.assertFalse(self.translator.errors)
+
+    def test_logging_one_error(self):
+        self.translator.log_error("foo")
+        self.assertTrue(self.translator.errors)
+        self.assertIn("foo", self.translator.errors)
+
+    def test_printing_one_error(self):
+        self.translator.log_error("foo")
+        self.assertTrue(self.translator.errors)
+
+        with self.patch_stdout() as output:
+            self.translator.print_errors()
+
+        output = output.getvalue()
+
+        # Should mention the following words
         words = ["error", "translating", "ast"]
         for word in words:
             self.assertIn(word, output.lower())
 
         self.assertEqual(len(output.splitlines()), 1+1)
+
+    def test_printing_no_error(self):
+        self.assertFalse(self.translator.errors)
+
+        with self.patch_stdout() as output:
+            self.translator.print_errors()
+
+        self.assertEqual(output.getvalue(), "")
+
+    def test_logging_error_with_node(self):
+        num = random.randint(10, 200)
+        mock = support.mock.Mock()
+        mock.lineno = num
+
+        self.translator.log_error("foo", mock)
+        self.assertTrue(self.translator.errors)
+        err_msg = self.translator.errors[0]
+        self.assertIn("foo", err_msg)
+        self.assertIn("line", err_msg.lower())
+        self.assertIn(str(num), err_msg)
+
+    def test_get_node_no_errors(self):
+        # Monkey patch so it does nothing
+        self.translator.visit = lambda x: x
+        with self.patch_stdout() as output:
+            self.translator.get_node("foo")
+        self.assertFalse(output.getvalue())
+
+    def test_get_node_with_errors(self):
+        msg = "Some problem took place"
+        # Monkey patch so it does nothing
+        self.translator.visit = lambda x: self.translator.log_error(msg)
+
+        with self.patch_stdout() as output:
+            self.translator.get_node("foo")
+        output = output.getvalue()
+
+        self.assertTrue(output)
+        self.assertIn(msg, output)
+        # Male case-insensitive matches
+        output = output.lower()
+        # Make sure the error message is informative
+        self.assertIn("error(s)", output)
+        self.assertIn("occurred", output)
+        self.assertIn("translating", output)
+        self.assertIn("python", output)
+        self.assertIn("ast", output)
+        self.assertIn("dual", output)
 
 
 #--------------------------------------------------------------------------
@@ -735,6 +774,7 @@ class ModuleTestCase(NodeTestCase):
                 body=[dual_ast.Name(id="foo")]
             )
         )
+
 
 if __name__ == '__main__':
     unittest.main()

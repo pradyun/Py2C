@@ -12,8 +12,8 @@ class Py2DualTranslator(ast.NodeVisitor):
     """Translates Python AST into dual AST
 
     This is a NodeVisitor that visits the Python AST validates it for conversion
-    and creates another AST, for dual code (with type definitions and other stuff),
-    from which dual code is generated.
+    and creates another AST with type definitions and other stuff, from which
+    code is generated.
 
     Attributes:
         errors: A list that contains the error-messages that of errors that
@@ -30,26 +30,27 @@ class Py2DualTranslator(ast.NodeVisitor):
     def log_error(self, msg, node=None):
         stack = inspect.stack()
         if len(stack) > 1:
-            caller = stack[1][3]
+            caller_name = stack[1][3]
             # remove 'visit_'
-            if caller.startswith('visit_'):
-                caller = caller[6:]
+            if caller_name.startswith('visit_'):
+                caller_name = caller_name[6:]
+            else:  # If it is not a visit_xxx, don't use it
+                caller_name = None
         else:
-            caller = None
+            # Excluded as this can't be achieved during testing.
+            caller_name = None  # pragma : no cover
 
-        if caller is not None:
-            msg = "(Node type: {0}) {1}".format(caller, msg)
+        if caller_name is not None:
+            msg = "(Node type: {0}) {1}".format(caller_name, msg)
         if hasattr(node, "lineno"):
             msg += "Check Line ({0}): {1}".format(node.lineno, msg)
-        elif hasattr(caller, "lineno"):
-            msg += "Check Line ({0}): {1}".format(caller.lineno, msg)
         self.errors.append(msg)
 
     def print_errors(self):
         if not self.errors:
             return
 
-        print("Error(s) occurred while translating Python AST into dual ast")
+        print("Error(s) occurred while translating Python AST into dual AST")
         for msg in self.errors:
             print(' - '+msg)
 
@@ -58,21 +59,17 @@ class Py2DualTranslator(ast.NodeVisitor):
         Args:
             node: The Python AST to be converted to dual AST
         Returns:
-            A dual node, from the dual_ast.py
-        Raises:
-            Exception: If the AST could not be converted, due to some error
-                       Raised after printing those errors.
+            A dual node, from the dual_ast.py or None if there are errors.
         """
         self.setup()
         retval = self.visit(node)
         if self.errors:
             self.print_errors()
-            return None
-        else:
-            return retval
+            retval = None
+        return retval
 
     # Modified to return values
-    def generic_visit(self, node):
+    def generic_visit(self, node):  # pragma : no cover
         """Called if no explicit visitor function exists for a node."""
         for field, value in ast.iter_fields(node):
             if isinstance(value, list):
@@ -186,14 +183,8 @@ class Py2DualTranslator(ast.NodeVisitor):
         return dual_ast.UnaryOp(op=op, operand=operand)
 
     def visit_IfExp(self, node):
-        return dual_ast.IfExp(test=self.visit(node.test),
-                           body=self.visit(node.body),
-                           orelse=self.visit(node.orelse))
-
-if __name__ == '__main__':  # For the current development stuff
-    # text = 'foo if bar else baz'
-    # node = ast.parse(text)
-    node = ast.BinOp(op='Blah', left=ast.Name(id="foo"), right=ast.Name(id="bar"))
-    print(ast.dump(node))
-    t = Py2DualTranslator()
-    print(t.get_node(node))
+        return dual_ast.IfExp(
+            test=self.visit(node.test),
+            body=self.visit(node.body),
+            orelse=self.visit(node.orelse)
+        )
