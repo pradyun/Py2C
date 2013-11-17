@@ -1,6 +1,7 @@
 """
 Contains the compatibility related stuff to allow for compatibility across\
-Python versions"""
+Python versions
+"""
 import sys
 
 # Compatibility across versions
@@ -10,7 +11,7 @@ PY3K3 = sys.version_info[:2] >= (3, 3)
 """
 Organization of code:
  - Exceptions
- - Add the compatibility functions to support both 2 & 3 versions.
+ - Compatibility functions to support both 2 & 3 versions.
 """
 
 
@@ -20,8 +21,8 @@ Organization of code:
 class NoDependencyError(Exception):
     def __init__(self, dep_name):
         self.dep_name = dep_name
-        self.msg = "The dependency: {0!r} is not available, please install."
-        self.msg = self.msg.format(dep_name)
+        msg = "The dependency: {0!r} is not available, please install."
+        self.msg = msg.format(dep_name)
 
 #--------------------------------------------------------------------------
 # Use functions for grouping the code for the dependencies
