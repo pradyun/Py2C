@@ -39,8 +39,8 @@ __pycache__
 pip-log.txt
 
 # Unit test / coverage reports
-.coverage
-.tox
+*.coverage
+*.tox
 nosetests.xml
 
 # Translations
@@ -75,4 +75,4 @@ README.html
 *parser.out
 *parsetab.py
 py2c/_dual_ast.py
-*.coveragerc
+*htmlcov*

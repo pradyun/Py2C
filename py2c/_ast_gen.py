@@ -28,6 +28,7 @@ PREFIX = dedent("""
     # The hand typed part
     # ---------------------------------------------------------------------
 
+
     class AST(object):
         '''Abstract AST Node'''
         def __init__(self, *args, **kwargs):
@@ -56,14 +57,19 @@ PREFIX = dedent("""
                 return False
             else:
                 for i in self._fields:
-                    if not hasattr(other, i) or \\
-                      getattr(self, i) != getattr(other, i):
+                    if not hasattr(other, i) or getattr(self, i) != getattr(other, i):  # noqa
                         return False
                 return True
 
         def __ne__(self, other):
             return not self == other
 
+        def __repr__(self):
+            attrs = ", ".join(
+                "{0}={1}".format(field, getattr(self, field))
+                for field in self._fields
+            )
+            return "{self.__class__.__name__}({attrs})".format(self=self, attrs=attrs)  # noqa
     # ---------------------------------------------------------------------
     # The rest is auto-generated.
     # ---------------------------------------------------------------------

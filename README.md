@@ -46,4 +46,4 @@ int main() {
 Py2C is also extensible though a fixer API, which can be used to accommodate for
 API changes across the languages, for third party packages.
 
-For more details, refer to the wiki pages on GitHub.
+For more details, refer to the wiki pages on GitHub<sub>Not ready yet</sub>.
