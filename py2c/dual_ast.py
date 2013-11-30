@@ -37,7 +37,11 @@ from . import _dual_ast
 __all__ = filter(lambda x: not x.startswith("_"), dir(_dual_ast))
 
 # Remove all the declared names from namespace before import!
-del (BUILD, FNAME, join, realpath, dirname, exists, generate_module, _dual_ast, ast_gen)
+del (
+    BUILD, FNAME, join, realpath, dirname, exists, generate_module,
+    # Imported modules
+    _dual_ast, ast_gen
+)
 
 # The file should exist by now. Import the stuff!
 from ._dual_ast import *

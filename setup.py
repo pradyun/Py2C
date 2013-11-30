@@ -1,13 +1,13 @@
 # import sys
 # sys.argv.extend("test".split())
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
-
+#--------------------------------------------------------------------------
 # Description of package
 description = (
-    "A Translator for translating implicitly statically typed Python "
-    "code into human-readable C++ code"
+    "An translator to translate implicitly statically typed Python code into "
+    "human-readable C++ code."
 )
 
 long_description = open("README.md").read()
@@ -31,7 +31,7 @@ setup(
     # Package data
     name="py2c",
     version="0.1dev",
-    packages=["py2c"],
+    packages=find_packages(exclude=["tests"]),
     package_data={
         'py2c': ['_ast_nodes.cfg'],  # include the configration file
     },

@@ -56,7 +56,7 @@ class BuiltinsTestCase(unittest.TestCase):
         class badzero(int):
             def __cmp__(self, other):
                 raise RuntimeError
-            __hash__ = None # Invalid cmp makes this unhashable
+            __hash__ = None  # Invalid cmp makes this unhashable
         self.assertRaises(RuntimeError, range, a, a + 1, badzero(1))
 
         # Reject floats.
@@ -71,10 +71,12 @@ class BuiltinsTestCase(unittest.TestCase):
 
         bignum = 2*sys.maxint
         smallnum = 42
+
         # Old-style user-defined class with __int__ method
         class I0:
             def __init__(self, n):
                 self.n = int(n)
+
             def __int__(self):
                 return self.n
         self.assertEqual(range(I0(bignum), I0(bignum + 1)), [bignum])
@@ -84,6 +86,7 @@ class BuiltinsTestCase(unittest.TestCase):
         class I1(object):
             def __init__(self, n):
                 self.n = int(n)
+
             def __int__(self):
                 return self.n
         self.assertEqual(range(I1(bignum), I1(bignum + 1)), [bignum])
