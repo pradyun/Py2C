@@ -1,12 +1,13 @@
-import sys
-sys.argv.extend("egg_info".split())
+# import sys
+# sys.argv.extend("test".split())
 
 from setuptools import setup
+
 
 # Description of package
 description = (
     "A Translator for translating implicitly statically typed Python "
-    "code into human-readable C code"
+    "code into human-readable C++ code"
 )
 
 long_description = open("README.md").read()
@@ -14,7 +15,6 @@ long_description = open("README.md").read()
 # Metadata
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
-    'Programming Language :: C',
     'Programming Language :: C++',
     # Support for Python 2.7 & 3.3 guarenteed
     # Might support other versions, but not so sure (yet).
@@ -43,5 +43,7 @@ setup(
     author="Pradyun S. Gedam",
     author_email="pradyunsg@gmail.com",
     url="https://github.com/pradyun/Py2C",
-    classifiers=classifiers
+    classifiers=classifiers,
+    # Testing
+    test_suite="tests",
 )
