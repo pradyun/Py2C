@@ -1,4 +1,8 @@
-"""Runs tests in a directory.
+"""Runs tests in this directory.
+
+It runs the tests and checks the code-coverage.
+
+* Not used for 'setup.py test'
 """
 import os, unittest
 from os.path import join, dirname, realpath
