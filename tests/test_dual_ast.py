@@ -3,17 +3,18 @@
 import unittest
 import py2c.dual_ast as dual_ast
 
+
 class DummyNode(dual_ast.AST):
     def __init__(self, **kwargs):
         self._fields = list(kwargs)
         self.__dict__.update(kwargs)
+
 
 # -----------------------------------
 class ASTTestCase(unittest.TestCase):
     """Tests for AST node"""
     def test_equality_equal1(self):
         "Test for equality for really equal Nodes"
-        attrs = [("foo", None), ('bar', '[]')]
 
         node1 = DummyNode(id="1")
         node2 = DummyNode(id="1")

@@ -233,6 +233,5 @@ class ReprTestCase(unittest.TestCase):
         self.assertEqual(repr(node2), "Node('a', [])")
 
 
-
 if __name__ == '__main__':
-    unittest.main(verbosity=1)
+    unittest.main(buffer=True)
