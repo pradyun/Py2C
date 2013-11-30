@@ -8,8 +8,8 @@ import contextlib
 
 import support
 
-import py2c.ast_translator as ast_translator
-dual_ast = ast_translator.dual_ast
+from py2c import dual_ast
+from py2c.translators import Py2DualTranslator
 
 
 class NodeTestCase(unittest.TestCase):
@@ -23,7 +23,7 @@ class NodeTestCase(unittest.TestCase):
         self.assertEqual(c_node, expected, msg=msg)
 
     def setUp(self):
-        self.translator = ast_translator.Py2DualTranslator()
+        self.translator = Py2DualTranslator()
 
     def get_c_ast(self, py_node):
         self.node = py_node
@@ -33,7 +33,7 @@ class NodeTestCase(unittest.TestCase):
 class ErrorReportingTestCase(unittest.TestCase):
     """Tests for Error Reporting in Py2DualTranslator"""
     def setUp(self):
-        self.translator = ast_translator.Py2DualTranslator()
+        self.translator = Py2DualTranslator()
 
     @contextlib.contextmanager
     def patch_stdout(self):
@@ -309,7 +309,10 @@ class Print3TestCase(NodeTestCase):
                 func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id="foo", ctx=ast.Load()))
+                    ast.keyword(
+                        arg='file',
+                        value=ast.Name(id="foo", ctx=ast.Load())
+                    )
                 ],
                 starargs=None,
                 kwargs=None
@@ -351,7 +354,10 @@ class Print3TestCase(NodeTestCase):
                 func=ast.Name(id="print", ctx=ast.Load()),
                 args=[],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id="foo", ctx=ast.Load())),
+                    ast.keyword(
+                        arg='file',
+                        value=ast.Name(id="foo", ctx=ast.Load())
+                    ),
                     ast.keyword(arg='end',  value=ast.Str(s=''))
                 ],
                 starargs=None,
@@ -373,7 +379,10 @@ class Print3TestCase(NodeTestCase):
                 func=ast.Name(id="print", ctx=ast.Load()),
                 args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id="bar", ctx=ast.Load())),
+                    ast.keyword(
+                        arg='file',
+                        value=ast.Name(id="bar", ctx=ast.Load())
+                    ),
                     ast.keyword(arg='end', value=ast.Str(s=''))
                 ],
                 starargs=None,
@@ -395,7 +404,10 @@ class Print3TestCase(NodeTestCase):
                 func=ast.Name(id="print", ctx=ast.Load()),
                 args=[ast.Name(id="foo", ctx=ast.Load())],
                 keywords=[
-                    ast.keyword(arg='file', value=ast.Name(id="bar", ctx=ast.Load()))
+                    ast.keyword(
+                        arg='file',
+                        value=ast.Name(id="bar", ctx=ast.Load())
+                    )
                 ],
                 starargs=None,
                 kwargs=None

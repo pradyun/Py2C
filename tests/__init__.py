@@ -1,8 +1,11 @@
-# Used in testing
-if __name__ == '__main__':
+# Imported, has to be package import
+if __name__ != '__main__':
+    from . import runner
+    tests = runner.load()
+else:
     import os
     import sys
-    sys.path.insert(1, os.path.dirname(os.path.realpath(__file__)))
-    import tests.run_tests as run_tests
-    run_tests.main()
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
+    import runner
+    runner.main(buffer=True)

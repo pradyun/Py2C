@@ -1,9 +1,9 @@
 ﻿Py2C
 ====
 Py2C is a translator for translating implicitly statically typed Python code 
-into human-readable C++ code, a bit like what humans would write. The code has no
-Python API calls. The generated code can be run without Python headers as it 
-does not embed Python.
+into human-readable C++ code, a bit like what humans would write (Or can at 
+least read). The code has no Python API calls. The generated code can be 
+compiled without Python headers as it does not embed Python.
 
 > Note: Curently it isn't producing any output. The starting design itself is 
   extensible with a lot of scope for improvement if needed.<br>
