@@ -1,7 +1,7 @@
 ﻿Py2C
 ====
 Py2C is a translator for translating implicitly statically typed Python code 
-into human-readable C code, a bit like what humans would write. The code has no
+into human-readable C++ code, a bit like what humans would write. The code has no
 Python API calls. The generated code can be run without Python headers as it 
 does not embed Python.
 
@@ -9,7 +9,7 @@ does not embed Python.
   extensible with a lot of scope for improvement if needed.<br>
 
 > Since this project is still young, I haven't worked much on the wiki but it
-  will be brought up to date once the generaters start generating C/C++ code
+  will be brought up to date once the generaters start generating C++ code
   (some time before that happens).
 
 Here's Py2C in action on Hello World:
