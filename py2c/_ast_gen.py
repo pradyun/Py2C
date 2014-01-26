@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 """
 AST nodes file generator
 This file generates the dual_ast that we use to translate Python code to C code.
@@ -82,6 +82,8 @@ def indent(text, prefix, predicate=None):
 
 # Helper classes (Function as AST nodes of configuration file)
 class Attr(object):
+    """Represents an attribute of a Node
+    """
     def __init__(self, name, default=None):
         super(Attr, self).__init__()
         self.name = name
@@ -110,7 +112,8 @@ class Attr(object):
 
 
 class Node(object):
-    """docstring for Node"""
+    """Represents a definition
+    """
     default_parent_class = 'AST'
 
     def __init__(self, name, attrs, parent_class=None):
@@ -143,7 +146,7 @@ class Node(object):
     def _setters(self):
         return indent(
             "\n".join(map(lambda x: x.setter(), self.attrs)) or "pass",
-            " "*8
+            " " * 8
         )
 
     def __repr__(self):
@@ -166,24 +169,23 @@ import ply.yacc
 
 
 class BaseError(Exception):
-    pass
-
-
-class LexerError(Exception):
-    pass
-
-
-class ParsingError(Exception):
-    pass
-
-
-class Parser(object):
-    """Loads the AST dynamically into classes
-
-    This Parser parses the file passed in through method::``prepare``
+    """Serves as the base for all errors in this module
     """
-    #----------------------------------------------------------------------
-    # Lexer
+
+
+class LexerError(BaseError):
+    """Error while tokenizing the code
+    """
+
+
+class ParsingError(BaseError):
+    """Error while parsing the code
+    """
+
+
+class Lexer(object):
+    """Tokenizes the AST configuration text
+    """
     states = [
         ('string', 'exclusive')
     ]
@@ -204,7 +206,7 @@ class Parser(object):
         end = t.lexpos
         t.type = "STRING"
         t.lexpos = self.str_start
-        t.value = t.lexer.lexdata[self.str_start:end+1]
+        t.value = t.lexer.lexdata[self.str_start:end + 1]
         t.lexer.begin("INITIAL")
         return t
 
@@ -219,8 +221,20 @@ class Parser(object):
             lineno=t.lineno
         ))
 
+
+class Parser(object):
+    """Parses the AST configuration file text
+    """
     #----------------------------------------------------------------------
-    # Parser Stuff
+    # Lexer
+    states = [
+        ('string', 'exclusive')
+    ]
+    # Lexer Stuff
+    tokens = ["NAME", "STRING"]
+    literals = "[]()*,:="
+
+    # Parser
     def p_empty(self, p):
         "empty : "
 
@@ -297,13 +311,16 @@ class Parser(object):
         msg = "Got unexpected token: {0}"
         raise ParsingError(msg.format(t))
 
-    # The rest of the things
+
+class ConfigFileLoader(object):
+    """Processes the configuration text and produces output
+    """
     def __init__(self):
-        super(Parser, self).__init__()
+        super(ConfigFileLoader, self).__init__()
         self.data = []
 
-        self.lexer = ply.lex.lex(module=self)
-        self.parser = ply.yacc.yacc(module=self, start="goal")
+        self.lexer = ply.lex.lex(module=Lexer())
+        self.parser = ply.yacc.yacc(module=Parser(), start="goal")
         self.prefix = PREFIX
 
     def remove_comments(self, text):
@@ -318,14 +335,13 @@ class Parser(object):
         self.data = self.parser.parse(text, lexer=self.lexer)
 
     def write_module(self, f):
-        s = ""
-        s += self.prefix
+        s = []
+        s.append(self.prefix)
         for obj in self.data:
-            s += "\n\n"
-            s += obj.to_source()
+            s.append(obj.to_source())
 
-        # ``s`` contains the text to be written to the file
-        f.write(s.strip('\n'))
+        # ``s`` contains the code of classes to be written to the file
+        f.write("\n\n".join(s).strip('\n'))
         # Ensure trailing newline
         f.write('\n')
 
@@ -336,7 +352,7 @@ ast_nodes_fname = join(dirname(__file__), "_ast_nodes.cfg")
 
 
 def generate(file):
-    p = Parser()
+    p = ConfigFileLoader()
     p.prepare(open(ast_nodes_fname).read())
     p.write_module(file)
 
