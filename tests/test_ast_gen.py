@@ -12,7 +12,7 @@ class ParserTestCase(unittest.TestCase):
     """Abstract TestCase: Tests for Parsing of structures"""
 
     def setUp(self):
-        self.parser = ast_gen.Parser()
+        self.parser = ast_gen.ConfigFileLoader()
 
     def template(self, test_string, expected):
         self.parser.prepare(str(test_string))
@@ -125,7 +125,8 @@ class PropertyTestCase(ParserTestCase):
 
 
 class GenerationTestCase(ParserTestCase):
-    """Tests for generated sources"""
+    """Tests for generated sources
+    """
     # Override 'template' for this test has a different one
     # Still is a ParserTestCase
     def template(self, text, expected_output):
