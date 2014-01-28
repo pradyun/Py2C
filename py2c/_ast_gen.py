@@ -1,13 +1,14 @@
 #! /usr/bin/env python
-"""
-AST nodes file generator
-This file generates the dual_ast that we use to translate Python code to C code.
+"""AST nodes file generator
+
+This file generates the ast that we use as the meduim to translate Python code.
 It makes it possible to translate Python code to C code without multiple AST
 systems.
 """
 
 import re
 from textwrap import dedent
+from os.path import join, dirname
 
 # indented to allow for code-collapsing
 PREFIX = dedent("""
@@ -28,9 +29,19 @@ PREFIX = dedent("""
     # The hand typed part
     # ---------------------------------------------------------------------
 
+    def iter_fields(node):
+        \"\"\"Yield a tuple of ``(fieldname, value)`` for each field in ``node._fields``  # noqa
+        that is present on *node*.
+        \"\"\"
+        for field in node._fields:
+            try:
+                yield field, getattr(node, field)
+            except AttributeError:
+                pass
 
     class AST(object):
-        '''Abstract AST Node'''
+        \"\"\"Abstract AST Node
+        \"\"\"
         def __eq__(self, other):
             if type(self) != type(other):
                 return False
@@ -50,9 +61,6 @@ PREFIX = dedent("""
             )
             return "{self.__class__.__name__}({attrs})".format(self=self, attrs=attrs)  # noqa
 
-        def _get_val(self, text):
-            # print(text)
-            return eval(text)
 
     # ---------------------------------------------------------------------
     # The rest is auto-generated.
@@ -162,7 +170,7 @@ class Node(object):
         return not self == other
 
 #-------------------------------------------------------------------------------
-# AST Nodes parser
+# AST Nodes parsing
 #-------------------------------------------------------------------------------
 import ply.lex
 import ply.yacc
@@ -225,8 +233,6 @@ class Lexer(object):
 class Parser(object):
     """Parses the AST configuration file text
     """
-    #----------------------------------------------------------------------
-    # Lexer
     states = [
         ('string', 'exclusive')
     ]
@@ -312,6 +318,9 @@ class Parser(object):
         raise ParsingError(msg.format(t))
 
 
+#-------------------------------------------------------------------------------
+# External API
+#-------------------------------------------------------------------------------
 class ConfigFileLoader(object):
     """Processes the configuration text and produces output
     """
@@ -346,22 +355,15 @@ class ConfigFileLoader(object):
         f.write('\n')
 
 
-# Export Nodes txt file (Not used in package)
-from os.path import join, dirname
-ast_nodes_fname = join(dirname(__file__), "_ast_nodes.cfg")
-
-
 def generate(file):
     p = ConfigFileLoader()
-    p.prepare(open(ast_nodes_fname).read())
+    p.prepare(open(_ast_nodes_fname).read())
     p.write_module(file)
+
+_ast_nodes_fname = join(dirname(__file__), "_ast_nodes.cfg")
 
 if __name__ == '__main__':
     with open('_dual_ast.py', 'w') as f:
         f.truncate()
         generate(f)
     print("Generated '_dual_ast.py'")
-    # import sys
-    # p = Parser()
-    # p.prepare('Print(stmt) : [dest, values, sep=" ", end="\\n"]')
-    # p.write_module(sys.stdout)

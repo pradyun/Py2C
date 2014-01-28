@@ -30,7 +30,7 @@ classifiers = [
 setup(
     # Package data
     name="py2c",
-    version="0.1dev",
+    version="0.1-dev",
     packages=find_packages(exclude=["tests"]),
     package_data={
         'py2c': ['_ast_nodes.cfg'],  # include the configration file
