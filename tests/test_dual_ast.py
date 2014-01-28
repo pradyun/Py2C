@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""Implemetation Tests for the AST system used
+"""
 
 import unittest
 import py2c.dual_ast as dual_ast
@@ -50,7 +52,7 @@ class ASTTestCase(unittest.TestCase):
 
         node_names = [
             # The all important node
-            "AST",
+            "AST", "iter_fields",
             ## Base nodes
             "boolop", "cmpop", "expr", "expr_context", "mod", "operator",
             "slice", "stmt", "unaryop",
