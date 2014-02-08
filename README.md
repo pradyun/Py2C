@@ -5,11 +5,12 @@ into human-readable C++ code, a bit like what humans would write (Or can at
 least read). The code has no Python API calls. The generated code can be
 compiled without Python headers as it does not embed Python.
 
-> Note: Curently it isn't producing any output. The starting design itself is
-  extensible with a lot of scope for improvement if needed.<br>
+> Note: Currently it isn't producing any output. The tests for the code "has"
+  implementation to be written before implementing anything.
+  (As I'm experimenting with TDD) So, it's taking some time to implement the stuff
 
 > Since this project is still young, I haven't worked much on the wiki but it
-  will be brought up to date once the generaters start generating C++ code
+  will be brought up to date once the generators start generating C++ code
   (some time before that happens).
 
 Here's Py2C in action on Hello World:
@@ -21,7 +22,7 @@ print("Hello World!")
 would compile to something like
 
 ```c
-#include "iostream"
+#include <iostream.h>
 
 using namespace std;
 
@@ -34,7 +35,7 @@ int main() {
 Or if you think it is OK to have a special header file in this file:
 
 ```c
-#include "iostream"
+#include <iostream.h>
 #include "pythonic.h"
 
 int main() {
