@@ -56,13 +56,13 @@ nosetests.xml
 #--------------------------------------------------------
 
 # For checking test coverage
-test/.coverage_html/*
+tests/.coverage_html/*
 
 # I keep the wiki pages in the same directory
 wiki/
 
 # Used to clean the directory during branch switches
-clean.bat
+cleanup.cmd
 
 #--------------------------------------------------------
 # Misc
@@ -71,9 +71,15 @@ clean.bat
 # Used in testing how the readme looks
 README.html
 
-# Package Specific
+# PLY
 *parser.out
 *parsetab.py
+
+# We generate this file at the distribution time
 py2c/_dual_ast.py
-*htmlcov*
+
+
+#--------------------------------------------------------
+# Editor files
+#--------------------------------------------------------
 Py2C.sublime*
