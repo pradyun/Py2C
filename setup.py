@@ -14,14 +14,10 @@ long_description = open("README.md").read()
 
 # Metadata
 classifiers = [
-    'Development Status :: 2 - Pre-Alpha',
+    'Development Status :: 1 - Planning',
     'Programming Language :: C++',
-    # Support for Python 2.7 & 3.3 guarenteed
     # Might support other versions, but not so sure (yet).
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.3',
     'Topic :: Software Development :: Code Generators',
     'Topic :: Software Development :: Compilers',
 ]
