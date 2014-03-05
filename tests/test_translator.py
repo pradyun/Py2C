@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 import random
 import unittest
 
@@ -7,10 +6,6 @@ import support
 
 from py2c import dual_ast
 from py2c.translator import PythonTranslator, TranslationError
-
-
-needs_python_2 = unittest.skipUnless(sys.version_info[0] < 3, "Need Python 2")
-needs_python_3 = unittest.skipUnless(sys.version_info[0] > 2, "Need Python 3")
 
 
 class ErrorReportingTestCase(unittest.TestCase):
@@ -59,6 +54,7 @@ class ErrorReportingTestCase(unittest.TestCase):
         self.assertIn(str(num), err_msg)
 
 
+@unittest.skip("Translator not ready!")
 class CodeTestCase(unittest.TestCase):
     """Base for Python code to AST translation
     """
@@ -98,47 +94,64 @@ class CodeTestCase(unittest.TestCase):
 class LiteralTestCase(CodeTestCase):
     """Tests for literals
     """
-    def test_num(self):
+    def test_int(self):
+        tests = [
+            # Binary
+            "0b100110111",
+            # Decimal
+            "3",
+            "7",
+            "2147483647",
+            "79228162514",
+            # Octal
+            "0o177",
+            "0o377",
+            # Hexadecimal
+            "0x100000000",
+            "0xdeadbeef",
+        ]
+        print((s, dual_ast.Int(eval(s))) for s in tests)
         self.template([
-            ### Integers
-            # Binary integers
-            ("0b100110111", dual_ast.Binary("0b100110111")),
-            # Decimal integers
-            ("3", dual_ast.Int(3)),
-            ("7", dual_ast.Int(7)),
-            ("2147483647", dual_ast.Int(2147483647)),
-            ("79228162514", dual_ast.Int(79228162514)),
-            # Octal integers
-            ("0o177", dual_ast.Octal("0o177")),
-            ("0o377", dual_ast.Octal("0o377")),
-            # Hexadecimal integers
-            ("0x100000000", dual_ast.Hex("0x100000000")),
-            ("0xdeadbeef", dual_ast.Hex("0xdeadbeef")),
+            (s, dual_ast.Int(eval(s))) for s in tests
+        ], remove_expr=True)
 
-            ### Floats
-            ("3.14", dual_ast.Float(3.14)),
-            ("10.", dual_ast.Float(10.)),
-            (".001", dual_ast.Float(.001)),
-            ("1e100", dual_ast.Float(1e100)),
-            ("3.14e-10", dual_ast.Float(3.14e-10)),
-            ("0e0", dual_ast.Float(0e0)),
+    def test_float(self):
+        tests = [
+            "3.14",
+            "10.",
+            ".001",
+            "1e100",
+            "3.14e-10",
+            "0e0",
+        ]
 
-            ### Complex
-            ("3.14j", dual_ast.Complex(3.14j)),
-            ("10.j", dual_ast.Complex(10.j)),
-            ("10j", dual_ast.Complex(10j)),
-            (".001j", dual_ast.Complex(.001j)),
-            ("1e100j", dual_ast.Complex(1e100j)),
-            ("3.14e-10j", dual_ast.Complex(3.14e-10j)),
+        self.template([
+            (s, dual_ast.Float(eval(s))) for s in tests
+        ], remove_expr=True)
+
+    def test_complex(self):
+        tests = [
+            "10j",
+            ".001j",
+            "3.14e-10j",
+            "3.14j",
+            "1e100j",
+            "10.j",
+        ]
+        self.template([
+            (s, dual_ast.Complex(eval(s))) for s in tests
         ], remove_expr=True)
 
     def test_str(self):
+        tests = [
+            '"abc"',
+            '"abc"',
+            "'''abc'''",
+            '"""abc"""',
+            r'r"a\bc"',
+        ]
         self.template([
-            ('"abc"', dual_ast.Str("abc")),
-            ('"abc"', dual_ast.Str("abc")),
-            ("'''abc'''", dual_ast.Str("abc")),
-            ('"""abc"""', dual_ast.Str("abc")),
-            (r'r"a\bc"', dual_ast.Str(r"a\bc")),
+            (s, dual_ast.Str(eval(s))) for s in tests
         ], remove_expr=True)
 
 
@@ -182,72 +195,7 @@ class SimpleStmtTestCase(CodeTestCase):
             ])])),
         ])
 
-    @needs_python_2
-    def test_print(self):
-        self.template([
-            ("print 'x'", dual_ast.Print(
-                dest=None,
-                sep=" ",
-                end="\n",
-                values=[dual_ast.Str("x")],
-            )),
-            ("print >> foo, 'x'", dual_ast.Print(
-                dest=dual_ast.Name("foo"),
-                sep=" ",
-                end="\n",
-                values=[dual_ast.Str("x")],
-            )),
-            ("print 'x',", dual_ast.Print(
-                dest=None,
-                sep=" ",
-                end=" ",
-                values=[dual_ast.Str("x")],
-            )),
-            ("print 'x', 'y'", dual_ast.Print(
-                dest=None,
-                sep=" ",
-                end="\n",
-                values=[dual_ast.Str("x"), dual_ast.Str("y")],
-            )),
-            ("print", dual_ast.Print(
-                dest=None,
-                sep=" ",
-                end="\n",
-                values=[],
-            )),
-            ("print >> foo", dual_ast.Print(
-                dest=dual_ast.Name("foo"),
-                sep=" ",
-                end="\n",
-                values=[dual_ast.Str("x")],
-            )),
-        ])
-
-    @needs_python_2
-    def test_raise_python_2(self):
-        self.template([
-            ("raise", dual_ast.Raise(None, None, None, None)),
-            ("raise err", dual_ast.Raise(
-                dual_ast.Name("err"),
-                None, None, None
-            )),
-            ("raise err_type, None, err_tb", dual_ast.Raise(
-                dual_ast.Name("err_type"),
-                # If first object is an instance, second object has to be 'None'
-                dual_ast.Name("None"),
-                dual_ast.Name("err_tb"),
-                None
-            )),
-            ("raise err_type, err_val, err_tb", dual_ast.Raise(
-                dual_ast.Name("err_type"),
-                dual_ast.Name("err_val"),
-                dual_ast.Name("err_tb"),
-                None
-            )),
-        ])
-
-    @needs_python_3
-    def test_raise_python_3(self):
+    def test_raise(self):
         self.template([
             ("raise", dual_ast.Raise(None, None, None, None)),
             ("raise err", dual_ast.Raise(
@@ -499,35 +447,6 @@ class SimpleStmtTestCase(CodeTestCase):
             ),
         ])
 
-    @needs_python_2
-    def test_exec(self):
-        self.template([
-            (
-                "exec 'x = 1'",
-                dual_ast.Exec(
-                    dual_ast.Str('x = 1'),
-                    None,
-                    None
-                )
-            ),
-            (
-                "exec 'x = 1' in global_dict",
-                dual_ast.Exec(
-                    dual_ast.Str('x = 1'),
-                    dual_ast.Name('global_dict'),
-                    None
-                )
-            ),
-            (
-                "exec 'x = 1' in global_dict, local_dict",
-                dual_ast.Exec(
-                    dual_ast.Str('x = 1'),
-                    dual_ast.Name('global_dict'),
-                    dual_ast.Name('local_dict')
-                )
-            ),
-        ])
-
 
 class LoopStmtTestCase(CodeTestCase):
     """Tests for statements that can only be inside loop statements
@@ -564,7 +483,6 @@ class FunctionStmtTestCase(CodeTestCase):
         # To be implemented
         pass
 
-    @needs_python_3
     def test_nonlocal(self):
         # To be implemented
         pass

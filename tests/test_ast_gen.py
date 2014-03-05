@@ -18,17 +18,22 @@ class ParserTestCase(unittest.TestCase):
         self.parser.prepare(str(test_string))
         self.assertEqual(self.parser.data, expected)
 
-    def assertMultiLineEqual(self, first, second, msg=None):
+    def assertMultiLineEqual(self, first, second, msg=None, files=None):
         """Assert that two multi-line strings are equal.
 
         If they aren't, show a nice diff.
         """
-        self.assertTrue(isinstance(first, str), 'Argument 1 is not a string')
-        self.assertTrue(isinstance(second, str), 'Argument 2 is not a string')
+        if not isinstance(first, str):
+            raise TypeError('First positional argument is not a string')
+        if not isinstance(second, str):
+            raise TypeError('Second positional argument is not a string')
 
         if first != second:
-            message = ''.join(difflib.ndiff(first.splitlines(True),
-                                            second.splitlines(True)))
+            message = ''.join(difflib.unified_diff(
+                first.splitlines(True),
+                second.splitlines(True),
+            ))
+
             if msg:
                 message += " : " + msg
             self.fail("Multi-line strings are unequal:\n" + message)
@@ -118,7 +123,7 @@ class PropertyTestCase(ParserTestCase):
 
     def test_invalid_object_to_prepare(self):
         errors = [TypeError, ast_gen.LexerError, ast_gen.ParsingError]
-        args = [1,  "foo: [$x]", "foo: [x y]"]
+        args = [1, "foo: [$x]", "foo: [x y]"]
         # Iterate over errors and arguments
         for err, arg in zip(errors, args):
             self.assertRaises(err, self.parser.prepare, arg)
@@ -140,7 +145,7 @@ class GenerationTestCase(ParserTestCase):
         self.parser.write_module(fake)
         # Check output
         self.assertMultiLineEqual(
-            fake.getvalue().strip(), dedent(expected_output).strip()
+            dedent(expected_output).strip(), fake.getvalue().strip()
         )
 
     def test_single_nodefault(self):
@@ -149,6 +154,7 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(AST):
                 _fields = ['bar']
+
                 def __init__(self, bar):
                     self.bar = bar
             """
@@ -160,6 +166,7 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(AST):
                 _fields = ['bar', 'baz']
+
                 def __init__(self, bar, baz):
                     self.bar = bar
                     self.baz = baz
@@ -172,6 +179,7 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(AST):
                 _fields = ['bar']
+
                 def __init__(self, bar=None):
                     self.bar = bar
             """
@@ -183,6 +191,7 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(AST):
                 _fields = ['foo', 'bar', 'baz']
+
                 def __init__(self, foo, bar=True, baz=False):
                     self.foo = foo
                     self.bar = bar
@@ -196,6 +205,7 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(Base):
                 _fields = ['foo', 'bar', 'baz']
+
                 def __init__(self, foo, bar=True, baz=False):
                     self.foo = foo
                     self.bar = bar
@@ -209,11 +219,55 @@ class GenerationTestCase(ParserTestCase):
             """
             class FooBar(AST):
                 _fields = ['foo', 'bar', 'baz']
+
                 def __init__(self, foo, bar=True, baz=False):
                     self.foo = foo
                     self.bar = bar
                     self.baz = baz
             """
+        )
+
+    def test_more_than_80_chars(self):
+        letters = str(list("abcdefghijklmnopqrstuvwxyz"))[1:-1]
+        list_content = letters.replace(", ", ",\n" + (" " * 8))
+        formatted_letters = "[\n        " + list_content + "\n    ]"
+        self.template(
+            """FooBar: [
+                a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
+                v, w, x, y, z
+            ]""",
+            dedent("""
+            class FooBar(AST):
+                _fields = {}
+
+                def __init__(self, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z):  # noqa
+                    self.a = a
+                    self.b = b
+                    self.c = c
+                    self.d = d
+                    self.e = e
+                    self.f = f
+                    self.g = g
+                    self.h = h
+                    self.i = i
+                    self.j = j
+                    self.k = k
+                    self.l = l
+                    self.m = m
+                    self.n = n
+                    self.o = o
+                    self.p = p
+                    self.q = q
+                    self.r = r
+                    self.s = s
+                    self.t = t
+                    self.u = u
+                    self.v = v
+                    self.w = w
+                    self.x = x
+                    self.y = y
+                    self.z = z
+            """).format(formatted_letters)
         )
 
 
