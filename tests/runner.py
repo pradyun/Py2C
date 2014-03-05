@@ -4,74 +4,50 @@ It runs the tests and checks the code-coverage.
 
 * Not used for 'setup.py test'
 """
-import os
-import time
 import unittest
 from os.path import join, dirname, realpath
-
-CHECK_COVERAGE = True
 
 try:
     import coverage
 except ImportError:
-    HAVE_COVERAGE = False
+    CHECK_COVERAGE = False
 else:
-    HAVE_COVERAGE = True
+    CHECK_COVERAGE = True
 
 
-class CoverageTester(object):
-    """docstring for CoverageTester"""
-    def __init__(self, *args, **kwargs):
-        super(CoverageTester, self).__init__()
-        if HAVE_COVERAGE and CHECK_COVERAGE:
-            self.cov = coverage.coverage(*args, **kwargs)
+class CoverageTextTestRunner(unittest.TextTestRunner):
+    """A test runner that runs the tests with coverage checking
+    """
+    py2c_source_base = join(dirname(dirname(realpath(__file__))), "py2c")
+
+    exclude_patterns = [
+        r'if\s+__name__\s*==\s*.__main__.:',
+        r'return[ ]+not[ ]+\w+[ ]*==[ ]*\w+'
+    ]
+
+    ignored_files = ["*parsetab.py", "_dual_ast.py", "python_builtins.py"]
+
+    def run(self, test):
+        if not CHECK_COVERAGE:
+            return super().run(test)
         else:
-            self.cov = None
+            cov = coverage.coverage()
 
-    def __enter__(self):
-        if self.cov is not None:
-            self.cov.start()
-        return self.cov
+            cov.start()
+            retval = super().run(test)
+            cov.stop()
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.cov is not None:
-            self.cov.stop()
-        return exc_type is not None
+            for pattern in self.exclude_patterns:
+                cov.exclude(pattern, which="exclude")
 
+            cov.report(
+                omit=self.ignored_files,
+                include=[self.py2c_source_base + "*"]
+            )
+            return retval
 
-def load():
-    return unittest.defaultTestLoader.discover(
-        os.path.dirname(__file__), "test_*.py"
+if __name__ == '__main__':
+    tests = unittest.defaultTestLoader.discover(
+        dirname(__file__), "test_*.py"
     )
-
-
-def run(suite, *args, **kwargs):
-    return unittest.TextTestRunner(*args, **kwargs).run(suite)
-
-
-def main(*args, **kwargs):
-    with CoverageTester() as cov:
-        run(load(), *args, **kwargs)
-
-    if cov is None:
-        return
-
-    # In Sublime Text 2, helps prevent mixing of outputs
-    time.sleep(0.1)
-    src_path = join(dirname(dirname(realpath(__file__))), "py2c")
-
-    cov.exclude(r'if\s+__name__\s*==\s*.__main__.:', which='exclude')
-    cov.exclude(r'return[ ]+not[ ]+\w+[ ]*==[ ]*\w+', which='exclude')
-
-    cov.report(
-        omit=[
-            "*parsetab.py",
-            os.path.join(src_path, "dual_ast.py"),
-            os.path.join(src_path, "python_builtins.py"),
-        ],
-        include=[src_path + "*"]
-    )
-    cov.html_report()
-
-if __name__ == "__main__":
-    main(buffer=True)
+    CoverageTextTestRunner().run(tests)
