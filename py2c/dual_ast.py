@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythondifflib.ndiff
 # -*- coding: utf-8 -*-
 """
 The module serves as a wrapper to the generated file ().
@@ -40,7 +40,7 @@ __all__ = filter(lambda x: not x.startswith("_"), dir(_dual_ast))
 
 # Remove all the declared names from namespace before import!
 del (
-    DEV, FNAME, exists,
+    DEV, FNAME, exists, f,
     # Imported modules
     _dual_ast, ast_gen
 )
