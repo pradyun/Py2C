@@ -1,7 +1,6 @@
-#!/usr/bin/env pythondifflib.ndiff
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-The module serves as a wrapper to the generated file ().
+"""The module serves as a wrapper to the generated file (_dual_ast.py).
 If '_dual_ast.py' doesn't exist, it gets '_ast_gen.py' to generate it from
 the specification in '_ast_nodes.cfg' and then imports it.
 
@@ -11,6 +10,11 @@ we generate it for the user on first run.
 Note: During testing, just change the ``DEV`` variable to ``True``.
       Then, the module will be rebuilt (and replaced) even if it exists.
 """
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 #-------------------------------------------------------------------------------
 # Building the module
 #-------------------------------------------------------------------------------
