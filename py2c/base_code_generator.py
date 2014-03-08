@@ -1,5 +1,9 @@
 """Implements the base class for all CodeGenerators in `py2c.code_generators`
 """
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 import abc
 import inspect
 from . import dual_ast

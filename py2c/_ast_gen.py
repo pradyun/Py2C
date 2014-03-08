@@ -5,6 +5,9 @@ This file generates the ast that we use as the meduim to translate Python code.
 It makes it possible to translate Python code to C code without multiple AST
 systems.
 """
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 import re
 from textwrap import dedent
@@ -234,7 +237,7 @@ class Lexer(object):
         t.lexer.begin("INITIAL")
         return t
 
-    # For bad characters, we just skip over it
+    # For other characters, we just skip over it
     def t_string_error(self, t):
         t.lexer.skip(1)
 
