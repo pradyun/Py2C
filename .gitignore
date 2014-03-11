@@ -75,9 +75,6 @@ README.html
 *parser.out
 *parsetab.py
 
-# We generate this file at the distribution time
-py2c/_dual_ast.py
-
 
 #--------------------------------------------------------
 # Editor files
