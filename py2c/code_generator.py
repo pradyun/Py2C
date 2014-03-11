@@ -1,29 +1,19 @@
-"""Implements the base class for all CodeGenerators in `py2c.code_generators`
 """
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-import abc
-import inspect
+"""
 from . import dual_ast
-from .utils import add_metaclass
 
 
 class CodeGenerationError(Exception):
-    """Base class for errors raised during CodeGeneration
+    """Raised when there is an error during translation
     """
-    def __init__(self, errors):
-        super(CodeGenerationError, self).__init__()
-        self.errors = errors
 
 
-@add_metaclass(abc.ABCMeta)
-class AbstractCodeGenerator(object):
-    """ABC for all CodeGenerators
+class CodeGenerator(object):
+    """Converts AST into C source code
     """
+
     def __init__(self):
-        super(AbstractCodeGenerator, self).__init__()
+        super(CodeGenerator, self).__init__()
         self.reset()
 
     #---------------------------------------------------------------------------
@@ -33,23 +23,9 @@ class AbstractCodeGenerator(object):
     def reset(self):
         self.errors = []
 
-    def log_error(self, msg, node=None):
-        stack = inspect.stack()
-        if len(stack) > 1:
-            caller_name = stack[1][3]
-            # remove 'visit_'
-            if caller_name.startswith('visit_'):
-                caller_name = caller_name[6:]
-            else:  # If it is not a visit_xxx, don't use it
-                caller_name = None
-        else:
-            caller_name = None
-
-        if caller_name is not None:
-            msg = "(Node type: {0}) {1}".format(caller_name, msg)
-
-        if hasattr(node, "lineno"):
-            msg += "Check Line ({0}): {1}".format(node.lineno, msg)
+    def log_error(self, msg, lineno=None):
+        if lineno is not None:
+            msg += "Check Line ({0}): {1}".format(lineno, msg)
         self.errors.append(msg)
 
     def handle_errors(self):
@@ -83,7 +59,6 @@ class AbstractCodeGenerator(object):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
 
-    @abc.abstractmethod
     def generic_visit(self, node):
         """Called if no explicit visitor function exists for a node.
         """
