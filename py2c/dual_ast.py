@@ -19,35 +19,26 @@ Note: During testing, just change the ``DEV`` variable to ``True``.
 # Building the module
 #-------------------------------------------------------------------------------
 from os.path import join, realpath, dirname, exists
-from . import _ast_gen as ast_gen
+from py2c import _ast_gen as ast_gen
 
-FNAME = join(dirname(realpath(__file__)), "_dual_ast.py")
-del join, realpath, dirname
+# Files to convert into AST definitions.
+definition_files = [
+    "python.ast",
+    # "intermidiate.ast",
+    # "C.ast"
+]
 
-DEV = True  # Determines if the module should be (re-)generated
+# To decide (behaviour/design):
+#  - Move declaration files to a seperate directory? What name?
+#  - Write a file instead of dynamically generating the classes?
 
-# Build if in development mode or if the file doesn't exist
-if DEV or not exists(FNAME):
-    with open(FNAME, "w") as f:
-        f.truncate()
-        ast_gen.generate(f)
+src = ast_gen.generate(dirname(realpath(__file__)), definition_files)
 
-
-#-------------------------------------------------------------------------------
-# Exporting Names
-#-------------------------------------------------------------------------------
-# The module exists, import it
-from . import _dual_ast
-
-# Don't export private names
-__all__ = filter(lambda x: not x.startswith("_"), dir(_dual_ast))
-
-# Remove all the declared names from namespace before import!
+# Remove all the declared names from namespace before execution!
 del (
-    DEV, FNAME, exists, f,
-    # Imported modules
-    _dual_ast, ast_gen
+    exists, dirname, realpath, join, definition_files, ast_gen
 )
 
-# The file will exist by now. Import the stuff!
-from ._dual_ast import *
+#E Execute the generated module here!
+exec(src)
+del src
