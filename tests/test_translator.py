@@ -2,7 +2,12 @@
 import random
 import unittest
 
-import support
+import sys
+# Mock
+if sys.version_info[:2] < (3, 3):
+    import mock
+else:
+    import unittest.mock as mock
 
 from py2c import dual_ast
 from py2c.translator import PythonTranslator, TranslationError
@@ -38,7 +43,7 @@ class ErrorReportingTestCase(unittest.TestCase):
 
     def test_logging_error_with_node(self):
         num = random.randint(1, 2000)
-        mock = support.mock.Mock()
+        mock = mock.Mock()
         mock.lineno = num
 
         self.translator.log_error("foo", mock)
