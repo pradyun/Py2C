@@ -1,56 +1,46 @@
+"""Tests for the generation of the AST nodes from the definitions.
+"""
+import warnings
 import unittest
-import difflib
 from textwrap import dedent
 
-import support
-
 import py2c._ast_gen as ast_gen
-from py2c._ast_gen import Node, Attr
+# It is refered multiple times
+Node = ast_gen.Node
 
 
 class ParserTestCase(unittest.TestCase):
-    """Abstract TestCase: Tests for Parsing of structures"""
-
+    """Abstract TestCase: Tests for Parsing of the AST file declarations.
+    """
     def setUp(self):
-        self.parser = ast_gen.ConfigFileLoader()
+        self.parser = ast_gen.Parser()
 
     def template(self, test_string, expected):
-        self.parser.prepare(str(test_string))
-        self.assertEqual(self.parser.data, expected)
-
-    def assertMultiLineEqual(self, first, second, msg=None, files=None):
-        """Assert that two multi-line strings are equal.
-
-        If they aren't, show a nice diff.
-        """
-        if not isinstance(first, str):
-            raise TypeError('First positional argument is not a string')
-        if not isinstance(second, str):
-            raise TypeError('Second positional argument is not a string')
-
-        if first != second:
-            message = ''.join(difflib.unified_diff(
-                first.splitlines(True),
-                second.splitlines(True),
-            ))
-
-            if msg:
-                message += " : " + msg
-            self.fail("Multi-line strings are unequal:\n" + message)
+        result = self.parser.parse(dedent(test_string))
+        self.assertEqual(result, expected)
 
 
 class CommentTestCase(ParserTestCase):
-    """Tests for Parser parsing comments"""
-    # Overridden!
-    def template(self, text, expected=None, msg=None):
-        if expected is None:
-            expected = text
-        self.assertEqual(self.parser.remove_comments(text), expected, msg)
+    """Tests for Parser's comment handling capability
+    """
+
+    def template(self, test_string, expected):
+        self.assertEqual(
+            ast_gen.Parser().remove_comments(test_string),
+            expected
+        )
+
+    def test_comment_only_line(self):
+        "Checks if Parser handles empty lines with comments correctly"
+        self.template(
+            "#test: [a,string]",
+            ""
+        )
 
     def test_comment_empty_line(self):
         "Checks if Parser handles empty lines with comments correctly"
         self.template(
-            "#test: [a,string]",
+            "",
             ""
         )
 
@@ -64,228 +54,216 @@ class CommentTestCase(ParserTestCase):
     def test_comment_newline(self):
         "Checks if Parser handles multiple lines with comments correctly"
         self.template(
-            "foo # test\nblah",
-            "foo \nblah"
+            "foo:[] # test\nblah: []",
+            "foo:[] \nblah: []"
         )
 
 
 class PropertyTestCase(ParserTestCase):
-    """Tests for Parser's parsing of Properties"""
+    """Tests for Parser's parsing of the Definitions
+    """
 
-    def test_property_empty(self):
+    def test_no_attr_no_parent(self):
         self.template(
             "foo: []",
-            [Node('foo', [])]
+            [Node('foo', None, [])]
         )
 
-    def test_property_1arg(self):
+    def test_no_attr_parent(self):
         self.template(
-            "foo: [bar]",
-            [Node('foo', [Attr('bar', None)])]
+            "foo(AST): []",
+            [Node('foo', 'AST', [])]
         )
 
-    def test_property_multi_arg(self):
+    def test_attr_no_parent(self):
         self.template(
-            "foo: [bar, baz]",
-            [Node('foo', [
-                Attr('bar', None), Attr('baz', None)])]
+            "foo: [int bar]",
+            [Node(
+                'foo',
+                None,
+                [('int', 'bar', 'NEEDED')],
+            )]
         )
 
-    def test_property_1arg_default(self):
+    def test_attr_parent(self):
         self.template(
-            "foo: [bar=None]",
-            [Node('foo', [Attr('bar', 'None')])]
+            "foo(AST): [int bar]",
+            [Node(
+                'foo',
+                'AST',
+                [('int', 'bar', 'NEEDED')],
+            )]
         )
 
-    def test_property_multi_arg_default(self):
+    def test_modifiers(self):
         self.template(
-            "foo: [bar, baz=None]",
-            [Node('foo', [
-                Attr('bar', None),
-                Attr('baz', 'None')
-            ])]
+            "FooBar: (int foo, int+ bar, int* baz, int? spam)",
+            [
+                Node(
+                    "FooBar",
+                    None,
+                    [
+                        ('foo', 'int', 'NEEDED'),
+                        ('bar', 'int', 'ONE_OR_MORE'),
+                        ('baz', 'int', 'ZERO_OR_MORE'),
+                        ('spam', 'int', 'OPTIONAL'),
+                    ]
+                )
+            ]
         )
 
-    def test_default_conversion(self):
-        "Tests for default values' conversion to sources"
+    def test_multiple(self):
         self.template(
-            'foo: [a=True, b=False, c=None, d=[], e=(), f="", g="\n"]',
-            [Node('foo', [
-                Attr('a', 'True'),
-                Attr('b', 'False'),
-                Attr('c', 'None'),
-                Attr('d', '[]'),
-                Attr('e', '()'),
-                Attr('f', '""'),
-                Attr('g', '"\n"'),
-            ])]
+            """
+            base1: [int field1]
+            base2(base1): [int field2]
+            obj(base2): []
+            """,
+            [
+                Node(
+                    "base1", None,
+                    [("field1", "int", "NEEDED")]
+                ),
+                Node(
+                    "base2", "base1",
+                    [("field2", "int", "NEEDED")]
+                ),
+                Node(
+                    "obj", "base2",
+                    []
+                ),
+            ]
         )
 
-    def test_invalid_object_to_prepare(self):
-        errors = [TypeError, ast_gen.LexerError, ast_gen.ParsingError]
-        args = [1, "foo: [$x]", "foo: [x y]"]
-        # Iterate over errors and arguments
-        for err, arg in zip(errors, args):
-            self.assertRaises(err, self.parser.prepare, arg)
 
-
-class GenerationTestCase(ParserTestCase):
-    """Tests for generated sources
+class ParserWarningTestCase(ParserTestCase):
+    """Tests for warnings generated by Parser
     """
-    # Override 'template' for this test has a different one
-    # Still is a ParserTestCase
-    def template(self, text, expected_output):
-        # Remove the prefix
-        self.parser.prefix = ""
-        # Give the parser the nodes text to prepare data for generating source
-        self.parser.prepare(text)
-        # Create a fake file
-        fake = support.StringIO()
-        # Generate the sources
-        self.parser.write_module(fake)
-        # Check output
-        self.assertMultiLineEqual(
-            dedent(expected_output).strip(), fake.getvalue().strip()
+    def test_duplicate(self):
+        s = dedent("""
+            some_node: [int bar]
+            some_node: [int baz]
+        """).strip()
+
+        with warnings.catch_warnings(record=True) as catcher:
+            # Cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            # Trigger a warning.
+            self.parser.parse(s)
+            # Verify some things
+            assert len(catcher) == 1
+            w = catcher[0]
+            assert issubclass(w.category, UserWarning)
+            assert "duplicate" in str(w.message)
+            assert "some_node" in str(w.message)
+
+
+class SourceGeneratorTestCase(unittest.TestCase):
+    """Tests for the code generation
+    """
+    def template(self, data, expected_output):
+        self.src_gen = ast_gen.SourceGenerator()
+        generated = self.src_gen.generate_sources(data)
+
+        self.assertEqual(
+            dedent(expected_output).strip(), generated.strip()
         )
 
-    def test_single_nodefault(self):
+    def test_no_attr_no_parent(self):
         self.template(
-            "FooBar: [bar]",
+            [Node('foo', None, [])],
+            """
+            class FooBar(object):
+                _fields = []
+            """
+        )
+
+    def test_no_attr_parent(self):
+        self.template(
+            [Node('foo', 'AST', [])],
             """
             class FooBar(AST):
-                _fields = ['bar']
-
-                def __init__(self, bar):
-                    self.bar = bar
+                _fields = AST._fields
             """
         )
 
-    def test_multiple_nodefault(self):
+    def test_attr_no_parent(self):
         self.template(
-            "FooBar: [bar, baz]",
+            [Node(
+                'FooBar',
+                None,
+                [('int', 'bar', 'NEEDED')],
+            )],
+            """
+            class FooBar(object):
+                _fields = [
+                    ('bar', int, NEEDED),
+                ]
+            """
+        )
+
+    def test_attr_parent(self):
+        self.template(
+            [Node(
+                'foo',
+                'AST',
+                [('int', 'bar', 'NEEDED')],
+            )],
             """
             class FooBar(AST):
-                _fields = ['bar', 'baz']
-
-                def __init__(self, bar, baz):
-                    self.bar = bar
-                    self.baz = baz
+                _fields = AST._fields + [
+                    ('bar', int, NEEDED),
+                ]
             """
         )
 
-    def test_single_default(self):
+    def test_modifiers(self):
         self.template(
-            "FooBar: [bar=None]",
+            [Node(
+                'FooBar',
+                'AST',
+                [
+                    ('foo', 'int', 'NEEDED'),
+                    ('bar', 'int', 'ONE_OR_MORE'),
+                    ('baz', 'int', 'ZERO_OR_MORE'),
+                    ('spam', 'int', 'OPTIONAL'),
+                ]
+            )],
             """
             class FooBar(AST):
-                _fields = ['bar']
-
-                def __init__(self, bar=None):
-                    self.bar = bar
+                _fields = AST._fields + [
+                    ('foo', int, NEEDED),
+                    ('bar', int, ONE_OR_MORE),
+                    ('baz', int, ZERO_OR_MORE),
+                    ('spam', int, OPTIONAL),
+                ]
             """
         )
 
-    def test_multiple_default(self):
+    def test_multiple(self):
         self.template(
-            "FooBar: [foo, bar=True, baz=False]",
             """
-            class FooBar(AST):
-                _fields = ['foo', 'bar', 'baz']
-
-                def __init__(self, foo, bar=True, baz=False):
-                    self.foo = foo
-                    self.bar = bar
-                    self.baz = baz
+            base1: [int field1]
+            base2(base1): [int field2]
+            obj(base2): []
+            """,
             """
-        )
+            class base1(object):
+                _fields = [
+                    ('field1', int, NEEDED),
+                ]
 
-    def test_base(self):
-        self.template(
-            "FooBar(Base): [foo, bar=True, baz=False]",
-            """
-            class FooBar(Base):
-                _fields = ['foo', 'bar', 'baz']
 
-                def __init__(self, foo, bar=True, baz=False):
-                    self.foo = foo
-                    self.bar = bar
-                    self.baz = baz
+            class base2(base1):
+                _fields = base1.fields + [
+                    ('field2', int, NEEDED),
+                ]
+
+
+            class obj(base2):
+                _fields = base2.fields
             """
         )
-
-    def test_multiline(self):
-        self.template(
-            "FooBar: [\n\tfoo,\n\t\tbar\n=\tTrue\n,baz=False]",
-            """
-            class FooBar(AST):
-                _fields = ['foo', 'bar', 'baz']
-
-                def __init__(self, foo, bar=True, baz=False):
-                    self.foo = foo
-                    self.bar = bar
-                    self.baz = baz
-            """
-        )
-
-    def test_more_than_80_chars(self):
-        letters = str(list("abcdefghijklmnopqrstuvwxyz"))[1:-1]
-        list_content = letters.replace(", ", ",\n" + (" " * 8))
-        formatted_letters = "[\n        " + list_content + "\n    ]"
-        self.template(
-            """FooBar: [
-                a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u,
-                v, w, x, y, z
-            ]""",
-            dedent("""
-            class FooBar(AST):
-                _fields = {}
-
-                def __init__(self, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z):  # noqa
-                    self.a = a
-                    self.b = b
-                    self.c = c
-                    self.d = d
-                    self.e = e
-                    self.f = f
-                    self.g = g
-                    self.h = h
-                    self.i = i
-                    self.j = j
-                    self.k = k
-                    self.l = l
-                    self.m = m
-                    self.n = n
-                    self.o = o
-                    self.p = p
-                    self.q = q
-                    self.r = r
-                    self.s = s
-                    self.t = t
-                    self.u = u
-                    self.v = v
-                    self.w = w
-                    self.x = x
-                    self.y = y
-                    self.z = z
-            """).format(formatted_letters)
-        )
-
-
-class ReprTestCase(unittest.TestCase):
-    """Tests for __repr__ methods of the helper classes"""
-    def test_repr_Attr(self):
-        attr1 = Attr("a", "None")
-        attr2 = Attr("a", None)
-        attr3 = Attr("a", [])
-        self.assertEqual(repr(attr1), "Attr('a', 'None')")
-        self.assertEqual(repr(attr2), "Attr('a', None)")
-        self.assertEqual(repr(attr3), "Attr('a', [])")
-
-    def test_repr_Node(self):
-        node1 = Node("a", [Attr('a', [])])
-        node2 = Node("a", [])
-        self.assertEqual(repr(node1), "Node('a', [Attr('a', [])])")
-        self.assertEqual(repr(node2), "Node('a', [])")
 
 
 if __name__ == '__main__':

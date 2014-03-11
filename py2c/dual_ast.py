@@ -21,16 +21,21 @@ Note: During testing, just change the ``DEV`` variable to ``True``.
 from os.path import join, realpath, dirname, exists
 from . import _ast_gen as ast_gen
 
-FNAME = join(dirname(realpath(__file__)), "_dual_ast.py")
-del join, realpath, dirname
+base_dir = dirname(realpath(__file__))
+del realpath, dirname
 
-DEV = True  # Determines if the module should be (re-)generated
+# Determines if the module should be (re-)generated on import
+build = False
 
-# Build if in development mode or if the file doesn't exist
-if DEV or not exists(FNAME):
-    with open(FNAME, "w") as f:
-        f.truncate()
-        ast_gen.generate(f)
+# Files to convert into AST definitions
+definition_files = ["python.ast", "intermidiate.ast", "C.ast"]
+
+# Build if  or if the file doesn't exist
+if not exists(join(base_dir, "dual_ast.py")):
+    build = True
+
+if build:
+    ast_gen.generate(base_dir, "dual_ast.py", definition_files)
 
 
 #-------------------------------------------------------------------------------
@@ -44,7 +49,7 @@ __all__ = filter(lambda x: not x.startswith("_"), dir(_dual_ast))
 
 # Remove all the declared names from namespace before import!
 del (
-    DEV, FNAME, exists, f,
+    exists, join, base_dir, build, definition_files,
     # Imported modules
     _dual_ast, ast_gen
 )
