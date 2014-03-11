@@ -1,2 +1,2 @@
 @ECHO OFF
-del /Q /S *.pyc *.pyo *tab.py *.out __pycache__
+del /Q /S *.pyc *.pyo *.out __pycache__ *lextab.py *parsetab.py
