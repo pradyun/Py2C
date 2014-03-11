@@ -1,13 +1,10 @@
-# import sys
-# sys.argv.extend("test".split())
-
+import sys
 from setuptools import setup, find_packages
 
-#--------------------------------------------------------------------------
-# Description of package
+
 description = (
-    "An translator to translate implicitly statically typed Python code into "
-    "human-readable C++ code."
+    "A translator to translate implicitly statically typed Python code into "
+    "(hopefully) human-readable C++ code."
 )
 
 long_description = open("README.md").read()
@@ -16,12 +13,19 @@ long_description = open("README.md").read()
 classifiers = [
     'Development Status :: 1 - Planning',
     'Programming Language :: C++',
-    # Might support other versions, but not so sure (yet).
     'Programming Language :: Python :: 3',
     'Topic :: Software Development :: Code Generators',
     'Topic :: Software Development :: Compilers',
 ]
 
+# For running tests
+tests_require = ["nose"]
+if sys.version_info[:2] < (3, 3):
+    tests_require.extend([
+        "mock",
+    ])
+
+sys.argv.append("build")
 # The main setup call
 setup(
     # Package data
@@ -29,7 +33,7 @@ setup(
     version="0.1-dev",
     packages=find_packages(exclude=["tests"]),
     package_data={
-        'py2c': ['_ast_nodes.cfg'],  # include the configration file
+        'py2c': ['*.ast'],  # include the declaration files
     },
     install_requires=["ply"],
     zip_safe=False,
@@ -41,5 +45,7 @@ setup(
     url="https://github.com/pradyun/Py2C",
     classifiers=classifiers,
     # Testing
-    test_suite="tests",
+    tests_require=tests_require,
+    extras_require={'test': tests_require},
+    test_suite="nose.collector",
 )
