@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python
 """The module serves as a wrapper to the generated file (_dual_ast.py).
 If '_dual_ast.py' doesn't exist, it gets '_ast_gen.py' to generate it from
 the specification in '_ast_nodes.cfg' and then imports it.
@@ -11,9 +10,21 @@ Note: During testing, just change the ``DEV`` variable to ``True``.
       Then, the module will be rebuilt (and replaced) even if it exists.
 """
 
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #-------------------------------------------------------------------------------
 # Building the module
