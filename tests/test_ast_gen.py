@@ -48,7 +48,7 @@ class CommentTestCase(ParserTestCase):
 
     def template(self, test_string, expected):
         self.assertEqual(
-            ast_gen.Parser().remove_comments(test_string),
+            ast_gen.remove_comments(test_string),
             expected
         )
 
