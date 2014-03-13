@@ -43,14 +43,20 @@ class CodeGenerator(object):
     #---------------------------------------------------------------------------
     # Errors
     def reset(self):
+        """Resets all attributes of the CodeGenerator before parsing
+        """
         self.errors = []
 
     def log_error(self, msg, lineno=None):
+        """Log an error in the provided code
+        """
         if lineno is not None:
             msg += "Check Line ({0}): {1}".format(lineno, msg)
         self.errors.append(msg)
 
     def handle_errors(self):
+        """Handle the errors, if any, logged during generation
+        """
         if not self.errors:
             return
         raise CodeGenerationError()

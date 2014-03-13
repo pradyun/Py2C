@@ -27,6 +27,7 @@ systems.
 
 import os
 import re
+import collections
 from textwrap import dedent
 
 import ply.lex
@@ -45,46 +46,31 @@ class ParserError(Exception):
 
 
 #-------------------------------------------------------------------------------
-# Helper Class
+# Helpers
 #-------------------------------------------------------------------------------
-class Node(object):
-    """Represents a definition in the AST definitions
+def remove_comments(text):
+    """Removes all text after a '#' in all lines of the text
     """
-    def __init__(self, name, parent=None, attrs=None):
-        super(Node, self).__init__()
-        self.name = name
-        self.parent = parent
-        self.attrs = attrs
-        self._verify()
+    return re.sub(r"(?m)\#.*($|\n)", "", text)
 
-    def _verify(self):
-        seen = []
-        duplicated = []
-        for name, type_, modifier in self.attrs:
-            if name in seen:
-                duplicated.append(name)
-            else:
-                seen.append(name)
 
-        if duplicated:
-            msg = "Multiple declarations in {!r} of attribute{} {!r}".format(
-                self.name,
-                "s" if len(duplicated) > 1 else "",
-                ", ".join(duplicated)
+def _prettify_list(li):
+    """
+    """
+    if li == []:
+        return "[]"
+    else:
+        lines = ["["]
+        for name, type_, modifier in li:
+            lines.append(
+                " "*8 + "({!r}, {}, {}),".format(name, type_, modifier)
             )
-            raise ParserError(msg)
+        lines.append(" "*4 + "]")
 
-    def __repr__(self):
-        return "Node({!r}, {!r}, {!r})".format(
-            self.name, self.parent, self.attrs
-        )
+        return "\n".join(lines)
 
-    def __eq__(self, other):
-        return (
-            hasattr(other, "name") and self.name == other.name and
-            hasattr(other, "parent") and self.parent == other.parent and
-            hasattr(other, "attrs") and self.attrs == other.attrs
-        )
+
+Node = collections.namedtuple("Node", "name parent attrs")
 
 
 #-------------------------------------------------------------------------------
@@ -99,19 +85,16 @@ class Parser(object):
         self.literals = "()[]:*?+,"
 
         # Tokens for lexer
-        self.t_NAME = "\w+"
+        self.t_NAME = r"\w+"
         self.t_ignore = "\n \t"
 
         self._lexer = ply.lex.lex(module=self)
         self._parser = ply.yacc.yacc(module=self, start="start")
 
-    def remove_comments(self, text):
-        return re.sub(r"(?m)\#.*($|\n)", "", text)
-
     def parse(self, text):
         """Parses the definition text into a data representaton of it.
         """
-        text = self.remove_comments(text)
+        text = remove_comments(text)
         return self._parser.parse(text, lexer=self._lexer)
 
     def t_newline(self, t):
@@ -145,7 +128,25 @@ class Parser(object):
 
     def p_declaration(self, p):
         "declaration : NAME parent_class_opt ':' '[' attr_list ']'"
-        p[0] = Node(p[1], p[2], p[5])
+        name, attrs = (p[1], p[5])
+        # Check for duplicates
+        seen = []
+        duplicated = []
+        for field_name, _, _ in attrs:
+            if field_name in seen:
+                duplicated.append(field_name)
+            else:
+                seen.append(field_name)
+
+        if duplicated:
+            msg = "Multiple declarations in {!r} of attribute{} {!r}".format(
+                name,
+                "s" if len(duplicated) > 1 else "",
+                ", ".join(duplicated)
+            )
+            raise ParserError(msg)
+        else:
+            p[0] = Node(p[1], p[2], p[5])
 
     def p_parent_class_opt(self, p):
         """parent_class_opt : '(' NAME ')'
@@ -210,39 +211,31 @@ class SourceGenerator(object):
         classes = []
         for node in data:
             classes.append(self._translate_node(node))
-        return "\n\n\n".join(classes)
+        # Join classes and ensure newline at EOF
+        return "\n\n\n".join(classes) + "\n"
 
     def _translate_node(self, node):
         name = node.name
 
         if node.parent is None:
             parent = "object"
-            field_text = self._prettify_list(node.attrs)
+            field_text = _prettify_list(node.attrs)
         else:
             parent = node.parent
             field_text = parent + "._fields"
             if node.attrs:
-                field_text += " + " + self._prettify_list(node.attrs)
+                field_text += " + " + _prettify_list(node.attrs)
 
         return dedent("""
             class {0}({1}):
                 _fields = {2}
         """).strip().format(name, parent, field_text)
 
-    def _prettify_list(self, li):
-        if li == []:
-            return "[]"
-        else:
-            lines = ["["]
-            for elem in li:
-                lines.append((" "*8 + "({!r}, {}, {}),".format(*elem)))
-            lines.append(" "*4 + "]")
-
-            return "\n".join(lines)
-
 
 # API for dual_ast
 def generate(base_dir, files_to_convert):
+    """Generate sources for the AST nodes definition files provided
+    """
     content = []
     for fname in files_to_convert:
         with open(os.path.join(base_dir, fname)) as f:
@@ -257,4 +250,4 @@ def generate(base_dir, files_to_convert):
 
 
 if __name__ == '__main__':
-    print(generate("", ["python.ast"]))
+    print(generate(".", ["python.ast"]))
