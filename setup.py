@@ -1,8 +1,26 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 from setuptools import setup, find_packages
 
+#-------------------------------------------------------------------------------
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#-------------------------------------------------------------------------------
 
+# pylint:disable=C0103
 description = (
     "A translator to translate implicitly statically typed Python code into "
     "(hopefully) human-readable C++ code."
@@ -12,11 +30,11 @@ long_description = open("README.md").read()
 
 # Metadata
 classifiers = [
-    'Development Status :: 1 - Planning',
-    'Programming Language :: C++',
-    'Programming Language :: Python :: 3',
-    'Topic :: Software Development :: Code Generators',
-    'Topic :: Software Development :: Compilers',
+    "Development Status :: 1 - Planning",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Compilers",
 ]
 
 # For running tests
@@ -26,7 +44,6 @@ if sys.version_info[:2] < (3, 3):
         "mock",
     ])
 
-sys.argv.append("build")
 # The main setup call
 setup(
     # Package data
