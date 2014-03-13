@@ -52,14 +52,15 @@ nosetests.xml
 .pydevproject
 
 #--------------------------------------------------------
-# Pradyun's Stuff
+# Project specific
 #--------------------------------------------------------
-
 # For checking test coverage
-tests/.coverage_html/*
+tests/.coverage_html
+# For Pylint
+_pylint
 
 # I keep the wiki pages in the same directory
-wiki/
+wiki
 
 # Used to clean the directory during branch switches
 cleanup.cmd
