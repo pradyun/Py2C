@@ -65,15 +65,10 @@ class ErrorReportingTestCase(unittest.TestCase):
 
     def test_logging_error_with_node(self):
         num = random.randint(1, 2000)
-        mock = mock.Mock()
-        mock.lineno = num
+        my_mock = mock.Mock()
+        my_mock.lineno = num
 
-        self.translator.log_error("foo", mock)
-
-        with self.assertRaises(TranslationError) as obj:
-            self.translator.handle_errors()
-
-        errors = obj.exception.errors
+        errors = self.template([("foo", my_mock)])
 
         err_msg = errors[0]
         self.assertIn("foo", err_msg)
