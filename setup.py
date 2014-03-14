@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-import sys
-from setuptools import setup, find_packages
-
 #-------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
@@ -19,6 +16,9 @@ from setuptools import setup, find_packages
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
+
+import sys
+from setuptools import setup, find_packages
 
 # pylint:disable=C0103
 description = (
@@ -51,7 +51,7 @@ setup(
     version="0.1-dev",
     packages=find_packages(exclude=["tests"]),
     package_data={
-        'py2c': ['*.ast'],  # include the declaration files
+        "py2c": ["*.ast"],  # include the declaration files
     },
     install_requires=["ply"],
     zip_safe=False,
@@ -63,7 +63,7 @@ setup(
     url="https://github.com/pradyun/Py2C",
     classifiers=classifiers,
     # Testing
-    tests_require=tests_require,
-    extras_require={'test': tests_require},
-    test_suite="nose.collector",
+    extras_require={
+        "nosetests": tests_require,
+    },
 )

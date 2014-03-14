@@ -5,13 +5,15 @@ into human-readable C++ code, something like what humans might actually write.
 The generated code can be compiled without Python headers as it does not embed
 Python.  But you need Python to compile it. :)
 
-> Note: Currently it isn't producing any output. As I'm experimenting with
-        TDD, it's taking some time to implement the stuff.
+NEW! Mailing-List: https://groups.google.com/forum/#!forum/py2c-dev
 
-> Since this project is still young, I haven't worked much on the wiki but it
-  will be brought up to date once the generators start generating C++ code...
-  We should be able to translate a "Hello World!" with this translator by the
-  end of March 2014.
+> Since this project is still in the planning stage as of now.
+  (i.e. **Not producing output**)
+  The wiki pages will be brought up to date once the code generator start
+  generating C++ code...
+
+  For an idea of how far the project has reached, check the [Milestones][1]
+  on Github issues.
 
 Here's Py2C in action on Hello World:
 
@@ -19,7 +21,7 @@ Here's Py2C in action on Hello World:
 print("Hello World!")
 ```
 
-would compile to something like (Or so we plan :))
+would compile to something like (Or so is planned :)
 
 ```c
 #include <iostream.h>
@@ -32,14 +34,15 @@ int main() {
 }
 ```
 
-Or if you think it is OK to have a special header file in this file:
+Or if you think it is OK to have a special header file in the generated file
+it would compile to (Or so is planned :)
 
 ```c
 #include <iostream.h>
 #include "py2c.h"
 
 int main() {
-    Python::print("Hello World!");
+    Py::print(Py::str("Hello World!"));
     return 0;
 }
 ```
@@ -48,3 +51,5 @@ Py2C is also extensible though a fixer API, which can be used to accommodate
 for API changes across the languages, for third party packages (like numpy).
 
 For more details, refer to the wiki pages on GitHub <sub>Not ready yet</sub>.
+
+  [1]: https://github.com/pradyun/Py2C/issues/milestones
