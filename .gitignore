@@ -54,16 +54,15 @@ nosetests.xml
 #--------------------------------------------------------
 # Project specific
 #--------------------------------------------------------
-# For checking test coverage
-tests/.coverage_html
-# For Pylint
-_pylint
-
 # I keep the wiki pages in the same directory
 wiki
 
 # Used to clean the directory during branch switches
 cleanup.cmd
+
+# Used to run coverage on code
+coverage.cmd
+_coverage_reports
 
 #--------------------------------------------------------
 # Misc
