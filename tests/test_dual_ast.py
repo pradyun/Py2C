@@ -25,25 +25,373 @@ import unittest
 import py2c.dual_ast as dual_ast
 
 
-class ASTTestCase(unittest.TestCase):
-    """Tests for base tree node class: AST
+#-------------------------------------------------------------------------------
+# A bunch of nodes used during testing
+#-------------------------------------------------------------------------------
+class TestNode1(dual_ast.AST):
+    _fields = [
+        ('f1', int, dual_ast.NEEDED),
+    ]
+
+
+class TestNode2(dual_ast.AST):
+    _fields = [
+        ('f1', int, dual_ast.NEEDED),
+        ('f2', int, dual_ast.OPTIONAL),
+        ('f3', int, dual_ast.ZERO_OR_MORE),
+        ('f4', int, dual_ast.ONE_OR_MORE),
+    ]
+
+
+class TestNode3(dual_ast.AST):
+    _fields = [
+        ('child', TestNode1, dual_ast.NEEDED),
+    ]
+
+
+class TestNode4(dual_ast.AST):
+    _fields = [
+        ('f1', int, dual_ast.NEEDED),
+    ]
+
+
+class TestNode5(dual_ast.AST):
+    _fields = [
+        ('f1', int, None),
+    ]
+
+
+#-------------------------------------------------------------------------------
+# Tests
+#-------------------------------------------------------------------------------
+class NodeTestCase(unittest.TestCase):
+    """Tests for nodes
+    """
+
+
+class NodeInitializationTestCase(NodeTestCase):
+    """Tests for the initialization of the values of nodes
+    """
+    def test_empty(self):
+        """Test for empty initialization
+        """
+        try:
+            TestNode1()
+        except TypeError:
+            self.fail("Raised exception when no arguments provided")
+
+    def test_single(self):
+        """Test for assignments on empty node
+        """
+        try:
+            node = TestNode1(1)
+        except TypeError:
+            self.fail("Raised exception when assigning valid value")
+        else:
+            self.assertEqual(node.f1, 1)  # pylint:disable=E1101
+
+    def test_kwargs(self):
+        try:
+            node = TestNode1(f1=1)
+        except TypeError:
+            self.fail("Raised exception when assigning valid value")
+        else:
+            self.assertEqual(node.f1, 1)  # pylint:disable=E1101
+
+    def test_modifiers_1(self):
+        """Test for modifier argument handling
+        """
+        try:
+            node = TestNode2(1, None, (), (2,))
+        except TypeError:
+            self.fail("Raised exception for valid values")
+        else:
+            # pylint:disable=E1101
+            self.assertEqual(node.f1, 1)
+            self.assertEqual(node.f2, None)
+            self.assertEqual(node.f3, ())
+            self.assertEqual(node.f4, (2,))
+
+    def test_modifiers_2(self):
+        """Test for modifier argument handling
+        """
+        try:
+            node = TestNode2(1, 2, (3, 4, 5), (6, 7, 8))
+        except TypeError:
+            self.fail("Raised exception for valid values")
+        else:
+            # pylint:disable=E1101
+            self.assertEqual(node.f1, 1)
+            self.assertEqual(node.f2, 2)
+            self.assertEqual(node.f3, (3, 4, 5))
+            self.assertEqual(node.f4, (6, 7, 8))
+
+    def test_invalid(self):
+        """Test for raising error for wrong number of arguments
+        """
+        with self.assertRaises(TypeError) as context:
+            TestNode2(1)
+
+        msg = context.exception.args[0]
+        self.assertIn("0 or 4 positional", msg)
+
+
+class NodeValidAssignmentTestCase(NodeTestCase):
+    """Tests for validity checks of node valid assignments
+    """
+    def test_NEEDED(self):
+        node = TestNode2()
+
+        try:
+            node.f1 = 1
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_OPTIONAL_1(self):
+        node = TestNode2()
+
+        try:
+            node.f2 = 1
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_OPTIONAL_2(self):
+        node = TestNode2()
+
+        try:
+            node.f2 = None
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ZERO_OR_MORE_1(self):
+        node = TestNode2()
+
+        try:
+            node.f3 = ()
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ZERO_OR_MORE_2(self):
+        node = TestNode2()
+
+        try:
+            node.f3 = (1,)
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ZERO_OR_MORE_3(self):
+        node = TestNode2()
+
+        try:
+            node.f3 = []
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ZERO_OR_MORE_4(self):
+        node = TestNode2()
+
+        try:
+            node.f3 = [1]
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ONE_OR_MORE_1(self):
+        node = TestNode2()
+
+        try:
+            node.f4 = (1,)
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+    def test_ONE_OR_MORE_2(self):
+        node = TestNode2()
+
+        try:
+            node.f4 = [1]
+        except TypeError:
+            self.fail("Raise TypeError for valid value")
+
+
+class NodeInValidAssignmentTestCase(NodeTestCase):
+    """Tests for validity checks of node valid assignments
+    """
+    def test_extra(self):
+        node = TestNode1()
+        with self.assertRaises(AttributeError) as context:
+            node.bar = 1
+
+        msg = context.exception.args[0]
+        self.assertIn("bar", msg)
+        self.assertIn("no field", msg)
+
+    def test_NEEDED_invalid_type(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f1 = ""
+
+    def test_OPTIONAL_invalid_type(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f2 = ""
+
+    def test_ZERO_OR_MORE_invalid_value_type(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f3 = ""
+
+    def test_ZERO_OR_MORE_invalid_item_type_2(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f3 = [""]
+
+    def test_ONE_OR_MORE_zero_items_1(self):
+        node = TestNode2()
+
+        with self.assertRaises(TypeError):
+            node.f4 = ()
+
+    def test_ONE_OR_MORE_zero_items_2(self):
+        node = TestNode2()
+
+        with self.assertRaises(TypeError):
+            node.f4 = []
+
+    def test_ONE_OR_MORE_invalid_value_type(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f4 = ""
+
+    def test_ONE_OR_MORE_invalid_item_type_2(self):
+        node = TestNode2()
+        with self.assertRaises(TypeError):
+            node.f4 = [""]
+
+
+class NodeFinalizationTestCase(NodeTestCase):
+    """Tests for `finalize` method of nodes
+    """
+    def test_all_given(self):
+        node = TestNode2()
+        node.f1 = 1
+        node.f2 = 2
+        node.f3 = []
+        node.f4 = [3]
+        try:
+            node.finalize()
+        except (TypeError, AttributeError):
+            self.fail("Raised exception when values we proper and present")
+        else:
+            self.assertEqual(node.f1, 1)
+            self.assertIs(node.f2, 2)
+            self.assertEqual(node.f3, ())
+            self.assertEqual(node.f4, (3,))
+
+    def test_minimal_given(self):
+        node = TestNode2()
+        node.f1 = 1
+        node.f4 = [2]
+        try:
+            node.finalize()
+        except (TypeError, AttributeError):
+            self.fail("Raised exception when values we proper and present")
+        else:
+            self.assertEqual(node.f1, 1)
+            self.assertIs(node.f2, None)
+            self.assertEqual(node.f3, ())
+            self.assertEqual(node.f4, (2,))
+
+    def test_missing_attrs(self):
+        with self.assertRaises(AttributeError) as context:
+            TestNode2().finalize()
+
+        msg = context.exception.args[0]
+
+        self.assertIn("f1", msg)
+        self.assertIn("f4", msg)
+        self.assertIn("missing", msg.lower())
+
+        self.assertNotIn("f2", msg)
+        self.assertNotIn("f3", msg)
+
+    def test_child_missing_attr(self):
+        node = TestNode3(TestNode1())
+
+        with self.assertRaises(AttributeError) as context:
+            node.finalize()
+
+        msg = context.exception.args[0]
+
+        self.assertIn("f1", msg)
+        self.assertIn("TestNode1", msg)
+        self.assertIn("missing", msg.lower())
+
+        self.assertNotIn("TestNode3", msg)
+
+    def test_wrong_modifier(self):
+        with self.assertRaises(AttributeError) as context:
+            TestNode5().finalize()
+
+        msg = context.exception.args[0]
+
+        self.assertIn("f1", msg)
+        self.assertIn("TestNode5", msg)
+        self.assertIn("unknown modifier", msg.lower())
+
+        self.assertNotIn("TestNode3", msg)
+
+
+class NodeEqualityTestCase(NodeTestCase):
+    """Tests for node's equality
     """
     def test_equality_1(self):
-        """Test for equality for in really equal Nodes
+        """Test for equality (equal nodes with integer attributes)
         """
+        node_1 = TestNode1(1)
+        node_2 = TestNode1(1)
+        node_1.finalize()
+        node_2.finalize()
+
+        self.assertEqual(node_1, node_2)
 
     def test_equality_2(self):
         """Test for equality with node when it has children nodes
         """
+        child_node_1 = TestNode1(1)
+        child_node_2 = TestNode1(1)
+        node_1 = TestNode3(child_node_1)
+        node_2 = TestNode3(child_node_2)
+        node_1.finalize()
+        node_2.finalize()
+
+        self.assertEqual(node_1, node_2)
 
     def test_inequality_with_diff_value(self):
         """Test for inequality on nodes with in-equal attributes
         """
+        node_1 = TestNode1(0)
+        node_2 = TestNode1(1)
 
-    def test_equality_diff_type(self):
+        self.assertNotEqual(node_1, node_2)
+
+    def test_inequality_diff_type(self):
         """Test for inequality on the basis of type
         """
+        node_1 = TestNode1(1)
+        node_2 = TestNode4(1)
 
+        self.assertNotEqual(node_1, node_2)
+
+    def test_inequality_child(self):
+        """Test for equality with node when it has children nodes
+        """
+        child_node_1 = TestNode1(1)
+        child_node_2 = TestNode1(2)
+        node_1 = TestNode3(child_node_1)
+        node_2 = TestNode3(child_node_2)
+        node_1.finalize()
+        node_2.finalize()
+
+        self.assertNotEqual(node_1, node_2)
 
 if __name__ == '__main__':
     unittest.main()

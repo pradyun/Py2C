@@ -24,15 +24,52 @@
 # readability and ease of editting for adding C nodes
 ################################################################################
 
+#-------------------------------------------------------------------------------
+# Base nodes
+#   Declared beforehand as is used later on, in the definitions.
+#-------------------------------------------------------------------------------
 PyAST(AST): []
+mod(PyAST): [int lineno]
+stmt(PyAST): [int lineno]
+expr(PyAST): [int lineno]
+expr_context(PyAST): []
+slice(PyAST): []
+boolop(PyAST): []
+operator(PyAST): []
+unaryop(PyAST): []
+cmpop(PyAST): []
 
 #-------------------------------------------------------------------------------
-mod(PyAST): [int lineno]
+# Helpers
+#-------------------------------------------------------------------------------
+arg(PyAST): [identifier arg, expr? annotation]
+comprehension(PyAST): [expr target, expr iter, expr* ifs]
+
+arguments(PyAST): [
+    arg* args,
+    identifier? vararg,
+    expr? varargannotation,
+    arg* kwonlyargs,
+    identifier? kwarg,
+    expr? kwargannotation,
+    expr* defaults,
+    expr* kw_defaults
+]
+
+keyword(PyAST): [identifier arg, expr value]
+alias(PyAST): [identifier name, identifier? asname]
+withitem(PyAST): [expr context_expr, expr? optional_vars]
+
+ExceptHandler(PyAST): [expr? type, identifier? name, stmt* body]
+
+#-------------------------------------------------------------------------------
+# Module
+#-------------------------------------------------------------------------------
 Module(mod): [stmt* body]
 
 #-------------------------------------------------------------------------------
-stmt(PyAST): [int lineno]
-
+# Statements
+#-------------------------------------------------------------------------------
 FunctionDef(stmt): [
     identifier name,
     arguments args,
@@ -64,7 +101,7 @@ If(stmt): [expr test, stmt* body, stmt* orelse]
 With(stmt): [withitem* items, stmt* body]
 
 Raise(stmt): [expr? exc, expr? cause]
-Try(stmt): [stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody]
+Try(stmt): [stmt* body, ExceptHandler* handlers, stmt* orelse, stmt* finalbody]
 Assert(stmt): [expr test, expr? msg]
 
 Import(stmt): [alias* names]
@@ -80,8 +117,8 @@ Continue(stmt): []
 
 
 #-------------------------------------------------------------------------------
-expr(PyAST): [int lineno]
-
+# Expressions
+#-------------------------------------------------------------------------------
 BoolOp(expr): [boolop op, expr* values]
 BinOp(expr): [expr left, operator op, expr right]
 UnaryOp(expr): [unaryop op, expr operand]
@@ -107,7 +144,7 @@ Ellipsis(expr): []
 
 # Literals with type-protection
 literal(expr): []
-Str(literal): [string s]
+Str(literal): [str s]
 Bytes(literal): [bytes s]
 Bool(literal): [bool b]
 num(literal): []
@@ -116,33 +153,30 @@ Float(num): [float n]
 Complex(num): [complex n]
 
 #-------------------------------------------------------------------------------
-expr_context(PyAST): []
-
-Load(expr_context): []
-Store(expr_context): []
-Del(expr_context): []
-AugLoad(expr_context): []
-AugStore(expr_context): []
-Param(expr_context): []
+# Expression context
+#-------------------------------------------------------------------------------
+# Load(expr_context): []
+# Store(expr_context): []
+# Del(expr_context): []
+# AugLoad(expr_context): []
+# AugStore(expr_context): []
+# Param(expr_context): []
 
 #-------------------------------------------------------------------------------
-slice(PyAST): []
-
+# Slices
+#-------------------------------------------------------------------------------
 Slice(slice): [expr? lower, expr? upper, expr? step]
 ExtSlice(slice): [slice* dims]
 Index(slice): [expr value]
 
 #-------------------------------------------------------------------------------
-boolop(PyAST): []
+# Boolean operators
+#-------------------------------------------------------------------------------
 And(boolop): []
 Or(boolop): []
 
-#===============================================================================
-# Operators
-#===============================================================================
-operator(PyAST): []
 #-------------------------------------------------------------------------------
-# Arithematic
+# Arithematic operators
 #-------------------------------------------------------------------------------
 Add(operator): []
 Sub(operator): []
@@ -158,20 +192,16 @@ BitAnd(operator): []
 FloorDiv(operator): []
 
 #-------------------------------------------------------------------------------
-# Unary or Bit-wise operators
+# Bit-wise operators
 #-------------------------------------------------------------------------------
-unaryop(PyAST): []
-
 Invert(unaryop): []
 Not(unaryop): []
 UAdd(unaryop): []
 USub(unaryop): []
 
 #-------------------------------------------------------------------------------
-# Comparisions
+# Comparision operators
 #-------------------------------------------------------------------------------
-cmpop(PyAST): []
-
 Eq(cmpop): []
 NotEq(cmpop): []
 Lt(cmpop): []
@@ -182,27 +212,3 @@ Is(cmpop): []
 IsNot(cmpop): []
 In(cmpop): []
 NotIn(cmpop): []
-
-#-------------------------------------------------------------------------------
-# Helpers
-#-------------------------------------------------------------------------------
-comprehension(PyAST): [expr target, expr iter, expr* ifs]
-
-arguments(PyAST): [
-    arg* args,
-    identifier? vararg,
-    expr? varargannotation,
-    arg* kwonlyargs,
-    identifier? kwarg,
-    expr? kwargannotation,
-    expr* defaults,
-    expr* kw_defaults
-]
-
-arg(PyAST): [identifier arg, expr? annotation]
-keyword(PyAST): [identifier arg, expr value]
-alias(PyAST): [identifier name, identifier? asname]
-withitem(PyAST): [expr context_expr, expr? optional_vars]
-
-# removed excepthandler as we don't need it here :)
-ExceptHandler(PyAST): [expr? type, identifier? name, stmt* body]
