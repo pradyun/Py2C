@@ -58,10 +58,10 @@ nosetests.xml
 wiki
 
 # Used to clean the directory during branch switches
-cleanup.cmd
+cleanup.bat
 
 # Used to run coverage on code
-coverage.cmd
+coverage.bat
 _coverage_reports
 
 #--------------------------------------------------------
