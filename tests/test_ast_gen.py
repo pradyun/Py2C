@@ -167,6 +167,7 @@ class ErrorsTestCase(ParserTestCase):
         with self.assertRaises(ast_gen.ParserError) as context:
             self.parser.parse(text)
         msg = context.exception.args[0].lower()
+
         self.assertIn("multiple", msg)
         self.assertIn("attribute", msg)
         self.assertIn("foo", msg)
@@ -183,6 +184,27 @@ class ErrorsTestCase(ParserTestCase):
         self.assertIn("multiple", msg)
         self.assertIn("declaration", msg)
         self.assertIn("foo", msg)
+
+    def test_invalid_token(self):
+        text = "$foo: []"
+
+        with self.assertRaises(ast_gen.ParserError) as context:
+            self.parser.parse(text)
+        msg = context.exception.args[0].lower()
+
+        self.assertIn("token", msg)
+        self.assertIn("unable", msg)
+        self.assertIn("$foo", msg)
+
+    def test_invalid_definition(self):
+        text = "foo: [bar, baz]"
+
+        with self.assertRaises(ast_gen.ParserError) as context:
+            self.parser.parse(text)
+        msg = context.exception.args[0].lower()
+
+        self.assertIn("unexpected", msg)
+        self.assertIn("','", msg)
 
 
 class SourceGeneratorTestCase(unittest.TestCase):

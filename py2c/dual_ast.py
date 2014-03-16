@@ -19,20 +19,84 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
-
+#pylint:disable=C0103
 import re
 
-#pylint:disable=C0103
+
+#-------------------------------------------------------------------------------
+# Exceptions
+#-------------------------------------------------------------------------------
+class ASTError(Exception):
+    """Base class of all exceptions raised by this module
+    """
+
+
+class WrongTypeError(ASTError, TypeError):
+    """Raised when the value of a field does not fit with the field's type
+    """
+
+
+class FieldError(ASTError, AttributeError):
+    """Raised when there is a problem related to fields
+    """
+
+
+class WrongAttributeValueError(FieldError):
+    """Raised when the value of a field does not fit with the field's definition
+    """
+
+
+#-------------------------------------------------------------------------------
+# Helper
+#-------------------------------------------------------------------------------
+def iter_fields(node):
+    for name, _, _ in node._fields:
+        try:
+            yield name, getattr(node, name)
+        except AttributeError:
+            pass
+#-------------------------------------------------------------------------------
+# Modifiers
+#-------------------------------------------------------------------------------
 NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 
 
-def identifier(s):
-    if re.match("^[a-z][a-zA-Z0-9_]*$", s) is None:
-        raise ValueError("Invalid value for identifier: {}".format(s))
-    else:
-        return str(s)
+#-------------------------------------------------------------------------------
+# Identifier
+#-------------------------------------------------------------------------------
+class _IdentifierMetaClass(type):
+
+    def __instancecheck__(self, obj):
+        return isinstance(obj, str) and self._regex.match(obj) is not None
+
+    def __subclasscheck__(self, obj):
+        return issubclass(obj, str)
 
 
+class _Identifier(str, metaclass=_IdentifierMetaClass):
+    """Names of identifiers
+    """
+    _regex = re.compile("^[a-z][a-zA-Z0-9_]*$")
+
+    def __init__(self, s):
+        super(_Identifier, self).__init__()
+        if self._regex.match(s) is None:
+            raise WrongAttributeValueError(
+                "Invalid value for identifier: {}".format(s)
+            )
+        else:
+            self = s
+
+identifier = _Identifier
+identifier.__name__ = identifier.__name__.replace("_Identifier", "identifier")
+identifier.__qualname__ = identifier.__qualname__.replace(
+    "_Identifier", "identifier"
+)
+
+
+#===============================================================================
+# AST base node
+#===============================================================================
 class AST(object):
     """The base class of all nodes defined in the declarations
     """
@@ -53,7 +117,7 @@ class AST(object):
                     num_fields,
                     "" if num_fields == 1 else "s"
                 )
-                raise TypeError(msg)
+                raise WrongTypeError(msg)
 
             for field, value in zip(self._fields, args):
                 setattr(self, field[0], value)
@@ -76,6 +140,14 @@ class AST(object):
                 getattr(other, name) == getattr(self, name)
                 for name, _, _ in self._fields
             )
+
+    def __repr__(self):
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join(
+                "{}={}".format(a, b) for a, b in iter_fields(self)
+            )
+        )
 
     def finalize(self):  # noqa
         """Finalize and check if all atributes exist
@@ -116,7 +188,7 @@ class AST(object):
         for field in self._fields:
             if field[0] == name:
                 return field
-        raise AttributeError("{} has no field {!r}".format(
+        raise FieldError("{} has no field {!r}".format(
             self.__class__.__name__, name
         ))
 
@@ -124,7 +196,7 @@ class AST(object):
         """Check if 'value' is valid to assign to field
 
         Raises:
-            TypeError if not a valid value
+            WrongTypeError if not a valid value
         """
         name, type_, modifier = field
         # Validation
@@ -141,18 +213,24 @@ class AST(object):
         """Checks if value is a valid one for assigning to the 'name' field
 
         Raises:
-            TypeError if not a valid value
+            WrongTypeError if not a valid value
         """
         if not isinstance(value, type_):
-            raise TypeError("Expected {} for attribute {}.{} got {}".format(
-                type_, self.__class__.__name__, name, value.__class__
-            ))
+            raise WrongTypeError(
+                (
+                    "Expected {0} {1} for attribute {2}.{3}, "
+                    "got {4!r} which is not {0} {1}"
+                ).format(
+                    "an" if type_.__name__[0] in "aeiou" else "a",
+                    type_.__name__, self.__class__.__name__, name, value
+                )
+            )
 
     def _validate_list(self, name, value, type_, min_len):
         """Checks if a list is a valid one for assigning.
 
         Raises:
-            TypeError if not a valid list.
+            WrongTypeError if not a valid list.
         """
         # 'DRY'ing the code.
         msg = (
@@ -161,15 +239,19 @@ class AST(object):
         ).format(name, self.__class__.__name__, min_len, type_.__name__)
 
         if not isinstance(value, (list, tuple)) or len(value) < min_len:
-            raise TypeError(msg)
+            raise WrongTypeError(msg)
 
         for idx, elem in enumerate(value):
             if not isinstance(elem, type_):
-                raise TypeError(msg + ": Wrong type of element {}".format(idx))
+                raise WrongTypeError(
+                    msg + ": Wrong type of element {}".format(idx)
+                )
 
 
 #-------------------------------------------------------------------------------
 # Building the module
+#    Beyond this line all code is for adding the generated classes to the
+#    namespace of this module.
 #-------------------------------------------------------------------------------
 from os.path import join, realpath, dirname, exists
 from py2c import _ast_gen as ast_gen
@@ -191,17 +273,7 @@ sources = ast_gen.generate(dirname(realpath(__file__)), definition_files)
 del (
     exists, dirname, realpath, join, definition_files, ast_gen
 )
-exec_context = {
-    # The all important
-    "AST": AST,
-    # Modifiers
-    "NEEDED": NEEDED,
-    "ZERO_OR_MORE": ZERO_OR_MORE,
-    "ONE_OR_MORE": ONE_OR_MORE,
-    "OPTIONAL": OPTIONAL,
-    # Types used internally
-    "identifier": identifier,
-}
+
 # Execute the generated module here!
-exec(sources, exec_context, exec_context)
-del sources, exec_context
+exec(sources)
+del(sources)
