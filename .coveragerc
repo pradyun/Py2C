@@ -1,0 +1,27 @@
+[run]
+branch = True
+
+[report]
+exclude_lines =
+    # Changed pragma
+    coverage: not missing
+
+    # Defensive code
+    raise AssertionError
+    raise NotImplementedError
+
+    def __repr__
+
+    if False:
+    if __name__ == .__main__.:
+
+partial_branches =
+    coverage: no partial
+
+include =
+    py2c\*
+
+ignore_errors = True
+
+[html]
+directory = _coverage_reports

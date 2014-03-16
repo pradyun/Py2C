@@ -29,9 +29,9 @@
 #   Declared beforehand as is used later on, in the definitions.
 #-------------------------------------------------------------------------------
 PyAST(AST): []
-mod(PyAST): [int lineno]
-stmt(PyAST): [int lineno]
-expr(PyAST): [int lineno]
+mod(PyAST): []
+stmt(PyAST): []
+expr(PyAST): []
 expr_context(PyAST): []
 slice(PyAST): []
 boolop(PyAST): []

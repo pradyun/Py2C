@@ -86,7 +86,7 @@ class Parser(object):
 
         # Tokens for lexer
         self.t_NAME = r"\w+"
-        self.t_ignore = "\n \t"
+        self.t_ignore = " \t"
 
         self._lexer = ply.lex.lex(module=self)
         self._parser = ply.yacc.yacc(module=self, start="start")
@@ -102,10 +102,10 @@ class Parser(object):
         t.lexer.lineno += 1
 
     def p_error(self, t):
-        raise ParserError("while Parsing: " + str(t))
+        raise ParserError("Unexpected token: " + str(t))
 
     def t_error(self, t):
-        raise ParserError("while Tokenizing: " + str(t))
+        raise ParserError("Unable to tokenize" + t.value)
 
     #---------------------------------------------------------------------------
     # Parsing
