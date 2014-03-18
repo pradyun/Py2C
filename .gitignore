@@ -64,6 +64,9 @@ cleanup.bat
 coverage.bat
 _coverage_reports
 
+# Auto-generated
+py2c\syntax_tree\!(__init__).py
+
 #--------------------------------------------------------
 # Misc
 #--------------------------------------------------------
