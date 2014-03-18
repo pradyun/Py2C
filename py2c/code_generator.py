@@ -21,8 +21,7 @@
 #-------------------------------------------------------------------------------
 
 
-
-from . import dual_ast
+from py2c.syntax_tree import iter_fields, nodes
 
 
 class CodeGenerationError(Exception):
@@ -63,7 +62,7 @@ class CodeGenerator(object):
 
     # Providing output
     def get_code(self, node):
-        """Get code from dual AST node: `node`
+        """Get code from Py2C AST node: `node`
 
         Args:
             node: The AST to be converted to code
@@ -90,10 +89,10 @@ class CodeGenerator(object):
     def generic_visit(self, node):
         """Called if no explicit visitor function exists for a node.
         """
-        for field, value in dual_ast.iter_fields(node):
+        for field, value in iter_fields(node):
             if isinstance(value, list):
                 for item in value:
-                    if isinstance(item, dual_ast.AST):
+                    if isinstance(item, nodes.AST):
                         self.visit(item)
-            elif isinstance(value, dual_ast.AST):
+            elif isinstance(value, nodes.AST):
                 self.visit(value)
