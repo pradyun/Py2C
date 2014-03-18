@@ -33,7 +33,36 @@ from textwrap import dedent
 import ply.lex
 import ply.yacc
 
-_PREFIX = dedent("""
+PREFIX = dedent("""
+    #!/usr/bin/python3
+    \"\"\"Holds all AST definitions in this package by importing them.
+    \"\"\"
+
+    #---------------------------------------------------------------------------
+    # Py2C - A Python to C++ compiler
+    # Copyright (C) 2014 Pradyun S. Gedam
+    #
+    # This program is free software: you can redistribute it and/or modify
+    # it under the terms of the GNU General Public License as published by
+    # the Free Software Foundation, either version 3 of the License, or
+    # (at your option) any later version.
+    #
+    # This program is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    #
+    # You should have received a copy of the GNU General Public License
+    # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    #---------------------------------------------------------------------------
+""").strip()
+
+GENERATED_PREFIX = dedent("""
+    from . import (
+        AST,
+        identifier,
+        NEEDED, OPTIONAL, ONE_OR_MORE, ZERO_OR_MORE
+    )
 """).strip()
 
 
@@ -233,21 +262,37 @@ class SourceGenerator(object):
 
 
 # API for dual_ast
-def generate(base_dir, files_to_convert):
-    """Generate sources for the AST nodes definition files provided
+def generate(source_dir, output_dir):
+    """Generate sources for the AST nodes definition files in source_dir
     """
-    content = []
-    for fname in files_to_convert:
-        with open(os.path.join(base_dir, fname)) as f:
-            content.append(f.read())
+    files_to_convert = [
+        fname for fname in os.listdir(source_dir)
+        if fname.endswith(".ast")
+    ]
 
-    text = "\n\n".join(content)
-
+    # Writing the node-declaration files
     parser = Parser()
     src_gen = SourceGenerator()
 
-    return src_gen.generate_sources(parser.parse(text))
+    for fname in files_to_convert:
+        infile_name = os.path.join(source_dir, fname)
+        outfile_name = os.path.join(output_dir, fname[:-4] + ".py")
 
+        with open(infile_name, "rt") as infile:
+            text = infile.read()
+
+        sources = src_gen.generate_sources(parser.parse(text))
+
+        print("Generating {}".format(outfile_name))
+        with open(outfile_name, "w+t") as outfile:
+            outfile.write(PREFIX)
+            outfile.write("\n")
+            outfile.write(GENERATED_PREFIX)
+            outfile.write("\n\n\n")
+            outfile.write(sources)
 
 if __name__ == '__main__':
-    print(generate(".", ["python.ast"]))
+    if False:
+        generate("../py2c/syntax_tree", "./delete_me")
+    else:
+        generate("../py2c/syntax_tree", "../py2c/syntax_tree")
