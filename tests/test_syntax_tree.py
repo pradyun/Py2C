@@ -22,48 +22,48 @@
 
 
 import unittest
-import py2c.dual_ast as dual_ast
+from py2c import syntax_tree
 
 
 #-------------------------------------------------------------------------------
 # A bunch of nodes used during testing
 #-------------------------------------------------------------------------------
-class TestNode1(dual_ast.AST):
+class TestNode1(syntax_tree.AST):
     """Basic node
     """
     _fields = [
-        ('f1', int, dual_ast.NEEDED),
+        ('f1', int, syntax_tree.NEEDED),
     ]
 
 
-class TestNode2(dual_ast.AST):
+class TestNode2(syntax_tree.AST):
     """Node with all modifiers
     """
     _fields = [
-        ('f1', int, dual_ast.NEEDED),
-        ('f2', int, dual_ast.OPTIONAL),
-        ('f3', int, dual_ast.ZERO_OR_MORE),
-        ('f4', int, dual_ast.ONE_OR_MORE),
+        ('f1', int, syntax_tree.NEEDED),
+        ('f2', int, syntax_tree.OPTIONAL),
+        ('f3', int, syntax_tree.ZERO_OR_MORE),
+        ('f4', int, syntax_tree.ONE_OR_MORE),
     ]
 
 
-class TestNode3(dual_ast.AST):
+class TestNode3(syntax_tree.AST):
     """Node with another node as child
     """
     _fields = [
-        ('child', TestNode1, dual_ast.NEEDED),
+        ('child', TestNode1, syntax_tree.NEEDED),
     ]
 
 
-class TestNode4(dual_ast.AST):
+class TestNode4(syntax_tree.AST):
     """Equivalent to TestNode1
     """
     _fields = [
-        ('f1', int, dual_ast.NEEDED),
+        ('f1', int, syntax_tree.NEEDED),
     ]
 
 
-class TestNode5(dual_ast.AST):
+class TestNode5(syntax_tree.AST):
     """Node with invalid modifier
     """
     _fields = [
@@ -71,14 +71,14 @@ class TestNode5(dual_ast.AST):
     ]
 
 
-class TestNode6(dual_ast.AST):
+class TestNode6(syntax_tree.AST):
     """Node with all modifiers of identifier type
     """
     _fields = [
-        ('f1', dual_ast.identifier, dual_ast.NEEDED),
-        ('f2', dual_ast.identifier, dual_ast.OPTIONAL),
-        ('f3', dual_ast.identifier, dual_ast.ZERO_OR_MORE),
-        ('f4', dual_ast.identifier, dual_ast.ONE_OR_MORE),
+        ('f1', syntax_tree.identifier, syntax_tree.NEEDED),
+        ('f2', syntax_tree.identifier, syntax_tree.OPTIONAL),
+        ('f3', syntax_tree.identifier, syntax_tree.ZERO_OR_MORE),
+        ('f4', syntax_tree.identifier, syntax_tree.ONE_OR_MORE),
     ]
 
 
@@ -98,7 +98,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """
         try:
             TestNode1()
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised exception when no arguments provided")
 
     def test_single(self):
@@ -106,7 +106,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """
         try:
             node = TestNode1(1)
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised exception when assigning valid value")
         else:
             self.assertEqual(node.f1, 1)  # pylint:disable=E1101
@@ -114,7 +114,7 @@ class NodeInitializationTestCase(NodeTestCase):
     def test_kwargs(self):
         try:
             node = TestNode1(f1=1)
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised exception when assigning valid value")
         else:
             self.assertEqual(node.f1, 1)  # pylint:disable=E1101
@@ -124,7 +124,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """
         try:
             node = TestNode2(1, None, (), (2,))
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised exception for valid values")
         else:
             # pylint:disable=E1101
@@ -138,7 +138,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """
         try:
             node = TestNode2(1, 2, (3, 4, 5), (6, 7, 8))
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised exception for valid values")
         else:
             # pylint:disable=E1101
@@ -150,7 +150,7 @@ class NodeInitializationTestCase(NodeTestCase):
     def test_invalid(self):
         """Test for raising error for wrong number of arguments
         """
-        with self.assertRaises(dual_ast.WrongTypeError) as context:
+        with self.assertRaises(syntax_tree.WrongTypeError) as context:
             TestNode2(1)
 
         msg = context.exception.args[0]
@@ -165,7 +165,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f1 = 1
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_OPTIONAL_1(self):
@@ -173,7 +173,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f2 = 1
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_OPTIONAL_2(self):
@@ -181,7 +181,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f2 = None
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_1(self):
@@ -189,7 +189,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f3 = ()
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_2(self):
@@ -197,7 +197,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f3 = (1,)
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_3(self):
@@ -205,7 +205,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f3 = []
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_4(self):
@@ -213,7 +213,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f3 = [1]
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ONE_OR_MORE_1(self):
@@ -221,7 +221,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f4 = (1,)
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ONE_OR_MORE_2(self):
@@ -229,7 +229,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 
         try:
             node.f4 = [1]
-        except dual_ast.WrongTypeError:
+        except syntax_tree.WrongTypeError:
             self.fail("Raised WrongTypeError for valid type")
 
 
@@ -238,7 +238,7 @@ class NodeInValidAssignmentTestCase(NodeTestCase):
     """
     def test_extra(self):
         node = TestNode1()
-        with self.assertRaises(dual_ast.FieldError) as context:
+        with self.assertRaises(syntax_tree.FieldError) as context:
             node.bar = 1
 
         msg = context.exception.args[0]
@@ -247,44 +247,44 @@ class NodeInValidAssignmentTestCase(NodeTestCase):
 
     def test_NEEDED_invalid_type(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = ""
 
     def test_OPTIONAL_invalid_type(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f2 = ""
 
     def test_ZERO_OR_MORE_invalid_value_type(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f3 = ""
 
     def test_ZERO_OR_MORE_invalid_item_type_2(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f3 = [""]
 
     def test_ONE_OR_MORE_zero_items_1(self):
         node = TestNode2()
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = ()
 
     def test_ONE_OR_MORE_zero_items_2(self):
         node = TestNode2()
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = []
 
     def test_ONE_OR_MORE_invalid_value_type(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = ""
 
     def test_ONE_OR_MORE_invalid_item_type_2(self):
         node = TestNode2()
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = [""]
 
 
@@ -299,7 +299,7 @@ class NodeFinalizationTestCase(NodeTestCase):
         node.f4 = [3]
         try:
             node.finalize()
-        except (dual_ast.ASTError):
+        except (syntax_tree.ASTError):
             self.fail("Raised exception when values were proper")
         else:
             self.assertEqual(node.f1, 1)
@@ -313,7 +313,7 @@ class NodeFinalizationTestCase(NodeTestCase):
         node.f4 = [2]
         try:
             node.finalize()
-        except (dual_ast.ASTError):
+        except (syntax_tree.ASTError):
             self.fail("Raised exception when values were proper")
         else:
             self.assertEqual(node.f1, 1)
@@ -448,32 +448,35 @@ class IdentifierTestCase(unittest.TestCase):
     """Tests for 'identifier' object in the definitions
     """
     def test_init(self):
-        self.assertEqual(dual_ast.identifier("valid_name"), "valid_name")
-        with self.assertRaises(dual_ast.WrongAttributeValueError):
-            dual_ast.identifier("Invalid name")
+        self.assertEqual(syntax_tree.identifier("valid_name"), "valid_name")
+        with self.assertRaises(syntax_tree.WrongAttributeValueError):
+            syntax_tree.identifier("Invalid name")
 
     def test_isinstance(self):
 
-        self.assertIsInstance("valid_name", dual_ast.identifier)
+        self.assertIsInstance("valid_name", syntax_tree.identifier)
+        self.assertIsInstance("ValidName", syntax_tree.identifier)
+        self.assertIsInstance("VALID_NAME", syntax_tree.identifier)
+        self.assertIsInstance("Valid_1_name", syntax_tree.identifier)
         self.assertIsInstance(
-            dual_ast.identifier("valid_name"), dual_ast.identifier
+            syntax_tree.identifier("valid_name"), syntax_tree.identifier
         )
-        self.assertNotIsInstance("Invalid name", dual_ast.identifier)
-        self.assertNotIsInstance("虎", dual_ast.identifier)
+        self.assertNotIsInstance("Invalid name", syntax_tree.identifier)
+        self.assertNotIsInstance("虎", syntax_tree.identifier)
 
     def test_issubclass(self):
-        class SubClass(dual_ast.identifier):
+        class SubClass(syntax_tree.identifier):
             pass
 
-        self.assertTrue(issubclass(SubClass, dual_ast.identifier))
-        self.assertTrue(issubclass(str, dual_ast.identifier))
-        self.assertFalse(issubclass(int, dual_ast.identifier))
+        self.assertTrue(issubclass(SubClass, syntax_tree.identifier))
+        self.assertTrue(issubclass(str, syntax_tree.identifier))
+        self.assertFalse(issubclass(int, syntax_tree.identifier))
 
     def test_equality(self):
-        self.assertEqual(dual_ast.identifier("name"), "name")
+        self.assertEqual(syntax_tree.identifier("name"), "name")
 
     def test_repr(self):
-        identifier = dual_ast.identifier
+        identifier = syntax_tree.identifier
         self.assertEqual(repr(identifier("a_name")), "'a_name'")
         self.assertEqual(repr(identifier("some_name")), "'some_name'")
         self.assertEqual(repr(identifier("camelCase")), "'camelCase'")
@@ -491,7 +494,7 @@ class IdentifierTestCase(unittest.TestCase):
         try:
             node = TestNode6("foo", "bar", (), ("baz",))
             node.finalize()
-        except dual_ast.ASTError:
+        except syntax_tree.ASTError:
             self.fail("Raised exception when values were proper")
         else:
             self.assertEqual(node.f1, "foo")
@@ -502,16 +505,16 @@ class IdentifierTestCase(unittest.TestCase):
     def test_modifiers_invalid_values(self):
         node = TestNode6()
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = "invalid value"
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f2 = "invalid value"
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f3 = ("invalid value")
 
-        with self.assertRaises(dual_ast.WrongTypeError):
+        with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = ("invalid value", "invalid value 2")
 
 

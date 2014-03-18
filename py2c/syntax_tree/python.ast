@@ -18,10 +18,10 @@
 
 
 ################################################################################
-# From this file, the PyAST nodes is dynamically generated.
+# From this file, the Python AST nodes is dynamically generated.
 #
-# This file based on Python's ASDL definitions, modified for ease of parsing,
-# readability and ease of editting for adding C nodes
+# This file's syntax is based on ASDL definitions, modified for ease of parsing,
+# readability and ease of editting IMO.
 ################################################################################
 
 #-------------------------------------------------------------------------------
@@ -155,12 +155,12 @@ Complex(num): [complex n]
 #-------------------------------------------------------------------------------
 # Expression context
 #-------------------------------------------------------------------------------
-# Load(expr_context): []
-# Store(expr_context): []
-# Del(expr_context): []
-# AugLoad(expr_context): []
-# AugStore(expr_context): []
-# Param(expr_context): []
+Load(expr_context): []
+Store(expr_context): []
+Del(expr_context): []
+AugLoad(expr_context): []
+AugStore(expr_context): []
+Param(expr_context): []
 
 #-------------------------------------------------------------------------------
 # Slices

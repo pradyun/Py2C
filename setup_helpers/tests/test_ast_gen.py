@@ -19,12 +19,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
-
+import sys
+sys.path.append("..")
 
 import unittest
 from textwrap import dedent
 
-import py2c._ast_gen as ast_gen
+import ast_gen
 # It is refered multiple times
 Node = ast_gen.Node
 

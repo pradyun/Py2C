@@ -21,6 +21,17 @@ import sys
 from setuptools import setup, find_packages
 
 # pylint:disable=C0103
+#-------------------------------------------------------------------------------
+# Importing helpers from 'setup_helpers' package in this directory
+#-------------------------------------------------------------------------------
+sys.path.insert(0, ".")
+from setup_helpers import BuildPyCommand
+
+sys.path.pop(0)
+sys.argv.append("nosetests")
+#-------------------------------------------------------------------------------
+# Metadata
+#-------------------------------------------------------------------------------
 description = (
     "A translator to translate implicitly statically typed Python code into "
     "(hopefully) human-readable C++ code."
@@ -28,7 +39,6 @@ description = (
 
 long_description = open("README.md").read()
 
-# Metadata
 classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: C++",
@@ -37,22 +47,29 @@ classifiers = [
     "Topic :: Software Development :: Compilers",
 ]
 
+#-------------------------------------------------------------------------------
 # For running tests
-tests_require = ["nose"]
+#-------------------------------------------------------------------------------
+tests_require = []
 if sys.version_info[:2] < (3, 3):
     tests_require.extend([
         "mock",
     ])
 
+#-------------------------------------------------------------------------------
 # The main setup call
+#-------------------------------------------------------------------------------
 setup(
     # Package data
     name="py2c",
     version="0.1-dev",
-    packages=find_packages(exclude=["tests"]),
+    packages=find_packages(
+        exclude=["tests", "setup_helpers", "setup_helpers.tests"]
+    ),
     package_data={
         "py2c": ["*.ast"],  # include the declaration files
     },
+    setup_requires=["nose"],
     install_requires=["ply"],
     zip_safe=False,
     # Metadata
@@ -66,4 +83,12 @@ setup(
     extras_require={
         "nosetests": tests_require,
     },
+    cmdclass={
+        'build_py': BuildPyCommand,
+    },
+    # entry_points={
+    #     'console_scripts': [
+    #         # 'rundog = py2c.dog:DogMain',
+    #     ],
+    # },
 )
