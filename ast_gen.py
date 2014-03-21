@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """AST nodes file generator
 
-This file generates the ast that we use as the meduim to translate Python code.
+This file generates the ast that we use as the medium to translate Python code.
 It makes it possible to translate Python code to C code without multiple AST
 systems.
 """
@@ -117,11 +117,11 @@ class Parser(object):
         self.t_NAME = r"\w+"
         self.t_ignore = " \t"
 
-        self._lexer = ply.lex.lex(module=self)
-        self._parser = ply.yacc.yacc(module=self, start="start")
+        self._lexer = ply.lex.lex(module=self, optimize=True)
+        self._parser = ply.yacc.yacc(module=self, start="start", optimize=True)
 
     def parse(self, text):
-        """Parses the definition text into a data representaton of it.
+        """Parses the definition text into a data representation of it.
         """
         text = remove_comments(text)
         return self._parser.parse(text, lexer=self._lexer)
@@ -134,7 +134,7 @@ class Parser(object):
         raise ParserError("Unexpected token: " + str(t))
 
     def t_error(self, t):
-        raise ParserError("Unable to tokenize" + t.value)
+        raise ParserError("Unable to generate tokens from: " + repr(t.value))
 
     #---------------------------------------------------------------------------
     # Parsing
@@ -262,11 +262,11 @@ class SourceGenerator(object):
 
 
 # API for dual_ast
-def generate(source_dir, output_dir):
+def generate(source_dir, output_dir, update=False):
     """Generate sources for the AST nodes definition files in source_dir
     """
     files_to_convert = [
-        fname for fname in os.listdir(source_dir)
+        fname for fname in os.listdir(os.path.realpath(source_dir))
         if fname.endswith(".ast")
     ]
 
@@ -277,6 +277,8 @@ def generate(source_dir, output_dir):
     for fname in files_to_convert:
         infile_name = os.path.join(source_dir, fname)
         outfile_name = os.path.join(output_dir, fname[:-4] + ".py")
+        if os.path.exists(outfile_name) and not update:
+            continue
 
         with open(infile_name, "rt") as infile:
             text = infile.read()
@@ -292,7 +294,4 @@ def generate(source_dir, output_dir):
             outfile.write(sources)
 
 if __name__ == '__main__':
-    if False:
-        generate("../py2c/syntax_tree", "./delete_me")
-    else:
-        generate("../py2c/syntax_tree", "../py2c/syntax_tree")
+    generate("py2c/syntax_tree", "py2c/syntax_tree")
