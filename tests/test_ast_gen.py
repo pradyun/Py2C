@@ -20,12 +20,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
 import sys
-sys.path.append("..")
-
 import unittest
 from textwrap import dedent
 
+sys.path.append(__file__ + "/../..")
 import ast_gen
+sys.path.pop()
 # It is refered multiple times
 Node = ast_gen.Node
 
