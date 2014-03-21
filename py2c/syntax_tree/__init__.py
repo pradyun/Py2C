@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Provides the AST system according to the declaration files
+"""Holds all Python files containing AST definitions for use in translation
 """
 
 #-------------------------------------------------------------------------------
@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
+
 #pylint:disable=C0103
 import re
 
@@ -55,14 +56,10 @@ def iter_fields(node):
             yield name, getattr(node, name)
         except AttributeError:
             pass
-#-------------------------------------------------------------------------------
-# Modifiers
-#-------------------------------------------------------------------------------
-NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 
 
 #-------------------------------------------------------------------------------
-# Identifier
+# identifier object
 #-------------------------------------------------------------------------------
 class _IdentifierMetaClass(type):
 
@@ -76,7 +73,7 @@ class _IdentifierMetaClass(type):
 class _Identifier(str, metaclass=_IdentifierMetaClass):
     """Names of identifiers
     """
-    _regex = re.compile("^[a-z][a-zA-Z0-9_]*$")
+    _regex = re.compile("^[a-zA-Z][a-zA-Z0-9_]*$")
 
     def __init__(self, s):
         super(_Identifier, self).__init__()
@@ -92,6 +89,11 @@ identifier.__name__ = identifier.__name__.replace("_Identifier", "identifier")
 identifier.__qualname__ = identifier.__qualname__.replace(
     "_Identifier", "identifier"
 )
+
+#-------------------------------------------------------------------------------
+# Modifiers
+#-------------------------------------------------------------------------------
+NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 
 
 #===============================================================================
@@ -145,7 +147,7 @@ class AST(object):
         return "{}({})".format(
             self.__class__.__name__,
             ", ".join(
-                "{}={}".format(a, b) for a, b in iter_fields(self)
+                "{}={!r}".format(a, b) for a, b in iter_fields(self)
             )
         )
 
@@ -246,34 +248,3 @@ class AST(object):
                 raise WrongTypeError(
                     msg + ": Wrong type of element {}".format(idx)
                 )
-
-
-#-------------------------------------------------------------------------------
-# Building the module
-#    Beyond this line all code is for adding the generated classes to the
-#    namespace of this module.
-#-------------------------------------------------------------------------------
-from os.path import join, realpath, dirname, exists
-from py2c import _ast_gen as ast_gen
-
-# Files to convert into AST definitions.
-definition_files = [
-    "python.ast",
-    # "intermidiate.ast",
-    # "C.ast"
-]
-
-# To decide (behaviour/design):
-#  - Move declaration files to a seperate directory? What name?
-#  - Write a file instead of dynamically generating the classes?
-
-sources = ast_gen.generate(dirname(realpath(__file__)), definition_files)
-
-# Remove all the declared names from namespace before execution!
-del (
-    exists, dirname, realpath, join, definition_files, ast_gen
-)
-
-# Execute the generated module here!
-exec(sources)
-del(sources)

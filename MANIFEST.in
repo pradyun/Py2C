@@ -1,0 +1,3 @@
+include README.md
+include ast_gen.py
+include py2c/syntax_tree/*.ast

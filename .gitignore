@@ -57,12 +57,11 @@ nosetests.xml
 # I keep the wiki pages in the same directory
 wiki
 
-# Used to clean the directory during branch switches
-cleanup.bat
-
 # Used to run coverage on code
-coverage.bat
 _coverage_reports
+
+# Auto-generated
+py2c\syntax_tree\!(__init__).py
 
 #--------------------------------------------------------
 # Misc

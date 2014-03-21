@@ -16,11 +16,44 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-------------------------------------------------------------------------------
+# pylint:disable=C0103
 
 import sys
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    print("Need setuptools to run this script. Please install setuptools.")
+    sys.exit(1)
 
-# pylint:disable=C0103
+try:
+    # If ever setuptools decides to improve the build command!
+    from setuptools.command.build import build as _build
+except ImportError:
+    from distutils.command.build import build as _build
+
+#-------------------------------------------------------------------------------
+# Generating the AST
+#-------------------------------------------------------------------------------
+from os.path import join, realpath
+# Importing AST generator
+sys.path.append(realpath(join(__file__, "..")))
+import ast_gen
+sys.path.pop()
+
+path_to_ast_definitions = realpath(join(__file__, "..", "py2c", "syntax_tree"))
+
+
+class build(_build):
+    """A customized version to build the AST definition files
+    """
+    def run(self):
+        ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
+        _build.run(self)
+
+
+#-------------------------------------------------------------------------------
+# Metadata
+#-------------------------------------------------------------------------------
 description = (
     "A translator to translate implicitly statically typed Python code into "
     "(hopefully) human-readable C++ code."
@@ -28,7 +61,6 @@ description = (
 
 long_description = open("README.md").read()
 
-# Metadata
 classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: C++",
@@ -37,24 +69,27 @@ classifiers = [
     "Topic :: Software Development :: Compilers",
 ]
 
+#-------------------------------------------------------------------------------
 # For running tests
-tests_require = ["nose"]
+#-------------------------------------------------------------------------------
+tests_require = []
 if sys.version_info[:2] < (3, 3):
     tests_require.extend([
         "mock",
     ])
 
+#-------------------------------------------------------------------------------
 # The main setup call
+#-------------------------------------------------------------------------------
 setup(
     # Package data
     name="py2c",
     version="0.1-dev",
-    packages=find_packages(exclude=["tests"]),
-    package_data={
-        "py2c": ["*.ast"],  # include the declaration files
-    },
+    packages=find_packages(
+        exclude=["tests"]
+    ),
+    setup_requires=["nose"],
     install_requires=["ply"],
-    zip_safe=False,
     # Metadata
     description=description,
     long_description=long_description,
@@ -65,5 +100,8 @@ setup(
     # Testing
     extras_require={
         "nosetests": tests_require,
+    },
+    cmdclass={
+        'build': build,
     },
 )
