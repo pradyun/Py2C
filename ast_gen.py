@@ -294,4 +294,4 @@ def generate(source_dir, output_dir, update=False):
             outfile.write(sources)
 
 if __name__ == '__main__':
-    generate("py2c/syntax_tree", "py2c/syntax_tree")
+    generate("py2c/syntax_tree", "py2c/syntax_tree", True)

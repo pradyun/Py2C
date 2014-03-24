@@ -1,19 +1,25 @@
-﻿Py2C
+﻿
+> This project is still in the planning/pre-alpha stages.
+> It is **NOT producing any useful output**.
+
+Py2C
 ====
-Py2C is a compiler for compiling implicitly statically typed Python code
-into human-readable C++ code, something like what humans might actually write.
-The generated code can be compiled without Python headers as it does not embed
-Python.  But you need Python to compile it. :)
+Py2C for compiling Python code into (hopefully fairly) human-readable C++
+code, (hopefully) somewhat like what humans might actually write.
 
-NEW! Mailing-List: https://groups.google.com/forum/#!forum/py2c-dev
+This project is currently focused on statically typed programs and optimizing
+them. This means the current scope of the project is limited. On some future
+date, this project may also support the entire dynamism of Python, subject to
+whether such a change is helpful and feasible for the project.
 
-> Since this project is still in the planning stage as of now.
-  (i.e. **Not producing output**)
-  The wiki pages will be brought up to date once the code generator start
-  generating C++ code...
+The idea is that even in highly dynamic languages (like Python) often
+variables end up holding (references to) values have only one "type".
+This is a major area for improving performance as statically typed languages
+(like C++) often are better with, well, typed variables!
 
-  For an idea of how far the project has reached, check the [Milestones][1]
-  on Github issues.
+> The documentation is hosted in the Github wiki as of now, but it needs to be
+> be written for most part.
+
 
 Here's Py2C in action on Hello World:
 
@@ -48,8 +54,12 @@ int main() {
 ```
 
 Py2C is also extensible though a fixer API, which can be used to accommodate
-for API changes across the languages, for third party packages (like numpy).
+for API changes across the languages, for third party packages (like Numpy),
+just like it is used to optimize the C code internally. The details of the API
+have to be decided..
 
-For more details, refer to the wiki pages on GitHub <sub>Not ready yet</sub>.
+If you are interested in participating in the development of this project,
+read the 'Contributing' page in the wiki.
 
-  [1]: https://github.com/pradyun/Py2C/issues/milestones
+For more details, refer to the (currently mostly non-existent) GitHub wiki
+pages.

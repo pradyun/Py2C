@@ -5,6 +5,7 @@ import fnmatch
 import shutil
 from os.path import join, realpath
 
+DEV = True
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist"]
@@ -29,6 +30,7 @@ def should_remove_file(root, name):
     return (
         matches_any_pattern(name, FILE_PATTERNS) or
         (
+            not DEV and
             root.endswith(os.path.join("py2c", "syntax_tree")) and
             name.endswith(".py") and
             name != "__init__.py"
