@@ -22,23 +22,17 @@
 
 
 import random
+import textwrap
 import unittest
 
-import sys
-# Mock
-if sys.version_info[:2] < (3, 3):
-    import mock
-else:
-    import unittest.mock as mock
-
-from py2c import dual_ast
-from py2c.translator import PythonTranslator, TranslationError
+from py2c.syntax_tree import python
+from py2c.translator import Python2ASTTranslator, TranslationError
 
 
 class ErrorReportingTestCase(unittest.TestCase):
-    """Tests for Error Reporting in PythonTranslator"""
+    """Tests for Error Reporting in Python2ASTTranslator"""
     def setUp(self):
-        self.translator = PythonTranslator()
+        self.translator = Python2ASTTranslator()
 
     def template(self, errors):
         for err in errors:
@@ -52,7 +46,7 @@ class ErrorReportingTestCase(unittest.TestCase):
     def test_initial_errors(self):
         try:
             self.translator.handle_errors()
-        except:
+        except TranslationError:
             self.fail("Raised error unexpectedly")
 
     def test_logging_one_error(self):
@@ -63,12 +57,10 @@ class ErrorReportingTestCase(unittest.TestCase):
 
         self.assertIn("foo", obj.exception.errors)
 
-    def test_logging_error_with_node(self):
+    def test_logging_error_with_lineno(self):
         num = random.randint(1, 2000)
-        my_mock = mock.Mock()
-        my_mock.lineno = num
 
-        errors = self.template([("foo", my_mock)])
+        errors = self.template([("foo", num)])
 
         err_msg = errors[0]
         self.assertIn("foo", err_msg)
@@ -76,7 +68,6 @@ class ErrorReportingTestCase(unittest.TestCase):
         self.assertIn(str(num), err_msg)
 
 
-@unittest.skip("Translator not ready!")
 class CodeTestCase(unittest.TestCase):
     """Base for Python code to AST translation
     """
@@ -85,32 +76,46 @@ class CodeTestCase(unittest.TestCase):
     def template(self, tests, remove_expr=False):
         failed = []
         for code, expected in tests:
-            result = self.process_node(self.translator.get_node(code))
+            code = textwrap.dedent(code)
+            processed_code = self.process_code(code)
+            node = self.translator.get_node(processed_code)
+            result = self.process_node(node)
 
-            if len(result) == 1:
+            if not result:
+                result = None
+            elif len(result) == 1:
                 result = result[0]
+
             # Remove the code from Expr
-            if remove_expr:
+            if remove_expr and isinstance(result, python.Expr):
                 result = result.value
 
             if expected != result:
-                failed.append(code)
-            print(expected)
-            print(result)
-            print()
+                failed.append((code, expected, result))
+                # print("Expected:", expected)
+                # print("Got     :", result)
 
         if failed:
-            self.fail(
-                "Incorrect values returned for {0}".format(
-                    # Failed code in quotes
-                    ", ".join(map(repr, failed)))
-            )
+            msg_parts = [" something incorrectly:"]
+            for code, expected, result in failed:
+                msg_parts.append("{!r}".format(code))
+                msg_parts.append("    Expected: {}".format(expected))
+                msg_parts.append("    Got     : {}".format(result))
+                # For an empty line between reports
+                msg_parts.append("")
+
+            self.fail("\n".join(msg_parts))
 
     def setUp(self):
-        self.translator = PythonTranslator()
+        self.translator = Python2ASTTranslator()
 
+    # Allows addition of boiler-plate to processing (eg. Moving inside a loop)
     def process_node(self, node):
+        node.finalize()
         return node.body
+
+    def process_code(self, code):
+        return code
 
 
 class LiteralTestCase(CodeTestCase):
@@ -132,9 +137,8 @@ class LiteralTestCase(CodeTestCase):
             "0x100000000",
             "0xdeadbeef",
         ]
-        print((s, dual_ast.Int(eval(s))) for s in tests)
         self.template([
-            (s, dual_ast.Int(eval(s))) for s in tests
+            (s, python.Int(eval(s))) for s in tests
         ], remove_expr=True)
 
     def test_float(self):
@@ -148,7 +152,7 @@ class LiteralTestCase(CodeTestCase):
         ]
 
         self.template([
-            (s, dual_ast.Float(eval(s))) for s in tests
+            (s, python.Float(eval(s))) for s in tests
         ], remove_expr=True)
 
     def test_complex(self):
@@ -161,7 +165,7 @@ class LiteralTestCase(CodeTestCase):
             "10.j",
         ]
         self.template([
-            (s, dual_ast.Complex(eval(s))) for s in tests
+            (s, python.Complex(eval(s))) for s in tests
         ], remove_expr=True)
 
     def test_str(self):
@@ -173,7 +177,7 @@ class LiteralTestCase(CodeTestCase):
             r'r"a\bc"',
         ]
         self.template([
-            (s, dual_ast.Str(eval(s))) for s in tests
+            (s, python.Str(eval(s))) for s in tests
         ], remove_expr=True)
 
 
@@ -183,129 +187,116 @@ class SimpleStmtTestCase(CodeTestCase):
 
     def test_assert(self):
         self.template([
-            ("assert False", dual_ast.Assert(dual_ast.Name(False))),
+            ("assert False", python.Assert(
+                python.Name("False", python.Load()), None
+            )),
+            ("assert False, msg", python.Assert(
+                python.Name("False", python.Load()),
+                python.Name("msg", python.Load()),
+            )),
         ])
 
     def test_assign(self):
+        # Tests for type-info below..
         self.template([
-            ("a = b", dual_ast.Assign(
-                targets=[dual_ast.Name("a")],
-                value=dual_ast.Name("b"),
+            ("a = b", python.Assign(
+                targets=(python.Name("a", python.Store()),),
+                value=python.Name("b", python.Load()),
             )),
-            ("a = b = c", dual_ast.Assign(
-                targets=[dual_ast.Name("a"), dual_ast.Name("b")],
-                value=dual_ast.Name("c"),
+            ("a = b = c", python.Assign(
+                targets=(
+                    python.Name("a", python.Store()),
+                    python.Name("b", python.Store()),
+                ),
+                value=python.Name("c", python.Load()),
             )),
         ])
 
     def test_del(self):
         self.template([
-            ("del a", dual_ast.Delete(targets=[
-                dual_ast.Name("a")
-            ])),
-            ("del a, b", dual_ast.Delete(targets=[
-                dual_ast.Name("a"),
-                dual_ast.Name("b"),
-            ])),
-            ("del (a, b)", dual_ast.Delete(targets=[dual_ast.Tuple([
-                dual_ast.Name("a"),
-                dual_ast.Name("b"),
-            ])])),
-            ("del (a\n, b)", dual_ast.Delete(targets=[dual_ast.Tuple([
-                dual_ast.Name("a"),
-                dual_ast.Name("b")
-            ])])),
+            ("del a", python.Delete(targets=(
+                python.Name("a", python.Del()),
+            ))),
+            ("del a, b", python.Delete(targets=(
+                python.Name("a", python.Del()),
+                python.Name("b", python.Del()),
+            ))),
+            ("del (a, b)", python.Delete(targets=(
+                python.Tuple((
+                    python.Name("a", python.Del()),
+                    python.Name("b", python.Del()),
+                ), python.Del()),
+            ))),
+            ("del (a\n, b)", python.Delete(targets=(
+                python.Tuple((
+                    python.Name("a", python.Del()),
+                    python.Name("b", python.Del())
+                ), python.Del()),
+            ))),
+            ("del (a\n, b), c", python.Delete(targets=(
+                python.Tuple((
+                    python.Name("a", python.Del()),
+                    python.Name("b", python.Del())
+                ), python.Del()),
+                python.Name("c", python.Del()),
+            ))),
         ])
 
     def test_raise(self):
         self.template([
-            ("raise", dual_ast.Raise(None, None, None, None)),
-            ("raise err", dual_ast.Raise(
-                dual_ast.Name("err"),
-                None, None, None
+            ("raise", python.Raise(
+                None, None
             )),
-            ("raise err_1 from err_2", dual_ast.Raise(
-                dual_ast.Name("err_1"),
-                None, None,
-                dual_ast.Name("err_2"),
+            ("raise err", python.Raise(
+                python.Name("err", python.Load()),
+                None
+            )),
+            ("raise err_1 from err_2", python.Raise(
+                python.Name("err_1", python.Load()),
+                python.Name("err_2", python.Load()),
             )),
         ])
 
     def test_import_module(self):
         self.template([
-            (  # Simple Import
+            (  # Single import
                 "import apple",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Name("apple"),
-                        None
-                    )
-                ])
+                python.Import((
+                    python.alias("apple", None),
+                ))
             ),
-            (
+            (  # Single subpackage import
                 "import apple.ball",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Attribute(
-                            dual_ast.Name("apple"), [
-                                dual_ast.Name("ball")
-                            ]  # noqa
-                        ),
-                        None
-                    )
-                ])
+                python.Import((
+                    python.alias("apple.ball", None),
+                ))
             ),
-            (
+            (  # Single alias import
                 "import apple as ball",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Name("apple"),
-                        dual_ast.Name("ball")
-                    ),
-                ])
+                python.Import((
+                    python.alias("apple", "ball"),
+                ))
             ),
-            (
+            (  # Multiple imports, 1 alias, 1 simple
                 "import apple as ball, cat",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Name("apple"),
-                        dual_ast.Name("ball")
-                    ),
-                    dual_ast.Alias(
-                        dual_ast.Name("cat"),
-                        None
-                    ),
-                ])
+                python.Import((
+                    python.alias("apple", "ball"),
+                    python.alias("cat", None),
+                ))
             ),
-            (
+            (  # Multiple alias imports
                 "import apple as ball, cat as dog",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Name("apple"),
-                        dual_ast.Name("ball")
-                    ),
-                    dual_ast.Alias(
-                        dual_ast.Name("cat"),
-                        dual_ast.Name("dog"),
-                    ),
-                ])
+                python.Import((
+                    python.alias("apple", "ball"),
+                    python.alias("cat", "dog"),
+                ))
             ),
-            (
+            (  # Multiple alias imports from subpackage
                 "import apple.ball as ball, cat as dog",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Attribute(
-                            dual_ast.Name("apple"), [
-                                dual_ast.Name("ball")
-                            ]
-                        ),
-                        dual_ast.Name("ball")
-                    ),
-                    dual_ast.Alias(
-                        dual_ast.Name("cat"),
-                        dual_ast.Name("dog"),
-                    ),
-                ])
+                python.Import((
+                    python.alias("apple.ball", "ball"),
+                    python.alias("cat", "dog"),
+                ))
             ),
         ])
 
@@ -313,19 +304,20 @@ class SimpleStmtTestCase(CodeTestCase):
         self.template([
             (
                 "from apple import *",
-                dual_ast.Import(
-                    dual_ast.Name("apple"), []
+                python.ImportFrom(
+                    "apple", (
+                        python.alias("*", None),
+                    ),
+                    0
                 )
             ),
             (
                 "from apple.ball import *",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
+                python.ImportFrom(
+                    "apple.ball", (
+                        python.alias("*", None),
                     ),
-                    []
+                    0
                 )
             ),
         ])
@@ -334,182 +326,273 @@ class SimpleStmtTestCase(CodeTestCase):
         self.template([
             (
                 "from apple import ball",
-                dual_ast.Import(
-                    dual_ast.Name("apple"), [
-                        dual_ast.Alias(
-                            dual_ast.Name("ball"),
-                            None
-                        )
-                    ]
+                python.ImportFrom(
+                    "apple", (
+                        python.alias("ball", None),
+                    ),
+                    0
                 )
             ),
             (
                 "from apple import ball as cat",
-                dual_ast.Import(
-                    dual_ast.Name("apple"), [
-                        dual_ast.Alias(
-                            dual_ast.Name("ball"),
-                            dual_ast.Name("cat"),
-                        )
-                    ]
+                python.ImportFrom(
+                    "apple", (
+                        python.alias("ball", "cat"),
+                    ),
+                    0
+                )
+            ),
+        ])
+
+    def test_from_submodule_import_names(self):
+        self.template([
+            (
+                "from apple.ball import (\n    cat, \n    dog,)",
+                python.ImportFrom(
+                    "apple.ball",
+                    (
+                        python.alias("cat", None),
+                        python.alias("dog", None),
+                    ),
+                    0
                 )
             ),
             (
                 "from apple.ball import cat as dog",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
+                python.ImportFrom(
+                    "apple.ball",
+                    (
+                        python.alias("cat", "dog"),
                     ),
-                    [
-                        dual_ast.Alias(
-                            dual_ast.Name("cat"),
-                            dual_ast.Name("dog"),
-                        ),
-                    ]
+                    0
                 )
             ),
             (
                 "from apple.ball import cat as dog, egg",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
+                python.ImportFrom(
+                    "apple.ball",
+                    (
+                        python.alias("cat", "dog"),
+                        python.alias("egg", None),
                     ),
-                    [
-                        dual_ast.Alias(
-                            dual_ast.Name("cat"),
-                            dual_ast.Name("dog"),
-                        ),
-                        dual_ast.Alias(
-                            dual_ast.Name("egg"),
-                            None
-                        ),
-                    ]
-                )
-            ),
-            (
-                "from apple.ball import (\n    cat, \n    dog as egg)",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
-                    ),
-                    [
-                        dual_ast.Alias(
-                            dual_ast.Name("cat"),
-                            None
-                        ),
-                        dual_ast.Alias(
-                            dual_ast.Name("dog"),
-                            dual_ast.Name("egg")
-                        ),
-                    ]
+                    0
                 )
             ),
             (
                 "from apple.ball import (\n    cat as dog, \n    egg as frog)",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
+                python.ImportFrom(
+                    "apple.ball",
+                    (
+                        python.alias("cat", "dog"),
+                        python.alias("egg", "frog"),
                     ),
-                    [
-                        dual_ast.Alias(
-                            dual_ast.Name("cat"),
-                            dual_ast.Name("dog"),
-                        ),
-                        dual_ast.Alias(
-                            dual_ast.Name("egg"),
-                            dual_ast.Name("frog"),
-                        ),
-                    ]
-                )
-            ),
-            (
-                "from apple.ball import (\n    cat, \n    dog,)",
-                dual_ast.Import(
-                    dual_ast.Attribute(
-                        dual_ast.Name("apple"), [
-                            dual_ast.Name("ball")
-                        ]
-                    ),
-                    [
-                        dual_ast.Alias(
-                            dual_ast.Name("cat"), None
-                        ),
-                        dual_ast.Alias(
-                            dual_ast.Name("dog"), None
-                        ),
-                    ]
+                    0
                 )
             ),
         ])
 
-    def test_future(self):
+    def test_future_valid(self):
         self.template([
             (
                 "from __future__ import with_statement",
-                dual_ast.Future(
-                    "with_statement",
-                )
+                python.Future((
+                    python.alias("with_statement", None),
+                ))
             ),
             (
                 "import __future__ as future",
-                dual_ast.Import(None, [
-                    dual_ast.Alias(
-                        dual_ast.Name("__future__"),
-                        dual_ast.Name("future")
-                    )
-                ])
+                python.Import((
+                    python.alias("__future__", "future"),
+                ))
             ),
         ])
 
+    def test_future_invalid(self):
+        self.template([
+            (
+                "from __future__ import some_wrong_name", None
+            )
+        ])
 
-class LoopStmtTestCase(CodeTestCase):
-    """Tests for statements that can only be inside loop statements
+        msg = self.translator.errors[-1]
+        self.assertIn("no feature", msg)
+        self.assertIn("'some_wrong_name'", msg)
+
+
+class CompoundStmtTestCase(CodeTestCase):
+    """Tests for statements containing other statements
+    """
+    def test_if(self):
+        self.template([
+            (
+                """
+                if True:
+                    pass
+                """,
+                python.If(
+                    python.Name("True", python.Load()),
+                    (python.Pass(),),
+                    ()
+                )
+            ),
+            (
+                """
+                if first_cond:
+                    first
+                elif second_cond:
+                    second
+                else:
+                    third
+                """,
+                python.If(
+                    python.Name(
+                        "first_cond", python.Load()
+                    ),
+                    (python.Expr(
+                        python.Name("first", python.Load())
+                    ),),
+                    (
+                        python.If(
+                            python.Name("second_cond", python.Load()),
+                            (python.Expr(
+                                python.Name("second", python.Load())
+                            ),),
+                            (python.Expr(
+                                python.Name("third", python.Load())
+                            ),)
+                        ),
+                    )
+                )
+            ),
+
+        ])
+
+    def test_while(self):
+        self.template([
+            (
+                "while True: pass",
+                python.While(
+                    python.Name("True", python.Load()),
+                    (python.Pass(),),
+                    ()
+                )
+            )
+
+        ])
+
+    def test_for(self):
+        self.template([
+            (
+                "for x in li: pass",
+                python.For(
+                    python.Name("x", python.Store()),
+                    python.Name("li", python.Load()),
+                    (python.Pass(),),
+                    ()
+                )
+            )
+
+        ])
+
+    def test_try(self):
+        self.template([
+            (
+                """
+                try:
+                    pass
+                except SomeException as error:
+                    pass
+                else:
+                    pass
+                finally:
+                    pass
+                """,
+                python.Try(
+                    (python.Pass(),),
+                    (python.ExceptHandler(
+                        python.Name("SomeException", python.Load()),
+                        "error",
+                        (python.Pass(),)
+                    ),),
+                    (python.Pass(),),
+                    (python.Pass(),),
+                )
+            )
+        ])
+
+    def test_with(self):
+        self.template([
+            (
+                """
+                with some_context as some_name:
+                    pass
+                """,
+                python.With(
+                    (python.withitem(
+                        python.Name("some_context", python.Load()),
+                        python.Name("some_name", python.Store()),
+                    ),),
+                    (python.Pass(),)
+                )
+            )
+        ])
+
+    # TODO: Add tests for classes and functions
+
+
+class CompoundStmtPartTestCase(CodeTestCase):
+    """Tests for statements that can only be part of compound statements
     """
     def process_node(self, node):
-        # To be implemented
-        pass
+        return node.body[0].body
 
-    def test_break(self):
-        # To be implemented
-        pass
+    def process_code(self, code):
+        lines = [self.prefix]
+        for line in code.splitlines():
+            lines.append("    " + line)
 
-    def test_continue(self):
-        # To be implemented
-        pass
-
-    def test_pass(self):
-        # To be implemented
-        pass
+        return "\n".join(lines)
 
 
-class FunctionStmtTestCase(CodeTestCase):
-    """Tests for statements that can only be inside functions
+class LoopStmtPartTestCase(CompoundStmtPartTestCase):
+    """Tests for statements that can be inside loops for flow control
     """
-    def process_node(self, node):
-        # To be implemented
-        pass
 
-    def test_pass(self):
-        # To be implemented
-        pass
+    def test_while(self):
+        self.prefix = "while True:"
 
-    def test_global(self):
-        # To be implemented
-        pass
+        self.template([
+            ("pass", python.Pass()),
+            ("break", python.Break()),
+            ("continue", python.Continue()),
+        ])
 
-    def test_nonlocal(self):
-        # To be implemented
-        pass
+    def test_statements(self):
+        self.prefix = "for x in li:"
 
-# TODO: More tests for the same.
+        self.template([
+            ("pass", python.Pass()),
+            ("break", python.Break()),
+            ("continue", python.Continue()),
+        ])
+
+
+class FunctionStmtPartTestCase(CompoundStmtPartTestCase):
+    """Tests for statements that can be inside functions for flow control
+    """
+    prefix = "def foo():"
+
+    def test_statements(self):
+        self.template([
+            ("pass", python.Pass()),
+            ("global a", python.Global(('a',))),
+            ("global a, b", python.Global(('a', "b"))),
+            ("nonlocal a", python.Nonlocal(('a',))),
+            ("nonlocal a, b", python.Nonlocal(('a', "b"))),
+        ])
+
 
 if __name__ == '__main__':
+    # import sys
+    # sys.argv.append("SimpleStmtTestCase")
     unittest.main()
