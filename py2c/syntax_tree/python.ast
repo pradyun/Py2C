@@ -57,7 +57,7 @@ arguments(PyAST): [
 ]
 
 keyword(PyAST): [identifier arg, expr value]
-alias(PyAST): [identifier name, identifier? asname]
+alias(PyAST): [str name, identifier? asname]  # as * is not a valid identifier
 withitem(PyAST): [expr context_expr, expr? optional_vars]
 
 ExceptHandler(PyAST): [expr? type, identifier? name, stmt* body]
@@ -106,6 +106,8 @@ Assert(stmt): [expr test, expr? msg]
 
 Import(stmt): [alias* names]
 ImportFrom(stmt): [identifier? module, alias* names, int? level]
+# A special statement of ours
+Future(stmt): [alias+ features]
 
 Global(stmt): [identifier* names]
 Nonlocal(stmt): [identifier* names]
