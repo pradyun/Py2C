@@ -73,7 +73,10 @@ class _IdentifierMetaClass(type):
 class _Identifier(str, metaclass=_IdentifierMetaClass):
     """Names of identifiers
     """
-    _regex = re.compile("^[a-zA-Z][a-zA-Z0-9_]*$")
+    # A regex that matches valid, optionally dotted, Python names
+    _regex = re.compile(
+        "^(?:[_a-zA-Z][a-zA-Z0-9_]*)(?:\.(?:[_a-zA-Z][a-zA-Z0-9_]*))*$"
+    )
 
     def __init__(self, s):
         super(_Identifier, self).__init__()
@@ -134,12 +137,12 @@ class AST(object):
         self.__dict__[name] = value
 
     def __eq__(self, other):
+        stub = object()
         if self.__class__ != other.__class__:
             return False
         else:
             return all(
-                hasattr(other, name) and
-                getattr(other, name) == getattr(self, name)
+                getattr(other, name, stub) == getattr(self, name, stub)
                 for name, _, _ in self._fields
             )
 
@@ -246,5 +249,5 @@ class AST(object):
         for idx, elem in enumerate(value):
             if not isinstance(elem, type_):
                 raise WrongTypeError(
-                    msg + ": Wrong type of element {}".format(idx)
+                    msg + "\nWrong type of element {}: {!r}".format(idx, elem)
                 )
