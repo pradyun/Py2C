@@ -60,8 +60,8 @@ wiki
 # Used to run coverage on code
 _coverage_reports
 
-# Auto-generated
-py2c\syntax_tree\!(__init__).py
+# Auto-generated, add more as they get added
+py2c/syntax_tree/python.py
 
 #--------------------------------------------------------
 # Misc
