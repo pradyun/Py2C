@@ -28,7 +28,7 @@ from py2c import syntax_tree
 #-------------------------------------------------------------------------------
 # A bunch of nodes used during testing
 #-------------------------------------------------------------------------------
-class TestNode1(syntax_tree.AST):
+class BasicNode(syntax_tree.AST):
     """Basic node
     """
     _fields = [
@@ -36,7 +36,15 @@ class TestNode1(syntax_tree.AST):
     ]
 
 
-class TestNode2(syntax_tree.AST):
+class BasicNodeCopy(syntax_tree.AST):
+    """Equivalent but not equal to BasicNode
+    """
+    _fields = [
+        ('f1', int, syntax_tree.NEEDED),
+    ]
+
+
+class AllIntModifersNode(syntax_tree.AST):
     """Node with all modifiers
     """
     _fields = [
@@ -47,23 +55,15 @@ class TestNode2(syntax_tree.AST):
     ]
 
 
-class TestNode3(syntax_tree.AST):
+class ParentNode(syntax_tree.AST):
     """Node with another node as child
     """
     _fields = [
-        ('child', TestNode1, syntax_tree.NEEDED),
+        ('child', BasicNode, syntax_tree.NEEDED),
     ]
 
 
-class TestNode4(syntax_tree.AST):
-    """Equivalent to TestNode1
-    """
-    _fields = [
-        ('f1', int, syntax_tree.NEEDED),
-    ]
-
-
-class TestNode5(syntax_tree.AST):
+class InvalidModifierNode(syntax_tree.AST):
     """Node with invalid modifier
     """
     _fields = [
@@ -71,7 +71,7 @@ class TestNode5(syntax_tree.AST):
     ]
 
 
-class TestNode6(syntax_tree.AST):
+class AllIdentifierModifersNode(syntax_tree.AST):
     """Node with all modifiers of identifier type
     """
     _fields = [
@@ -97,7 +97,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """Test for empty initialization
         """
         try:
-            TestNode1()
+            BasicNode()
         except syntax_tree.WrongTypeError:
             self.fail("Raised exception when no arguments provided")
 
@@ -105,7 +105,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """Test for assignments on empty node
         """
         try:
-            node = TestNode1(1)
+            node = BasicNode(1)
         except syntax_tree.WrongTypeError:
             self.fail("Raised exception when assigning valid value")
         else:
@@ -113,7 +113,7 @@ class NodeInitializationTestCase(NodeTestCase):
 
     def test_kwargs(self):
         try:
-            node = TestNode1(f1=1)
+            node = BasicNode(f1=1)
         except syntax_tree.WrongTypeError:
             self.fail("Raised exception when assigning valid value")
         else:
@@ -123,7 +123,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """Test for modifier argument handling
         """
         try:
-            node = TestNode2(1, None, (), (2,))
+            node = AllIntModifersNode(1, None, (), (2,))
         except syntax_tree.WrongTypeError:
             self.fail("Raised exception for valid values")
         else:
@@ -137,7 +137,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """Test for modifier argument handling
         """
         try:
-            node = TestNode2(1, 2, (3, 4, 5), (6, 7, 8))
+            node = AllIntModifersNode(1, 2, (3, 4, 5), (6, 7, 8))
         except syntax_tree.WrongTypeError:
             self.fail("Raised exception for valid values")
         else:
@@ -151,7 +151,7 @@ class NodeInitializationTestCase(NodeTestCase):
         """Test for raising error for wrong number of arguments
         """
         with self.assertRaises(syntax_tree.WrongTypeError) as context:
-            TestNode2(1)
+            AllIntModifersNode(1)
 
         msg = context.exception.args[0]
         self.assertIn("0 or 4 positional", msg)
@@ -161,7 +161,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
     """Tests for validity checks of node valid assignments
     """
     def test_NEEDED(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f1 = 1
@@ -169,7 +169,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_OPTIONAL_1(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f2 = 1
@@ -177,7 +177,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_OPTIONAL_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f2 = None
@@ -185,7 +185,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_1(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f3 = ()
@@ -193,7 +193,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f3 = (1,)
@@ -201,7 +201,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_3(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f3 = []
@@ -209,7 +209,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ZERO_OR_MORE_4(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f3 = [1]
@@ -217,7 +217,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ONE_OR_MORE_1(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f4 = (1,)
@@ -225,7 +225,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
             self.fail("Raised WrongTypeError for valid type")
 
     def test_ONE_OR_MORE_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         try:
             node.f4 = [1]
@@ -237,7 +237,7 @@ class NodeInValidAssignmentTestCase(NodeTestCase):
     """Tests for validity checks of node valid assignments
     """
     def test_extra(self):
-        node = TestNode1()
+        node = BasicNode()
         with self.assertRaises(syntax_tree.FieldError) as context:
             node.bar = 1
 
@@ -246,44 +246,44 @@ class NodeInValidAssignmentTestCase(NodeTestCase):
         self.assertIn("no field", msg)
 
     def test_NEEDED_invalid_type(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = ""
 
     def test_OPTIONAL_invalid_type(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f2 = ""
 
     def test_ZERO_OR_MORE_invalid_value_type(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f3 = ""
 
     def test_ZERO_OR_MORE_invalid_item_type_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f3 = [""]
 
     def test_ONE_OR_MORE_zero_items_1(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = ()
 
     def test_ONE_OR_MORE_zero_items_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
 
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = []
 
     def test_ONE_OR_MORE_invalid_value_type(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = ""
 
     def test_ONE_OR_MORE_invalid_item_type_2(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f4 = [""]
 
@@ -292,7 +292,7 @@ class NodeFinalizationTestCase(NodeTestCase):
     """Tests for `finalize` method of nodes
     """
     def test_all_given(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         node.f1 = 1
         node.f2 = 2
         node.f3 = []
@@ -308,7 +308,7 @@ class NodeFinalizationTestCase(NodeTestCase):
             self.assertEqual(node.f4, (3,))
 
     def test_minimal_given(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         node.f1 = 1
         node.f4 = [2]
         try:
@@ -323,7 +323,7 @@ class NodeFinalizationTestCase(NodeTestCase):
 
     def test_missing_attrs(self):
         with self.assertRaises(AttributeError) as context:
-            TestNode2().finalize()
+            AllIntModifersNode().finalize()
 
         msg = context.exception.args[0]
 
@@ -335,7 +335,7 @@ class NodeFinalizationTestCase(NodeTestCase):
         self.assertNotIn("f3", msg)
 
     def test_child_missing_attr(self):
-        node = TestNode3(TestNode1())
+        node = ParentNode(BasicNode())
 
         with self.assertRaises(AttributeError) as context:
             node.finalize()
@@ -343,22 +343,36 @@ class NodeFinalizationTestCase(NodeTestCase):
         msg = context.exception.args[0]
 
         self.assertIn("f1", msg)
-        self.assertIn("TestNode1", msg)
+        self.assertIn("BasicNode", msg)
         self.assertIn("missing", msg.lower())
 
-        self.assertNotIn("TestNode3", msg)
+        self.assertNotIn("ParentNode", msg)
 
-    def test_wrong_modifier(self):
+    def test_child_in_list_missing_attr(self):
+        node = ParentNode(BasicNode())
+
         with self.assertRaises(AttributeError) as context:
-            TestNode5().finalize()
+            node.finalize()
 
         msg = context.exception.args[0]
 
         self.assertIn("f1", msg)
-        self.assertIn("TestNode5", msg)
+        self.assertIn("BasicNode", msg)
+        self.assertIn("missing", msg.lower())
+
+        self.assertNotIn("ParentNode", msg)
+
+    def test_wrong_modifier(self):
+        with self.assertRaises(AttributeError) as context:
+            InvalidModifierNode().finalize()
+
+        msg = context.exception.args[0]
+
+        self.assertIn("f1", msg)
+        self.assertIn("InvalidModifierNode", msg)
         self.assertIn("unknown modifier", msg.lower())
 
-        self.assertNotIn("TestNode3", msg)
+        self.assertNotIn("ParentNode", msg)
 
 
 class NodeEqualityTestCase(NodeTestCase):
@@ -367,8 +381,8 @@ class NodeEqualityTestCase(NodeTestCase):
     def test_equality_1(self):
         """Test for equality (equal nodes with integer attributes)
         """
-        node_1 = TestNode1(1)
-        node_2 = TestNode1(1)
+        node_1 = BasicNode(1)
+        node_2 = BasicNode(1)
         node_1.finalize()
         node_2.finalize()
 
@@ -377,10 +391,10 @@ class NodeEqualityTestCase(NodeTestCase):
     def test_equality_2(self):
         """Test for equality with node when it has children nodes
         """
-        child_node_1 = TestNode1(1)
-        child_node_2 = TestNode1(1)
-        node_1 = TestNode3(child_node_1)
-        node_2 = TestNode3(child_node_2)
+        child_node_1 = BasicNode(1)
+        child_node_2 = BasicNode(1)
+        node_1 = ParentNode(child_node_1)
+        node_2 = ParentNode(child_node_2)
         node_1.finalize()
         node_2.finalize()
 
@@ -389,26 +403,26 @@ class NodeEqualityTestCase(NodeTestCase):
     def test_inequality_with_diff_value(self):
         """Test for inequality on nodes with in-equal attributes
         """
-        node_1 = TestNode1(0)
-        node_2 = TestNode1(1)
+        node_1 = BasicNode(0)
+        node_2 = BasicNode(1)
 
         self.assertNotEqual(node_1, node_2)
 
     def test_inequality_diff_type(self):
         """Test for inequality on the basis of type
         """
-        node_1 = TestNode1(1)
-        node_2 = TestNode4(1)
+        node_1 = BasicNode(1)
+        node_2 = BasicNodeCopy(1)
 
         self.assertNotEqual(node_1, node_2)
 
     def test_inequality_child(self):
         """Test for equality with node when it has children nodes
         """
-        child_node_1 = TestNode1(1)
-        child_node_2 = TestNode1(2)
-        node_1 = TestNode3(child_node_1)
-        node_2 = TestNode3(child_node_2)
+        child_node_1 = BasicNode(1)
+        child_node_2 = BasicNode(2)
+        node_1 = ParentNode(child_node_1)
+        node_2 = ParentNode(child_node_2)
         node_1.finalize()
         node_2.finalize()
 
@@ -419,28 +433,28 @@ class NodeReprTestCase(NodeTestCase):
     """Tests for node's string representation
     """
     def test_no_attrs(self):
-        self.assertEqual(repr(TestNode1()), "TestNode1()")
-        self.assertEqual(repr(TestNode2()), "TestNode2()")
-        self.assertEqual(repr(TestNode3()), "TestNode3()")
-        self.assertEqual(repr(TestNode4()), "TestNode4()")
-        self.assertEqual(repr(TestNode5()), "TestNode5()")
+        self.assertEqual(repr(BasicNode()), "BasicNode()")
+        self.assertEqual(repr(AllIntModifersNode()), "AllIntModifersNode()")
+        self.assertEqual(repr(ParentNode()), "ParentNode()")
+        self.assertEqual(repr(BasicNodeCopy()), "BasicNodeCopy()")
+        self.assertEqual(repr(InvalidModifierNode()), "InvalidModifierNode()")
 
     def test_some_attrs(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         node.f1 = 1
         node.f2 = None
 
-        self.assertEqual(repr(node), "TestNode2(f1=1, f2=None)")
+        self.assertEqual(repr(node), "AllIntModifersNode(f1=1, f2=None)")
 
     def test_all_attrs(self):
-        node = TestNode2()
+        node = AllIntModifersNode()
         node.f1 = 0
         node.f2 = None
         node.f3 = (1,)
         node.f4 = (2,)
 
         self.assertEqual(
-            repr(node), "TestNode2(f1=0, f2=None, f3=(1,), f4=(2,))"
+            repr(node), "AllIntModifersNode(f1=0, f2=None, f3=(1,), f4=(2,))"
         )
 
 
@@ -461,6 +475,10 @@ class IdentifierTestCase(unittest.TestCase):
         self.assertIsInstance(
             syntax_tree.identifier("valid_name"), syntax_tree.identifier
         )
+        self.assertIsInstance("valid.name", syntax_tree.identifier)
+        self.assertIsInstance("_valid_name_", syntax_tree.identifier)
+        self.assertIsInstance("_valid._name", syntax_tree.identifier)
+
         self.assertNotIsInstance("Invalid name", syntax_tree.identifier)
         self.assertNotIsInstance("虎", syntax_tree.identifier)
 
@@ -482,17 +500,17 @@ class IdentifierTestCase(unittest.TestCase):
         self.assertEqual(repr(identifier("camelCase")), "'camelCase'")
 
     def test_modifiers_valid_minimal(self):
-        node = TestNode6()
+        node = AllIdentifierModifersNode()
         node.f1 = "foo"
         node.f4 = ["bar"]
         try:
             node.finalize()
-        except Exception:
+        except syntax_tree.ASTError:
             self.fail("Raised Exception for valid values")
 
     def test_modifiers_valid_all(self):
         try:
-            node = TestNode6("foo", "bar", (), ("baz",))
+            node = AllIdentifierModifersNode("foo", "bar", (), ("baz",))
             node.finalize()
         except syntax_tree.ASTError:
             self.fail("Raised exception when values were proper")
@@ -503,7 +521,7 @@ class IdentifierTestCase(unittest.TestCase):
             self.assertEqual(node.f4, ("baz",))
 
     def test_modifiers_invalid_values(self):
-        node = TestNode6()
+        node = AllIdentifierModifersNode()
 
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = "invalid value"
