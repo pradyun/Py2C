@@ -27,8 +27,12 @@ class tocpp(ast.NodeVisitor):
     def visit_withitem(self, node): return self.generic_visit(node)
     def visit_ExceptHandler(self, node): return self.generic_visit(node)
     def visit_Module(self, node):
-        strings = list(self.visit(n) for n in node.body)
-        imports = list('#include "%s"' % n for n in list(self.imports))
+        strings = []
+        for n in node.body:
+            strings.append(self.visit(n))
+        imports = []
+        for n in list(self.imports):
+            imports.append('#include "%s"' % n)
         return '\n'.join(imports) + '\n' + '\n'.join(strings)
     def visit_FunctionDef(self, node): return self.generic_visit(node)
     def visit_ClassDef(self, node): return self.generic_visit(node)
