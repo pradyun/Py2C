@@ -35,18 +35,24 @@ except ImportError:
 # Generating the AST
 #-------------------------------------------------------------------------------
 from os.path import join, realpath
-# Importing AST generator
-sys.path.append(realpath(join(__file__, "..")))
-import ast_gen
-sys.path.pop()
+
+def get_ast_gen():
+    """Loads and returns `ast_gen` module.
+    """
+    sys.path.append(realpath(join(__file__, "..")))
+    import ast_gen
+    sys.path.pop()
+
+    return ast_gen
 
 path_to_ast_definitions = realpath(join(__file__, "..", "py2c", "syntax_tree"))
 
 
-class build(_build_py):
+class build_py(_build_py):
     """A customized version to build the AST definition files
     """
     def run(self):
+        ast_gen = get_ast_gen()
         ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
         _build_py.run(self)
 
