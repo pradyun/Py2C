@@ -67,7 +67,7 @@ py2c/syntax_tree/python.py
 # Misc
 #--------------------------------------------------------
 
-# Used in testing how the readme looks
+# Compiled README.md (To verify the looks of it)
 README.html
 
 # PLY
@@ -77,6 +77,6 @@ README.html
 
 
 #--------------------------------------------------------
-# Editor files
+# Sublime Text files
 #--------------------------------------------------------
 Py2C.sublime*

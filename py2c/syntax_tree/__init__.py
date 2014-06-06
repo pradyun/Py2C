@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Holds all Python files containing AST definitions for use in translation
+"""Package containing AST definitions for use in translation
 """
 
 #-------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ class AST(object):
         )
 
     def finalize(self):  # noqa
-        """Finalize and check if all atributes exist
+        """Finalize and check if all attributes exist
         """
         missing = []
         for name, _, modifier in self._fields:
@@ -189,10 +189,8 @@ class AST(object):
                 if modifier in (ZERO_OR_MORE, ONE_OR_MORE):
                     self.__dict__[name] = tuple(getattr(self, name))
                     for item in getattr(self, name):
-                        # call finalize
                         getattr(item, "finalize", lambda: None)()
                 else:
-                    # call finalize
                     getattr(getattr(self, name), "finalize", lambda: None)()
 
         if missing:
