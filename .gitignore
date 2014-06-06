@@ -1,47 +1,61 @@
-#--------------------------------------------------------
-# OS stuff
-#--------------------------------------------------------
+# Compiled README.md (To verify the looks of it)
+README.html
 
-# Mac crap
-.DS_Store
+# PLY
+*parser.out
+*parsetab.py
+*lextab.py
 
-# Windows image file caches
-Thumbs.db
+# Wiki pages kept them a sub-folder.
+wiki
+# Virtual environments used for testing.
+venv
 
-# Folder config file
-Desktop.ini
+# Sublime Text related files.
+*.sublime*
 
-#--------------------------------------------------------
-# Python
-#--------------------------------------------------------
+# Auto-generated, include according to files in the directory.
+py2c/syntax_tree/python.py
+
+#-----------------------------------------------------------
+# Beyond this is Github's .gitignore for Python projects.
+#-----------------------------------------------------------
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
 
 # C extensions
 *.so
 
-# Packages
-*.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
 .installed.cfg
-lib
-lib64
-__pycache__
+*.egg
 
 # Installer logs
 pip-log.txt
+pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-*.coverage
-*.tox
+htmlcov/
+.tox/
+.coverage
+.cache
 nosetests.xml
+coverage.xml
 
 # Translations
 *.mo
@@ -51,32 +65,12 @@ nosetests.xml
 .project
 .pydevproject
 
-#--------------------------------------------------------
-# Project specific
-#--------------------------------------------------------
-# I keep the wiki pages in the same directory
-wiki
+# Rope
+.ropeproject
 
-# Used to run coverage on code
-_coverage_reports
+# Django stuff:
+*.log
+*.pot
 
-# Auto-generated, add more as they get added
-py2c/syntax_tree/python.py
-
-#--------------------------------------------------------
-# Misc
-#--------------------------------------------------------
-
-# Compiled README.md (To verify the looks of it)
-README.html
-
-# PLY
-*parser.out
-*parsetab.py
-*lextab.py
-
-
-#--------------------------------------------------------
-# Sublime Text files
-#--------------------------------------------------------
-Py2C.sublime*
+# Sphinx documentation
+docs/_build/
