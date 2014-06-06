@@ -186,7 +186,7 @@ class Parser(object):
         else:
             p[0] = None
 
-    def p_attr_list_1(self, p):
+    def p_attr_list(self, p):
         """attr_list : attr more_attrs_maybe ','
                      | attr more_attrs_maybe
                      | empty
