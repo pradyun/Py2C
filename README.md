@@ -1,4 +1,11 @@
-﻿
+﻿----
+
+Anyone who forked the repo before 06-06-2014 is requested to delete and
+re-fork the repository, as a major rebase was done to the repo, cleaning up
+its history. Sorry, but the rebase was necessary.
+
+----
+
 > This project is still in the planning/pre-alpha stages.
 > It is **NOT producing any useful output**.
 
