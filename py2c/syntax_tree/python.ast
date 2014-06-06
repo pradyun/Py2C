@@ -143,6 +143,7 @@ Name(expr): [identifier id, expr_context ctx]
 List(expr): [expr* elts, expr_context ctx]
 Tuple(expr): [expr* elts, expr_context ctx]
 Ellipsis(expr): []
+NameConstant(expr): [singleton value]
 
 # Literals with type-protection
 literal(expr): []

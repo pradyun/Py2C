@@ -60,7 +60,7 @@ PREFIX = dedent("""
 GENERATED_PREFIX = dedent("""
     from . import (
         AST,
-        identifier,
+        identifier, singleton,
         NEEDED, OPTIONAL, ONE_OR_MORE, ZERO_OR_MORE
     )
 """).strip()
