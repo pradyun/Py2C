@@ -70,7 +70,7 @@ class _IdentifierMetaClass(type):
         return issubclass(obj, str)
 
 
-class _Identifier(str, metaclass=_IdentifierMetaClass):
+class identifier(str, metaclass=_IdentifierMetaClass):
     """Names of identifiers
     """
     # A regex that matches valid, optionally dotted, Python names
@@ -78,20 +78,14 @@ class _Identifier(str, metaclass=_IdentifierMetaClass):
         "^(?:[_a-zA-Z][a-zA-Z0-9_]*)(?:\.(?:[_a-zA-Z][a-zA-Z0-9_]*))*$"
     )
 
-    def __init__(self, s):
-        super(_Identifier, self).__init__()
+    def __new__(self, s):
         if self._regex.match(s) is None:
             raise WrongAttributeValueError(
                 "Invalid value for identifier: {}".format(s)
             )
         else:
-            self = s
+            return s
 
-identifier = _Identifier
-identifier.__name__ = identifier.__name__.replace("_Identifier", "identifier")
-identifier.__qualname__ = identifier.__qualname__.replace(
-    "_Identifier", "identifier"
-)
 #-------------------------------------------------------------------------------
 # Singleton object
 #-------------------------------------------------------------------------------
