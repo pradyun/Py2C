@@ -70,25 +70,13 @@ classifiers = [
 ]
 
 #-------------------------------------------------------------------------------
-# For running tests
-#-------------------------------------------------------------------------------
-tests_require = []
-if sys.version_info[:2] < (3, 3):
-    tests_require.extend([
-        "mock",
-    ])
-
-#-------------------------------------------------------------------------------
 # The main setup call
 #-------------------------------------------------------------------------------
 setup(
     # Package data
     name="py2c",
     version="0.1-dev",
-    packages=find_packages(
-        exclude=["tests"]
-    ),
-    setup_requires=["nose"],
+    packages=find_packages(exclude=["dev_tools"]),
     install_requires=["ply"],
     # Metadata
     description=description,
@@ -97,10 +85,6 @@ setup(
     author_email="pradyunsg@gmail.com",
     url="https://github.com/pradyun/Py2C",
     classifiers=classifiers,
-    # Testing
-    extras_require={
-        "nosetests": tests_require,
-    },
     cmdclass={
         'build_py': build_py,
     },

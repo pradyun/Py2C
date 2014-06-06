@@ -23,7 +23,7 @@ import sys
 import unittest
 from textwrap import dedent
 
-sys.path.append(__file__ + "/../..")
+sys.path.append(__file__ + "/../../..")
 import ast_gen
 sys.path.pop()
 # It is refered multiple times
