@@ -27,9 +27,9 @@ except ImportError:
 
 try:
     # If ever setuptools decides to improve the build command!
-    from setuptools.command.build import build as _build
+    from setuptools.command.build_py import build_py as _build_py
 except ImportError:
-    from distutils.command.build import build as _build
+    from distutils.command.build_py import build_py as _build_py
 
 #-------------------------------------------------------------------------------
 # Generating the AST
@@ -43,12 +43,12 @@ sys.path.pop()
 path_to_ast_definitions = realpath(join(__file__, "..", "py2c", "syntax_tree"))
 
 
-class build(_build):
+class build(_build_py):
     """A customized version to build the AST definition files
     """
     def run(self):
         ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
-        _build.run(self)
+        _build_py.run(self)
 
 
 #-------------------------------------------------------------------------------
@@ -102,6 +102,6 @@ setup(
         "nosetests": tests_require,
     },
     cmdclass={
-        'build': build,
+        'build_py': build_py,
     },
 )
