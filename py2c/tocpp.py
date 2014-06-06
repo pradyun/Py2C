@@ -4,7 +4,7 @@ import ast
 from syntax_tree import python
 from textwrap import indent
 
-class tocpp(ast.NodeVistor):
+class tocpp(ast.NodeVisitor):
     def __init__(self):
         ast.NodeVisitor.__init__(self)
         self.imports = set('__builtins__') #all files imported
