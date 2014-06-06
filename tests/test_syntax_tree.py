@@ -468,38 +468,58 @@ class NodeReprTestCase(NodeTestCase):
             repr(node), "AllIntModifersNode(f1=0, f2=None, f3=(1,), f4=(2,))"
         )
 
+#-------------------------------------------------------------------------------
+# Special Properties
+#-------------------------------------------------------------------------------
 
-class IdentifierTestCase(unittest.TestCase):
+class PropertyTestCase(unittest.TestCase):
+    """Tests for custom properties of the AST specification.
+    """
+
+    def assertInstance(self, value):
+        self.assertIsInstance(value, self.class_)
+
+    def assertNotInstance(self, value):
+        self.assertNotIsInstance(value, self.class_)
+
+    def assertSubClass(self, cls):
+        self.assertTrue(issubclass(cls, self.class_))
+
+    def assertNotSubClass(self, cls):
+        self.assertFalse(issubclass(cls, self.class_))
+
+class IdentifierTestCase(PropertyTestCase):
     """Tests for 'identifier' object in the definitions
     """
+    class_ = syntax_tree.identifier
+
     def test_init(self):
+
         self.assertEqual(syntax_tree.identifier("valid_name"), "valid_name")
         with self.assertRaises(syntax_tree.WrongAttributeValueError):
             syntax_tree.identifier("Invalid name")
 
     def test_isinstance(self):
 
-        self.assertIsInstance("valid_name", syntax_tree.identifier)
-        self.assertIsInstance("ValidName", syntax_tree.identifier)
-        self.assertIsInstance("VALID_NAME", syntax_tree.identifier)
-        self.assertIsInstance("Valid_1_name", syntax_tree.identifier)
-        self.assertIsInstance(
-            syntax_tree.identifier("valid_name"), syntax_tree.identifier
-        )
-        self.assertIsInstance("valid.name", syntax_tree.identifier)
-        self.assertIsInstance("_valid_name_", syntax_tree.identifier)
-        self.assertIsInstance("_valid._name", syntax_tree.identifier)
+        self.assertInstance("valid_name")
+        self.assertInstance("ValidName")
+        self.assertInstance("VALID_NAME")
+        self.assertInstance("Valid_1_name")
+        self.assertInstance(syntax_tree.identifier("valid_name"))
+        self.assertInstance("valid.name")
+        self.assertInstance("_valid_name_")
+        self.assertInstance("_valid._attr_")
 
-        self.assertNotIsInstance("Invalid name", syntax_tree.identifier)
-        self.assertNotIsInstance("虎", syntax_tree.identifier)
+        self.assertNotInstance("Invalid name")
+        self.assertNotInstance("虎")
 
     def test_issubclass(self):
         class SubClass(syntax_tree.identifier):
             pass
 
-        self.assertTrue(issubclass(SubClass, syntax_tree.identifier))
-        self.assertTrue(issubclass(str, syntax_tree.identifier))
-        self.assertFalse(issubclass(int, syntax_tree.identifier))
+        self.assertSubClass(str)
+        self.assertSubClass(SubClass)
+        self.assertNotSubClass(int)
 
     def test_equality(self):
         self.assertEqual(syntax_tree.identifier("name"), "name")
@@ -547,9 +567,11 @@ class IdentifierTestCase(unittest.TestCase):
             node.f1 = ("invalid value", "invalid value 2")
 
 
-class SingletonTestCase(unittest.TestCase):
+class SingletonTestCase(PropertyTestCase):
     """Tests for 'singleton' object in the definitions
     """
+    class_ = syntax_tree.singleton
+
     def test_init(self):
         self.assertEqual(syntax_tree.singleton(True), True)
         self.assertEqual(syntax_tree.singleton(False), False)
@@ -559,21 +581,21 @@ class SingletonTestCase(unittest.TestCase):
 
     def test_isinstance(self):
 
-        self.assertIsInstance(True, syntax_tree.singleton)
-        self.assertIsInstance(False, syntax_tree.singleton)
-        self.assertIsInstance(None, syntax_tree.singleton)
-        self.assertNotIsInstance("string", syntax_tree.singleton)
-        self.assertNotIsInstance(0, syntax_tree.singleton)
-        self.assertNotIsInstance(0.0, syntax_tree.singleton)
-        self.assertNotIsInstance([], syntax_tree.singleton)
-        self.assertNotIsInstance((), syntax_tree.singleton)
+        self.assertInstance(True)
+        self.assertInstance(False)
+        self.assertInstance(None)
+        self.assertNotInstance("string")
+        self.assertNotInstance(0)
+        self.assertNotInstance(0.0)
+        self.assertNotInstance([])
+        self.assertNotInstance(())
 
     def test_issubclass(self):
         class SubClass(syntax_tree.singleton):
             pass
 
-        self.assertTrue(issubclass(SubClass, syntax_tree.singleton))
-        self.assertFalse(issubclass(int, syntax_tree.singleton))
+        self.assertSubClass(SubClass)
+        self.assertNotSubClass(int)
 
     def test_repr(self):
         singleton = syntax_tree.singleton
