@@ -82,6 +82,17 @@ class AllIdentifierModifersNode(syntax_tree.AST):
     ]
 
 
+class AllSingletonModifersNode(syntax_tree.AST):
+    """Node with all modifiers of singleton type
+    """
+    _fields = [
+        ('f1', syntax_tree.singleton, syntax_tree.NEEDED),
+        ('f2', syntax_tree.singleton, syntax_tree.OPTIONAL),
+        ('f3', syntax_tree.singleton, syntax_tree.ZERO_OR_MORE),
+        ('f4', syntax_tree.singleton, syntax_tree.ONE_OR_MORE),
+    ]
+
+
 #-------------------------------------------------------------------------------
 # Tests
 #-------------------------------------------------------------------------------
@@ -534,6 +545,74 @@ class IdentifierTestCase(unittest.TestCase):
 
         with self.assertRaises(syntax_tree.WrongTypeError):
             node.f1 = ("invalid value", "invalid value 2")
+
+
+class SingletonTestCase(unittest.TestCase):
+    """Tests for 'singleton' object in the definitions
+    """
+    def test_init(self):
+        self.assertEqual(syntax_tree.singleton(True), True)
+        self.assertEqual(syntax_tree.singleton(False), False)
+        self.assertEqual(syntax_tree.singleton(None), None)
+        with self.assertRaises(syntax_tree.WrongAttributeValueError):
+            syntax_tree.singleton("")
+
+    def test_isinstance(self):
+
+        self.assertIsInstance(True, syntax_tree.singleton)
+        self.assertIsInstance(False, syntax_tree.singleton)
+        self.assertIsInstance(None, syntax_tree.singleton)
+        self.assertNotIsInstance("string", syntax_tree.singleton)
+        self.assertNotIsInstance(0, syntax_tree.singleton)
+        self.assertNotIsInstance(0.0, syntax_tree.singleton)
+        self.assertNotIsInstance([], syntax_tree.singleton)
+        self.assertNotIsInstance((), syntax_tree.singleton)
+
+    def test_issubclass(self):
+        class SubClass(syntax_tree.singleton):
+            pass
+
+        self.assertTrue(issubclass(SubClass, syntax_tree.singleton))
+        self.assertFalse(issubclass(int, syntax_tree.singleton))
+
+    def test_repr(self):
+        singleton = syntax_tree.singleton
+        self.assertEqual(repr(singleton(True)), "True")
+        self.assertEqual(repr(singleton(False)), "False")
+        self.assertEqual(repr(singleton(None)), "None")
+
+    def test_modifiers_valid_minimal(self):
+        node = AllSingletonModifersNode()
+        node.f1 = None
+        node.f4 = [None, True, False]
+        try:
+            node.finalize()
+        except syntax_tree.ASTError:
+            self.fail("Raised Exception for valid values")
+
+    def test_modifiers_valid_all(self):
+        try:
+            node = AllSingletonModifersNode(True, None, (), (False,))
+            node.finalize()
+        except syntax_tree.ASTError:
+            self.fail("Raised exception when values were proper")
+        else:
+            self.assertEqual(node.f1, True)
+            self.assertEqual(node.f2, None)
+            self.assertEqual(node.f3, ())
+            self.assertEqual(node.f4, (False,))
+
+    def test_modifiers_invalid_values(self):
+        node = AllSingletonModifersNode()
+
+        with self.assertRaises(syntax_tree.WrongTypeError):
+            node.f1 = 0
+        with self.assertRaises(syntax_tree.WrongTypeError):
+            node.f2 = 0
+        with self.assertRaises(syntax_tree.WrongTypeError):
+            node.f3 = (0,)
+        with self.assertRaises(syntax_tree.WrongTypeError):
+            node.f4 = (1, 2, 3)
 
 
 if __name__ == '__main__':

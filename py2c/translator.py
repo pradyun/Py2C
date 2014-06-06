@@ -192,6 +192,15 @@ class Python2ASTTranslator(object):
     #===========================================================================
     # Visitors, only for specially handled nodes
     #===========================================================================
+    # Needed in Python < 3.4
+    @finalize
+    def visit_Name(self, node):
+        if node.id in ["True", "False", "None"]:
+            return python.NameConstant(eval(node.id))
+        else:
+            self.generic_visit(node)
+            return python.Name(node.id, node.ctx)
+
     def visit_NoneType(self, node):
         return NONE_STUB
 

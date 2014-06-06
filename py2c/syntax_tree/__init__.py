@@ -92,6 +92,27 @@ identifier.__name__ = identifier.__name__.replace("_Identifier", "identifier")
 identifier.__qualname__ = identifier.__qualname__.replace(
     "_Identifier", "identifier"
 )
+#-------------------------------------------------------------------------------
+# Singleton object
+#-------------------------------------------------------------------------------
+class _SingletonMetaClass(type):
+
+    def __instancecheck__(cls, obj):
+        return any(obj is elem for elem in cls._valid_values)
+
+
+class singleton(object, metaclass=_SingletonMetaClass):
+    """Names pointing to constant values
+    """
+    _valid_values = (True, False, None)
+
+    def __new__(cls, value):
+        if value not in cls._valid_values:
+            msg = "Expected a bool or None. Got a {}"
+            raise WrongAttributeValueError(msg.format(value.__class__.__name__))
+        else:
+            return value
+
 
 #-------------------------------------------------------------------------------
 # Modifiers

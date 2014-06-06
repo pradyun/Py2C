@@ -188,10 +188,10 @@ class SimpleStmtTestCase(CodeTestCase):
     def test_assert(self):
         self.template([
             ("assert False", python.Assert(
-                python.Name("False", python.Load()), None
+                python.NameConstant(False), None
             )),
             ("assert False, msg", python.Assert(
-                python.Name("False", python.Load()),
+                python.NameConstant(False),
                 python.Name("msg", python.Load()),
             )),
         ])
@@ -430,7 +430,7 @@ class CompoundStmtTestCase(CodeTestCase):
                     pass
                 """,
                 python.If(
-                    python.Name("True", python.Load()),
+                    python.NameConstant(True),
                     (python.Pass(),),
                     ()
                 )
@@ -472,7 +472,7 @@ class CompoundStmtTestCase(CodeTestCase):
             (
                 "while True: pass",
                 python.While(
-                    python.Name("True", python.Load()),
+                    python.NameConstant(True),
                     (python.Pass(),),
                     ()
                 )
