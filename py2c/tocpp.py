@@ -163,3 +163,10 @@ class tocpp(ast.NodeVisitor):
     def visit_In(self, node): return self.generic_visit(node)
     def visit_NotIn(self, node): return self.generic_visit(node)
     
+if __name__ == '__main__':
+    import translator
+    con = translator.Python2ASTTranslator().get_node
+    nv = tocpp()
+    for s in ['1+2', '1*2', '8**7', '3/4', '3//4']:
+        print(s, '    ', eval(s), '    ', nv.visit(con(s).body[0].value))
+
