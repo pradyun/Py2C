@@ -1,7 +1,7 @@
 #A node visitor that spews C++ when told to visit a node
 #This includes every node defined in /py2c/syntax_tree/python.py
 #But at present only works if all nodes in the tree return
-#something other than self.generic_visit(node) (only aritmatic expressions)
+#something other than self.generic_visit(node) (only aritmetic expressions)
 import ast
 from syntax_tree import python
 from textwrap import indent
@@ -9,7 +9,7 @@ from textwrap import indent
 class tocpp(ast.NodeVisitor):
     def __init__(self):
         ast.NodeVisitor.__init__(self)
-        self.imports = set('__builtins__') #all files imported
+        self.imports = set(['__builtins__']) #all files imported
         self.context = [] #append current node before entering children unless they definitely don't need it
     def visit_PyAST(self, node): return self.generic_visit(node)
     def visit_mod(self, node): return self.generic_visit(node)
@@ -29,13 +29,13 @@ class tocpp(ast.NodeVisitor):
     def visit_withitem(self, node): return self.generic_visit(node)
     def visit_ExceptHandler(self, node): return self.generic_visit(node)
     def visit_Module(self, node):
-        strings = []
+        program = list()
         for n in node.body:
-            strings.append(self.visit(n))
-        imports = []
+            program.append(self.visit(n))
+        imports = list()
         for n in list(self.imports):
             imports.append('#include "%s"' % n)
-        return '\n'.join(imports) + '\n' + '\n'.join(strings)
+        return '\n'.join(imports) + '\n' + '\n'.join(program)
     def visit_FunctionDef(self, node): return self.generic_visit(node)
     def visit_ClassDef(self, node): return self.generic_visit(node)
     def visit_Return(self, node): return self.generic_visit(node)
@@ -62,19 +62,28 @@ class tocpp(ast.NodeVisitor):
     def visit_Future(self, node): return self.generic_visit(node)
     def visit_Global(self, node): return self.generic_visit(node)
     def visit_Nonlocal(self, node): return self.generic_visit(node)
-    def visit_Expr(self, node): return self.generic_visit(node)
+    def visit_Expr(self, node):
+        return '(' + self.visit(node.value) + ');'
     def visit_Pass(self, node): return self.generic_visit(node)
     def visit_Break(self, node): return self.generic_visit(node)
     def visit_Continue(self, node): return self.generic_visit(node)
-    def visit_BoolOp(self, node): return self.generic_visit(node)
+    def visit_BoolOp(self, node):
+        v = []
+        for n in node.values:
+            v.append(self.visit(n))
+        return '(' + self.visit(node.op).join(v) + ')'
     def visit_BinOp(self, node):
         l = self.visit(node.left)
         r = self.visit(node.right)
         if node.op.__class__ == python.FloorDiv:
-            return '(%s - (%s %% %s)) / %s' % (l, l, r, r)
+            return '((%s - (%s %% %s)) / %s)' % (l, l, r, r)
+        elif node.op.__class__ == python.Pow:
+            return 'pow(%s, %s)' % (l, r)
+            #import C++ file containing equivalents of all builtin functions
         else:
-            return '%s %s %s' % (l, self.visit(node.op), r)
-    def visit_UnaryOp(self, node): return self.generic_visit(node)
+            return '(%s %s %s)' % (l, self.visit(node.op), r)
+    def visit_UnaryOp(self, node):
+        return self.visit(node.op) + ' ' + self.visit(node.operand)
     def visit_Lambda(self, node): return self.generic_visit(node)
     def visit_IfExp(self, node): return self.generic_visit(node)
     def visit_Dict(self, node): return self.generic_visit(node)
@@ -125,7 +134,8 @@ class tocpp(ast.NodeVisitor):
         return '*'
     def visit_Div(self, node):
         return '/'
-    def visit_Mod(self, node): return self.generic_visit(node)
+    def visit_Mod(self, node):
+        return '%'
     def visit_Pow(self, node): return self.generic_visit(node)
     def visit_LShift(self, node):
         return '<<'
@@ -167,6 +177,7 @@ if __name__ == '__main__':
     import translator
     con = translator.Python2ASTTranslator().get_node
     nv = tocpp()
-    for s in ['1+2', '1*2', '8**7', '3/4', '3//4']:
+    for s in ['1+2', '1*2', '8**7', '3/4', '3//4', '- 3', 'not 5']:
         print(s, '    ', eval(s), '    ', nv.visit(con(s).body[0].value))
-
+    print()
+    print(nv.visit(con('1+2+(3*4)+5+6\n4//7 + 3')))
