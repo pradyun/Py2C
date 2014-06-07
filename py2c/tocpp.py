@@ -38,7 +38,8 @@ class tocpp(ast.NodeVisitor):
         return '\n'.join(imports) + '\n' + '\n'.join(program)
     def visit_FunctionDef(self, node): return self.generic_visit(node)
     def visit_ClassDef(self, node): return self.generic_visit(node)
-    def visit_Return(self, node): return self.generic_visit(node)
+    def visit_Return(self, node):
+        return 'return %s;' % self.visit(node.value)
     def visit_Delete(self, node): return self.generic_visit(node)
     def visit_Assign(self, node): return self.generic_visit(node)
     def visit_AugAssign(self, node): return self.generic_visit(node)
@@ -46,10 +47,15 @@ class tocpp(ast.NodeVisitor):
     def visit_While(self, node): return self.generic_visit(node)
     def visit_If(self, node):
         ts = self.visit(node.test)
-        yes = indent('    ', '\n'.join(list(self.visit(n) for n in node.body)))
-        no = list(self.visit(n) for n in node.orelse)
+        ys = []
+        for n in node.body:
+            ys.append(self.visit(n))
+        yes = '    ' + '\n    '.join(ys)
+        no = []
+        for n in node.orelse:
+            no.append(self.visit(n))
         if no:
-            n = indent('    ', '\n'.join(no))
+            n = '    ' + '\n    '.join(no)
             return 'if (%s) {\n%s\n}\nelse {\n%s\n}\n' % (ts, yes, n)
         else:
             return 'if (%s) {\n%s\n}\n' % (ts, yes)
@@ -64,7 +70,8 @@ class tocpp(ast.NodeVisitor):
     def visit_Nonlocal(self, node): return self.generic_visit(node)
     def visit_Expr(self, node):
         return '(' + self.visit(node.value) + ');'
-    def visit_Pass(self, node): return self.generic_visit(node)
+    def visit_Pass(self, node):
+        return '0;' #I think this will work...
     def visit_Break(self, node): return self.generic_visit(node)
     def visit_Continue(self, node): return self.generic_visit(node)
     def visit_BoolOp(self, node):
@@ -94,18 +101,30 @@ class tocpp(ast.NodeVisitor):
     def visit_GeneratorExp(self, node): return self.generic_visit(node)
     def visit_Yield(self, node): return self.generic_visit(node)
     def visit_YieldFrom(self, node): return self.generic_visit(node)
-    def visit_Compare(self, node): return self.generic_visit(node)
+    def visit_Compare(self, node):
+        lst = list(zip(node.ops, node.comparators))
+        ret = ''
+        for r in lst:
+            ret += ' ' + self.visit(r[0]) + ' ' + self.visit(r[1])
+        return '(' + self.visit(node.left) + ret + ')'
     def visit_Call(self, node): return self.generic_visit(node)
     def visit_Attribute(self, node): return self.generic_visit(node)
     def visit_Subscript(self, node): return self.generic_visit(node)
     def visit_Starred(self, node): return self.generic_visit(node)
-    def visit_Name(self, node): return self.generic_visit(node)
+    def visit_Name(self, node):
+        if node.ctx.__class__ == python.Load:
+            return node.id
+        elif node.ctx.__class__ == python.Del:
+            return 'Del not implemented yet...'
+        else:
+            return 'Store not implemented yet...'
     def visit_List(self, node): return self.generic_visit(node)
     def visit_Tuple(self, node): return self.generic_visit(node)
     def visit_Ellipsis(self, node): return self.generic_visit(node)
     def visit_NameConstant(self, node): return self.generic_visit(node)
     def visit_literal(self, node): return self.generic_visit(node)
-    def visit_Str(self, node): return self.generic_visit(node)
+    def visit_Str(self, node):
+        return node.s
     def visit_Bytes(self, node): return self.generic_visit(node)
     def visit_Bool(self, node): return self.generic_visit(node)
     def visit_num(self, node): return self.generic_visit(node)
@@ -181,3 +200,6 @@ if __name__ == '__main__':
         print(s, '    ', eval(s), '    ', nv.visit(con(s).body[0].value))
     print()
     print(nv.visit(con('1+2+(3*4)+5+6\n4//7 + 3')))
+    print()
+    print(nv.visit(con('if 3: 4*3')))
+    print(nv.visit(con('if 1==2: 5/9 - 6')))
