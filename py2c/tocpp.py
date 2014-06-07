@@ -1,5 +1,7 @@
 #A node visitor that spews C++ when told to visit a node
-#This include every node defined in /py2c/syntax_tree/python.py
+#This includes every node defined in /py2c/syntax_tree/python.py
+#But at present only works if all nodes in the tree return
+#something other than self.generic_visit(node) (only aritmatic expressions)
 import ast
 from syntax_tree import python
 from textwrap import indent
