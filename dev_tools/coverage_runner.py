@@ -1,12 +1,14 @@
 """Run tests under coverage's measurement system
 """
-import nose
-import coverage
 from os.path import join, realpath
 
-cov = coverage.coverage(branch=True, config_file=True)
+import nose
+import coverage
+
+cov = coverage.coverage(branch=True)
 
 cov.start()
-result = nose.run(defaultTest=realpath(join(__file__, "..", "..")))
+nose.run(defaultTest=realpath(join(__file__, "..", "..", "py2c")))
 cov.stop()
+cov.save()
 cov.html_report()

@@ -12,14 +12,12 @@ exclude_lines =
 
     def __repr__
 
+    # Not for testing :)
     if False:
     if __name__ == .__main__.:
 
 partial_branches =
     coverage: no partial
-
-include =
-    py2c\*
 
 ignore_errors = True
 
