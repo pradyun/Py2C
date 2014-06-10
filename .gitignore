@@ -1,6 +1,9 @@
 # Compiled README.md (To verify the looks of it)
 README.html
 
+# Coverage reports
+_coverage_reports
+
 # PLY
 *parser.out
 *parsetab.py

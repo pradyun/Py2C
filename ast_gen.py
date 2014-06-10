@@ -262,7 +262,7 @@ class SourceGenerator(object):
 
 
 # API for dual_ast
-def generate(source_dir, output_dir, update=False):
+def generate(source_dir, output_dir, update=False): # coverage: not missing
     """Generate sources for the AST nodes definition files in source_dir
     """
     files_to_convert = [
