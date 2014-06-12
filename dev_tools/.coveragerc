@@ -1,6 +1,12 @@
 [run]
-source = py2c
 branch = True
+
+omit =
+    */test*
+    *tab*
+    */site-packages/*
+    */python?.?/*
+    */lib-python/?.?/*.py
 
 [report]
 exclude_lines =
@@ -18,16 +24,8 @@ exclude_lines =
     if __name__ == .__main__.:
 
 partial_branches =
+    # Changed pragma
     coverage: no partial
-
-omit =
-    */test*
-    *tab*
-
-include =
-    ast_gen.py
-
-ignore_errors = True
 
 [html]
 directory = _coverage_reports
