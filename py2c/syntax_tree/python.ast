@@ -22,6 +22,8 @@
 #
 # This file's syntax is based on ASDL definitions, modified for ease of parsing,
 # readability and ease of editting IMO.
+#
+# Built in types: str, int, identifier, bool, bytes, int, float, complex
 ################################################################################
 
 #-------------------------------------------------------------------------------
