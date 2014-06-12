@@ -488,6 +488,7 @@ class PropertyTestCase(unittest.TestCase):
     def assertNotSubClass(self, cls):
         self.assertFalse(issubclass(cls, self.class_))
 
+
 class IdentifierTestCase(PropertyTestCase):
     """Tests for 'identifier' object in the definitions
     """
