@@ -19,6 +19,10 @@ exclude_lines =
 partial_branches =
     coverage: no partial
 
+omit =
+    *\test*
+    *tab*
+
 ignore_errors = True
 
 [html]

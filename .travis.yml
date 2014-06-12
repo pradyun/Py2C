@@ -1,0 +1,18 @@
+language: python
+python:
+  - 3.2
+  - 3.3
+  - 3.4
+
+install:
+  # Use the latest version.
+  - pip install -U nose mock
+  # For coverage reports
+  - pip install coverage coveralls
+
+  - python setup.py develop
+
+script:
+  - python dev_tools/coverage_runner.py
+after_success:
+  - coveralls
