@@ -1,4 +1,4 @@
-"""Run tests under coverage's measurement system (Used in CI)
+"""Run tests under coverage's measurement system
 """
 
 import os
@@ -9,10 +9,11 @@ from os.path import join, realpath
 import nose
 import coverage
 
-cov = coverage.coverage(branch=True)
+base_dir = realpath(join(__file__, ".."))
+cov = coverage.coverage(branch=True, config_file=join(base_dir, ".coveragerc"))
 
 cov.start()
-success = nose.run(defaultTest=realpath(join(__file__, "..", "..", "py2c")))
+success = nose.run(defaultTest=join(base_dir, "..", "py2c"))
 cov.stop()
 cov.save()
 if success:
