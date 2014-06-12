@@ -21,6 +21,7 @@
 #-------------------------------------------------------------------------------
 
 
+import ast
 import random
 import textwrap
 import unittest
@@ -30,7 +31,8 @@ from py2c.translator import Python2ASTTranslator, TranslationError
 
 
 class ErrorReportingTestCase(unittest.TestCase):
-    """Tests for Error Reporting in Python2ASTTranslator"""
+    """Tests for Error Reporting in Python2ASTTranslator
+    """
     def setUp(self):
         self.translator = Python2ASTTranslator()
 
@@ -43,7 +45,7 @@ class ErrorReportingTestCase(unittest.TestCase):
 
         return obj.exception.errors
 
-    def test_initial_errors(self):
+    def test_no_errors(self):
         try:
             self.translator.handle_errors()
         except TranslationError:
@@ -66,6 +68,41 @@ class ErrorReportingTestCase(unittest.TestCase):
         self.assertIn("foo", err_msg)
         self.assertIn("line", err_msg.lower())
         self.assertIn(str(num), err_msg)
+
+        # Make sure there is no duplication
+        self.assertTrue(err_msg.count("foo"), 1)
+
+    def test_invalid_code_input(self):
+        with self.assertRaises(TranslationError) as obj:
+            self.translator.get_node("$$$")
+
+        err = obj.exception
+        self.assertIn("invalid", err.args[0].lower())
+        self.assertIn("code", err.args[0].lower())
+
+
+class TranslationErrorTestCase(unittest.TestCase):
+    """Tests for TranslationError's attribute handling
+    """
+    def test_no_args(self):
+        err = TranslationError()
+        self.assertEqual(err.msg, "")
+        self.assertEqual(err.errors, None)
+
+    def test_1_arg(self):
+        err = TranslationError("Foo")
+        self.assertEqual(err.msg, "Foo")
+        self.assertEqual(err.errors, None)
+
+    def test_2_args(self):
+        err = TranslationError("Foo", 1)
+        self.assertEqual(err.msg, "Foo")
+        self.assertEqual(err.errors, 1)
+
+    def test_keyword_args(self):
+        err = TranslationError(errors=1)
+        self.assertEqual(err.msg, "")
+        self.assertEqual(err.errors, 1)
 
 
 class CodeTestCase(unittest.TestCase):
@@ -167,6 +204,13 @@ class LiteralTestCase(CodeTestCase):
         self.template([
             (s, python.Complex(eval(s))) for s in tests
         ], remove_expr=True)
+
+    def test_invalid_number(self):
+        node = ast.Num("string!!")
+
+        self.translator.visit(node)
+        with self.assertRaises(TranslationError):
+            self.translator.handle_errors()
 
     def test_str(self):
         tests = [
@@ -408,13 +452,14 @@ class SimpleStmtTestCase(CodeTestCase):
         ])
 
     def test_future_invalid(self):
-        self.template([
-            (
-                "from __future__ import some_wrong_name", None
-            )
-        ])
+        with self.assertRaises(TranslationError) as obj:
+            self.template([
+                (
+                    "from __future__ import some_wrong_name", None
+                )
+            ])
 
-        msg = self.translator.errors[-1]
+        msg = obj.exception.errors[-1]
         self.assertIn("no feature", msg)
         self.assertIn("'some_wrong_name'", msg)
 
@@ -557,7 +602,6 @@ class CompoundStmtPartTestCase(CodeTestCase):
 class LoopStmtPartTestCase(CompoundStmtPartTestCase):
     """Tests for statements that can be inside loops for flow control
     """
-
     def test_while(self):
         self.prefix = "while True:"
 
@@ -593,6 +637,4 @@ class FunctionStmtPartTestCase(CompoundStmtPartTestCase):
 
 
 if __name__ == '__main__':
-    # import sys
-    # sys.argv.append("SimpleStmtTestCase")
     unittest.main()
