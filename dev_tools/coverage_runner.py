@@ -10,7 +10,7 @@ import nose
 import coverage
 
 base_dir = realpath(join(__file__, ".."))
-cov = coverage.coverage(branch=True, config_file=join(base_dir, ".coveragerc"))
+cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 
 cov.start()
 success = nose.run(defaultTest=join(base_dir, "..", "py2c"))
