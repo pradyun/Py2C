@@ -71,6 +71,8 @@ classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
     "Topic :: Software Development :: Code Generators",
     "Topic :: Software Development :: Compilers",
 ]
