@@ -60,13 +60,11 @@ int main() {
 }
 ```
 
-Py2C is also extensible though a fixer API, which can be used to accommodate
-for API changes across the languages, for third party packages (like Numpy),
-just like it is used to optimize the C code internally. The details of the API
-have to be decided..
+Py2C is also extensible though a modifier API, which can be used to accommodate
+for API changes across the languages, for third party packages (like Numpy).
 
 If you are interested in participating in the development of this project,
-read the 'Contributing' page in the wiki.
+read the 'CONTRIBUTING.md' file in the repository root.
 
-For more details, refer to the (currently mostly non-existent) GitHub wiki
-pages.
+For more details, refer to the GitHub wiki pages. Oh wait! I have to write
+those. Sorry!
