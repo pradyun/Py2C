@@ -15,4 +15,4 @@ install:
 script:
   - python dev_tools/coverage_runner.py
 after_success:
-  - coveralls
+  - coveralls --rcfile=dev_tools/.coveragerc
