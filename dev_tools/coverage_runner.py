@@ -12,15 +12,14 @@ import coverage
 cov = coverage.coverage(branch=True)
 
 cov.start()
-result = nose.run(defaultTest=realpath(join(__file__, "..", "..", "py2c")))
+success = nose.run(defaultTest=realpath(join(__file__, "..", "..", "py2c")))
 cov.stop()
 cov.save()
-
-if result == 0:
+if success:
     # If we are in CI environment, don't write an HTML report.
     if os.environ.get("CI", None) is None:
         cov.html_report()
 
     cov.report()
 
-sys.exit(result)
+sys.exit(0 if success else 1)
