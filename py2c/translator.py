@@ -36,7 +36,7 @@ class TranslationError(Exception):
     """Raised when a fatal error occurs in Translation
     """
     def __init__(self, msg="", errors=None):
-        super(TranslationError, self).__init__()
+        super(TranslationError, self).__init__(msg, errors)
         self.msg = msg
         self.errors = errors
 
@@ -69,7 +69,7 @@ class Python2ASTTranslator(object):
         """Log an error in the provided code
         """
         if lineno is not None:
-            msg += "Check Line ({0}): {1}".format(lineno, msg)
+            msg = "Line {0}: {1}".format(lineno, msg)
         self.errors.append(msg)
 
     def handle_errors(self):
@@ -77,6 +77,7 @@ class Python2ASTTranslator(object):
         """
         if not self.errors:
             return
+        print(self.errors)
         raise TranslationError(errors=self.errors)
 
     def get_node(self, code):
@@ -95,11 +96,11 @@ class Python2ASTTranslator(object):
         try:
             node = ast.parse(code)
         except Exception:
-            raise TranslationError("Unable to generate AST from Python code")
+            raise TranslationError("Invalid Python code provided.")
         else:
             # print("AST:    ", ast.dump(node))
             retval = self.visit(node)
-            # self.handle_errors()
+            self.handle_errors()
             return retval
 
     # Modified: Uses ``syntax_tree`` nodes instead of ``ast`` nodes accordingly.
@@ -213,8 +214,10 @@ class Python2ASTTranslator(object):
             cls = python.Float
         elif isinstance(n, complex):
             cls = python.Complex
+        # Shouldn't happen, but better safe than sorry!
         else:
             self.log_error("Unknown number type: {}".format(type(n)))
+            return None
         return cls(n)
 
     # Statements
