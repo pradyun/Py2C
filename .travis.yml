@@ -10,6 +10,7 @@ install:
   # For coverage reports
   - pip install coverage coveralls
 
+  - python setup.py build_py
   - python setup.py develop
 
 script:
