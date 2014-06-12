@@ -11,6 +11,9 @@ its history. Sorry, but the rebase was necessary.
 
 Py2C
 ====
+[![Build Status](https://travis-ci.org/pradyun/Py2C.svg?branch=master)](https://travis-ci.org/pradyun/Py2C)
+[![Coverage Status](https://img.shields.io/coveralls/pradyun/Py2C.svg)](https://coveralls.io/r/pradyun/Py2C?branch=master)
+
 Py2C for compiling Python code into (hopefully fairly) human-readable C++
 code, (hopefully) somewhat like what humans might actually write.
 
