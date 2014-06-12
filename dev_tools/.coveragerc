@@ -1,4 +1,5 @@
 [run]
+source = py2c
 branch = True
 
 [report]
@@ -20,7 +21,7 @@ partial_branches =
     coverage: no partial
 
 omit =
-    *\test*
+    */test*
     *tab*
 
 ignore_errors = True
