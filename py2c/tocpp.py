@@ -5,11 +5,12 @@
 import ast
 from syntax_tree import python
 from textwrap import indent
+from functions import functions
 
 class tocpp(ast.NodeVisitor):
     def __init__(self):
         ast.NodeVisitor.__init__(self)
-        self.imports = set(['__builtins__']) #all files imported
+        self.imports = set() #all files imported
         self.context = [] #append current node before entering children unless they definitely don't need it
     def visit_PyAST(self, node): return self.generic_visit(node)
     def visit_mod(self, node): return self.generic_visit(node)
@@ -107,7 +108,12 @@ class tocpp(ast.NodeVisitor):
         for r in lst:
             ret += ' ' + self.visit(r[0]) + ' ' + self.visit(r[1])
         return '(' + self.visit(node.left) + ret + ')'
-    def visit_Call(self, node): return self.generic_visit(node)
+    def visit_Call(self, node): #needs work, but will suffice for simple things...
+        if node.func in functions:
+            self.imports.add(functions[node.func][1])
+            return functions[node.func][0].format(*self.generic_visit[node.args])
+        else:
+            return '%s(%s)' % (node.func, ', '.join(self.generic_visit[node.args]))
     def visit_Attribute(self, node): return self.generic_visit(node)
     def visit_Subscript(self, node): return self.generic_visit(node)
     def visit_Starred(self, node): return self.generic_visit(node)
