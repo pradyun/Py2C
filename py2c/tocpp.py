@@ -73,7 +73,7 @@ class tocpp(ast.NodeVisitor):
     def visit_Global(self, node): return self.generic_visit(node)
     def visit_Nonlocal(self, node): return self.generic_visit(node)
     def visit_Expr(self, node):
-        return self.visit(node.value) #is this missing anything?
+        return self.visit(node.value) + ';' #is this missing anything?
     def visit_Pass(self, node):
         return '0;' #I think this will work...
     def visit_Break(self, node): return self.generic_visit(node)
