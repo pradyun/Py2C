@@ -45,7 +45,14 @@ class tocpp(ast.NodeVisitor):
     def visit_Return(self, node):
         return 'return %s;' % self.visit(node.value)
     def visit_Delete(self, node): return self.generic_visit(node)
-    def visit_Assign(self, node): return self.generic_visit(node)
+    def visit_Assign(self, node): #only uses first target...
+        typ = 'void'
+        if issubclass(type(node.value), python.literal):
+            typ = str(type(node.value).__name__).lower()
+            #almost certainly needs more...
+        else:
+            pass #NotImplementedError...
+        return '%s %s = %s;' % (typ, self.visit(node.targets[0]), self.visit(node.value))
     def visit_AugAssign(self, node): return self.generic_visit(node)
     def visit_For(self, node): return self.generic_visit(node)
     def visit_While(self, node): return self.generic_visit(node)
@@ -131,12 +138,14 @@ class tocpp(ast.NodeVisitor):
     def visit_Subscript(self, node): return self.generic_visit(node)
     def visit_Starred(self, node): return self.generic_visit(node)
     def visit_Name(self, node):
-        if node.ctx.__class__ == python.Load:
-            return node.id
-        elif node.ctx.__class__ == python.Del:
-            return 'Del not implemented yet...'
-        else:
-            return 'Store not implemented yet...'
+##        if node.ctx.__class__ == python.Load:
+##            return node.id
+##        elif node.ctx.__class__ == python.Del:
+##            return 'Del not implemented yet...'
+##        else:
+##            return 'Store not implemented yet...'
+        #we now assume context to be irrelevant.
+        return node.id
     def visit_List(self, node): return self.generic_visit(node)
     def visit_Tuple(self, node): return self.generic_visit(node)
     def visit_Ellipsis(self, node): return self.generic_visit(node)
