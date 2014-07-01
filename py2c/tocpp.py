@@ -30,10 +30,10 @@ class tocpp(ast.NodeVisitor):
     def visit_withitem(self, node): return self.generic_visit(node)
     def visit_ExceptHandler(self, node): return self.generic_visit(node)
     def visit_Module(self, node):
-        program = list()
+        program = []
         for n in node.body:
             program.append(self.visit(n))
-        imports = list()
+        imports = []
         for n in list(self.imports):
             if n[0] == '<':
                 imports.append('#include %s' % n)
@@ -54,12 +54,12 @@ class tocpp(ast.NodeVisitor):
         ys = []
         for n in node.body:
             ys.append(self.visit(n))
-        yes = '    ' + '\n    '.join(ys)
+        yes = indent('\n'.join(ys), '    ')
         no = []
         for n in node.orelse:
             no.append(self.visit(n))
         if no:
-            n = '    ' + '\n    '.join(no)
+            n = indent('\n'.join(no), '    ')
             return 'if (%s) {\n%s\n}\nelse {\n%s\n}\n' % (ts, yes, n)
         else:
             return 'if (%s) {\n%s\n}\n' % (ts, yes)
@@ -76,8 +76,11 @@ class tocpp(ast.NodeVisitor):
         return self.visit(node.value) + ';' #is this missing anything?
     def visit_Pass(self, node):
         return '0;' #I think this will work...
-    def visit_Break(self, node): return self.generic_visit(node)
-    def visit_Continue(self, node): return self.generic_visit(node)
+        #maybe skip the 0?
+    def visit_Break(self, node):
+        return 'break;'
+    def visit_Continue(self, node):
+        return 'continue;'
     def visit_BoolOp(self, node):
         v = []
         for n in node.values:
@@ -89,7 +92,16 @@ class tocpp(ast.NodeVisitor):
         return self.visit(node.op).format(l, r)
     def visit_UnaryOp(self, node):
         return self.visit(node.op) + self.visit(node.operand)
-    def visit_Lambda(self, node): return self.generic_visit(node)
+    def visit_Lambda(self, node):
+        #mostly derived from http://stackoverflow.com/questions/7627098/what-is-a-lambda-expression-in-c11
+        
+        #get stuff used inside the lambda here, if anything further is needed.
+        #probably not though
+        use = ['&'] #using external values
+        get = self.visit(node.args) #args
+        body = self.visit(node.body)
+        typ = 'int' #get return type
+        return '[%s](%s) -> %s {%s}' % (use, get, typ, body)
     def visit_IfExp(self, node): return self.generic_visit(node)
     def visit_Dict(self, node): return self.generic_visit(node)
     def visit_Set(self, node): return self.generic_visit(node)
@@ -133,7 +145,9 @@ class tocpp(ast.NodeVisitor):
     def visit_Str(self, node):
         return '"' + node.s + '"'
     def visit_Bytes(self, node): return self.generic_visit(node)
-    def visit_Bool(self, node): return self.generic_visit(node)
+    def visit_Bool(self, node):
+        return str(node.b).lower()
+        #not sure about this one, couldn't generate it.
     def visit_num(self, node): return self.generic_visit(node)
     def visit_Int(self, node):
         return str(node.n)
