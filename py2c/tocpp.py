@@ -74,7 +74,8 @@ class tocpp(ast.NodeVisitor):
     def visit_Raise(self, node): return self.generic_visit(node)
     def visit_Try(self, node): return self.generic_visit(node)
     def visit_Assert(self, node): return self.generic_visit(node)
-    def visit_Import(self, node): return self.generic_visit(node)
+    def visit_Import(self, node):
+        self.imports = self.imports.union(set(node.names))
     def visit_ImportFrom(self, node): return self.generic_visit(node)
     def visit_Future(self, node): return self.generic_visit(node)
     def visit_Global(self, node): return self.generic_visit(node)
@@ -172,9 +173,9 @@ class tocpp(ast.NodeVisitor):
     def visit_ExtSlice(self, node): return self.generic_visit(node)
     def visit_Index(self, node): return self.generic_visit(node)
     def visit_And(self, node):
-        return '({0} and {1})'
+        return ' and '
     def visit_Or(self, node):
-        return '({0} or {1})'
+        return ' or '
     def visit_Add(self, node):
         return '({0} + {1})'
     def visit_Sub(self, node):
