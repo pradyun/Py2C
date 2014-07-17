@@ -80,6 +80,13 @@ class Python2ASTTranslator(object):
         print(self.errors)
         raise TranslationError(errors=self.errors)
 
+    def visit(self, node):
+        """Visit a node.
+        """
+        method = 'visit_' + node.__class__.__name__
+        visitor = getattr(self, method, self.convert_to_python_node)
+        return visitor(node)
+    
     def get_node(self, code):
         """Get the Py2C AST from the Python ``code``
 
@@ -121,12 +128,6 @@ class Python2ASTTranslator(object):
                     setattr(node, field, new_node)
         # print(node)
 
-    def visit(self, node):
-        """Visit a node.
-        """
-        method = 'visit_' + node.__class__.__name__
-        visitor = getattr(self, method, self.convert_to_python_node)
-        return visitor(node)
 
     #===========================================================================
     # Helpers
