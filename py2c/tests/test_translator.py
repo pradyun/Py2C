@@ -220,9 +220,17 @@ class LiteralTestCase(CodeTestCase):
             '"""abc"""',
             r'r"a\bc"',
         ]
-        self.template([
-            (s, python.Str(eval(s))) for s in tests
-        ], remove_expr=True)
+        self.template(
+            [(s, python.Str(eval(s))) for s in tests],
+            remove_expr=True
+        )
+
+    def test_singleton(self):
+        singletons = [None, True, False]
+        self.template(
+            [(str(obj), python.NameConstant(obj)) for obj in singletons],
+            remove_expr=True
+        )
 
 
 class SimpleStmtTestCase(CodeTestCase):
