@@ -1,3 +1,6 @@
+[nosetests]
+exe=1
+
 [run]
 branch = True
 
@@ -5,6 +8,7 @@ omit =
     */test*
     *tab*
     */site-packages/*
+    */dist-packages/*
     */python?.?/*
     */lib-python/?.?/*.py
 
