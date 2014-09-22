@@ -77,7 +77,7 @@ class Python2ASTTranslator(object):
         """
         if not self.errors:
             return
-        print(self.errors)
+        # print(self.errors)
         raise TranslationError(errors=self.errors)
 
     def get_node(self, code):
@@ -196,8 +196,8 @@ class Python2ASTTranslator(object):
     # Needed in Python < 3.4
     @finalize
     def visit_Name(self, node):
-        if node.id in ["True", "False", "None"]:
-            return python.NameConstant(eval(node.id))
+        if node.id in ["True", "False", "None"]:  # coverage: no partial
+            return python.NameConstant(eval(node.id))  # coverage: not missing
         else:
             self.generic_visit(node)
             return python.Name(node.id, node.ctx)
