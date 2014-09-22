@@ -3,17 +3,19 @@
 
 import os
 import sys
-from os.path import join, realpath
+from os.path import join, realpath, dirname
 
 # Third Party modules
 import nose
 import coverage
 
-base_dir = realpath(join(__file__, ".."))
+base_dir = realpath(dirname(__file__))
+test_dir = join(dirname(base_dir), "py2c")
+
 cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 
 cov.start()
-success = nose.run(defaultTest=join(base_dir, ".."))
+success = nose.run(env={"NOSE_INCLUDE_EXE": True}, defaultTest=test_dir)
 cov.stop()
 cov.save()
 
@@ -21,6 +23,8 @@ if success:
     # If we are in CI environment, don't write an HTML report.
     if os.environ.get("CI", None) is None:
         cov.html_report()
+        if True:
+            os.system("firefox _coverage_reports/index.html")
     # Just write the report anyway.
     cov.report()
 
