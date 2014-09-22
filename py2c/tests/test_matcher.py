@@ -20,139 +20,203 @@
 #-------------------------------------------------------------------------------
 
 import sys
-import timeit
+# import timeit
 import unittest
 from io import StringIO
 
-from py2c.matcher import Matcher, Instance
+from py2c.matcher import Matcher, Instance, Attributes
 
 
 #-------------------------------------------------------------------------------
-# Helper classes
+# Sample Matchers
+#-------------------------------------------------------------------------------
+class InvalidMatcher(Matcher):
+    # Doesn't implement "match"
+    pass
+
+
+class SimpleMatcher(Matcher):
+    def match(self, node):
+        return getattr(node, 'should_match', None) is True
+
+#-------------------------------------------------------------------------------
+# Helper classes (Matching happens against these)
 #-------------------------------------------------------------------------------
 class BasicClass(object):
     pass
 
 
-class AttributeClass(object):
+class SimpleClass(object):
     def __init__(self):
-        self.int = 1
-        self.float = 1.0
-        self.complex = 3.0j
-        self.str = "string"
-        self.bytes = b"string"
+        super().__init__()
+        self.should_match = True
 
 
-class MultiLevelAttributeClass(object):
+class Level2Class(object):
     def __init__(self):
-        self.int = 1
-        self.attr = AttributeClass()
+        super().__init__()
+        self.level = 2
+        self.object = ClassWithMultipleAttributes()
+
+
+class Level3Class(object):
+    def __init__(self):
+        super().__init__()
+        self.level = 3
+        self.object = Level2Class()
+
+
+class ClassWithMultipleAttributes(object):
+    def __init__(self):
+        super().__init__()
+        self.level = 1
+        self.int = 2
+        self.float = 2.3
+        self.complex = 2j
+        self.bool = True
+        self.str = "2.3"
+        self.bytes = b"2.3"
+
+# Match the values with ClassWithMultipleAttributes
+value_dict = {
+    "int": 2,
+    "float": 2.3,
+    "bool": True,
+    "complex": 2j,
+    "str": "2.3",
+    "bytes": b"2.3",
+}
 
 
 #-------------------------------------------------------------------------------
 # Tests
 #-------------------------------------------------------------------------------
 class MatcherTestCase(unittest.TestCase):
-    """Tests for Matcher
+    """Tests for Matchers
     """
 
-    def test_instance_match(self):
-        matcher = Instance(BasicClass)
-        self.assertTrue(matcher.matches(BasicClass()))
 
-    def test_attribute_match(self):
-        matcher = Instance(AttributeClass, {
-            "int": 1,
-            "float": 1.0,
-            "complex": 3.0j,
-            "str": "string",
-            "bytes": b"string",
-        })
-        self.assertTrue(matcher.matches(AttributeClass()))
+class MatcherInheritenceTestCase(MatcherTestCase):
+    """Tests for inheritence-related behaviour of Matcher
+    """
 
-    def test_level2_attribute_match(self):
-        matcher = Instance(MultiLevelAttributeClass, {
-            "int": 1,
-            "attr": Instance(AttributeClass, {
-                "int": 1,
-                "float": 1.0,
-                "complex": 3.0j,
-                "str": "string",
-                "bytes": b"string",
-            })
-        })
-        self.assertTrue(matcher.matches(MultiLevelAttributeClass()))
-
-    def test_instance_mismatch(self):
-        matcher = Instance(AttributeClass)
-        self.assertFalse(matcher.matches(BasicClass()))
-
-    def test_attribute_mismatch(self):
-        matcher = Instance(AttributeClass, {
-            "int": 0,  # Mis-match
-            "float": 1.0,
-            "complex": 3.0j,
-            "str": "string",
-            "bytes": b"string",
-        })
-        self.assertFalse(matcher.matches(AttributeClass()))
-
-    def test_level2_attribute_mismatch(self):
-        matcher = Instance(MultiLevelAttributeClass, {
-            "int": 1,
-            "attr": Instance(AttributeClass, {
-                "int": 0,  # Mis-match!
-                "float": 1.0,
-                "complex": 3.0j,
-                "str": "string",
-                "bytes": b"string",
-            })
-        })
-        self.assertFalse(matcher.matches(MultiLevelAttributeClass()))
-
-    # Not so sure if speed tests is a good idea...
-    # def test_level2_attribute_match_speeding(self):
-    #     matcher = Instance(MultiLevelAttributeClass, {
-    #         "int": 1,
-    #         "attr": Instance(AttributeClass, {
-    #             "int": 1,
-    #             "float": 1.0,
-    #             "complex": 3.0j,
-    #             "str": "string",
-    #             "bytes": b"string",
-    #         })
-    #     })
-    #     time = timeit.timeit(
-    #         number=10000,
-    #         stmt=lambda: self.assertTrue(
-    #             matcher.matches(MultiLevelAttributeClass())
-    #         )
-    #     )
-    #     # Should be 0.5, but coverage affects speed. :(
-    #     self.assertLess(time, 1)
+    def test_valid_matcher(self):
+        try:
+            matcher = SimpleMatcher()
+        except Exception:
+            raise
+        else:
+            self.assertTrue(matcher.match(SimpleClass()))
 
     def test_invalid_matcher(self):
+        with self.assertRaises(TypeError) as context:
+            InvalidMatcher()
+
+        err = context.exception
+        self.assertIn("InvalidMatcher", err.args[0])
+
+
+class AttributeTestCase(MatcherTestCase):
+    """Tests for Attribute matcher
+    """
+
+    def attribute_match(self, attributes, value):
+        return Attributes(attributes).match(value)
+
+    def test_attribute_basic_match(self):
+        self.assertTrue(self.attribute_match(
+            value_dict, ClassWithMultipleAttributes()
+        ))
+
+    def test_attribute_level2_match(self):
+        level2_value_dict = {
+            "level": 2,
+            "object": Attributes({
+                "level": 1
+            })
+        }
+
+        self.assertTrue(self.attribute_match(
+            level2_value_dict, Level2Class()
+        ))
+
+    def test_attribute_simple_mismatch(self):
+        # Manipulate the dictionary
+        mismatch_value_dict = value_dict.copy()
+        mismatch_value_dict["int"] += 1  # Change a value.
+
+        # Check for changes in matching
+        self.assertFalse(self.attribute_match(
+            mismatch_value_dict, ClassWithMultipleAttributes()
+        ))
+
+    def test_attribute_missing(self):
+        # Make 100% sure the attribute is missing.
+        attr = "supposed_to_be_missing"
+        if attr in value_dict:
+            self.fail("{!r} was supposed to be missing.".format(attr))
+        # Manipulate the dictionary
+        missing_value_dict = value_dict.copy()
+        missing_value_dict[attr] = None
+        # Check for changes in matching
+        self.assertFalse(self.attribute_match(
+            missing_value_dict, ClassWithMultipleAttributes()
+        ))
+
+    def test_attribute_invalid_matcher(self):
         class Klass(object):
             pass
 
-        matcher = Instance(MultiLevelAttributeClass, {
-            "int": 1,
-            "attr": Klass()
-        })
+        # Make sure this exists.
+        bad_value_dict = {
+            "int": Klass()
+        }
 
-        old = sys.stdout
-        sys.stdout = StringIO()
+        # Backup and Replace stdout with StringIO
+        old, sys.stdout = sys.stdout, StringIO()
 
         try:
-            self.assertFalse(matcher.matches(MultiLevelAttributeClass()))
-        except:
+            self.assertFalse(self.attribute_match(
+                bad_value_dict, ClassWithMultipleAttributes()
+            ))
+        except Exception:
             raise
         else:
             output = sys.stdout.getvalue()
             self.assertIn("unknown matcher", output.lower())
+            self.assertIn("klass", output.lower())
         finally:
             sys.stdout.close()
             sys.stdout = old
+
+
+class InstanceTestCase(MatcherTestCase):
+    """Tests for Instance matcher
+    """
+
+    def instance_match(self, clazz, attrs=None, obj=None):
+        if obj is None:
+            return Instance(clazz, attrs).match(clazz())
+        else:
+            return Instance(clazz, attrs).match(obj)
+
+    def test_instance_basic_match(self):
+        self.assertTrue(self.instance_match(BasicClass))
+
+    def test_instance_attribute_match(self):
+        self.assertTrue(self.instance_match(
+            ClassWithMultipleAttributes, value_dict
+        ))
+
+    def test_instance_mismatch(self):
+        self.assertFalse(self.instance_match(BasicClass, obj=object()))
+
+    def test_instance_attribute_mismatch(self):
+        obj = ClassWithMultipleAttributes()
+        obj.int += 1
+        self.assertFalse(self.instance_match(
+            ClassWithMultipleAttributes, value_dict, obj
+        ))
 
 
 if __name__ == '__main__':
