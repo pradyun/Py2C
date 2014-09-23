@@ -42,7 +42,9 @@ class Matcher(object, metaclass=abc.ABCMeta):
         -------
             Whether ``value`` matches with ``matcher``.
         """
-        built_in_types = (str, bytes, bool, int, float, complex, None.__class__)
+        built_in_types = (
+            str, bytes, bool, int, float, complex, None.__class__
+        )
         if isinstance(matcher, built_in_types):
             return matcher == value
         elif isinstance(matcher, Matcher):

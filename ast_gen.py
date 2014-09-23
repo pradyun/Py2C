@@ -6,7 +6,7 @@ It makes it possible to translate Python code to C code without multiple AST
 systems.
 """
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 #
@@ -22,7 +22,7 @@ systems.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 import os
@@ -38,7 +38,7 @@ PREFIX = dedent("""
     \"\"\"Holds all AST definitions in this package by importing them.
     \"\"\"
 
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
     # Py2C - A Python to C++ compiler
     # Copyright (C) 2014 Pradyun S. Gedam
     #
@@ -54,7 +54,7 @@ PREFIX = dedent("""
     #
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
 """).strip()
 
 GENERATED_PREFIX = dedent("""
@@ -66,17 +66,17 @@ GENERATED_PREFIX = dedent("""
 """).strip()
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Exceptions
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class ParserError(Exception):
     """Errors raised by the Parser while Parsing
     """
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Helpers
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def remove_comments(text):
     """Removes all text after a '#' in all lines of the text
     """
@@ -102,12 +102,13 @@ def _prettify_list(li):
 Node = collections.namedtuple("Node", "name parent attrs")
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Parsing of AST nodes declaration
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class Parser(object):
     """Parses the definitions in the definition files
     """
+
     def __init__(self):
         super(Parser, self).__init__()
         self.tokens = ("NAME",)
@@ -136,9 +137,9 @@ class Parser(object):
     def t_error(self, t):
         raise ParserError("Unable to generate tokens from: " + repr(t.value))
 
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
     # Parsing
-    #---------------------------------------------------------------------------
+    #--------------------------------------------------------------------------
     def p_empty(self, p):
         "empty : "
 
@@ -225,12 +226,13 @@ class Parser(object):
             p[0] = "NEEDED"
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Generation of sources for AST nodes class
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class SourceGenerator(object):
     """Generates the code from the Parser's parsed data
     """
+
     def __init__(self):
         super(SourceGenerator, self).__init__()
 
@@ -262,7 +264,7 @@ class SourceGenerator(object):
 
 
 # API for dual_ast
-def generate(source_dir, output_dir, update=False): # coverage: not missing
+def generate(source_dir, output_dir, update=False):  # coverage: not missing
     """Generate sources for the AST nodes definition files in source_dir
     """
     files_to_convert = [

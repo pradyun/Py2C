@@ -2,7 +2,7 @@
 """Tests for the Python -> AST translator
 """
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 #
@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 import ast
@@ -30,6 +30,11 @@ from py2c.syntax_tree import python
 from py2c.translator import Python2ASTTranslator, TranslationError
 
 
+#------------------------------------------------------------------------------
+# Even though most of the stuff works.. These tests are not extensive enough..
+# If any one has any ideas how these can be simplified, feel free to open an
+# issue at http://github.com/pradyun/Py2C/issues
+#------------------------------------------------------------------------------
 class ErrorReportingTestCase(unittest.TestCase):
     """Tests for Error Reporting in Python2ASTTranslator
     """

@@ -2,7 +2,7 @@
 """Translates Python code into an AST containing type information
 """
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 #
@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 import ast
@@ -29,12 +29,13 @@ from py2c.syntax_tree import python
 NONE_STUB = object()
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Exceptions
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class TranslationError(Exception):
     """Raised when a fatal error occurs in Translation
     """
+
     def __init__(self, msg="", errors=None):
         super(TranslationError, self).__init__(msg, errors)
         self.msg = msg
@@ -48,8 +49,8 @@ class Python2ASTTranslator(object):
     """Translates Python code into Py2C AST
 
     This is a NodeTrasnsformer that visits the Python AST validates it for
-    conversion and creates another AST with space for type definitions and other
-    stuff, from which code can be generated.
+    conversion and creates another AST with space for type definitions and
+    other stuff, from which code can be generated.
     """
 
     def __init__(self):
@@ -61,9 +62,9 @@ class Python2ASTTranslator(object):
         """
         self.errors = []
 
-    #===========================================================================
+    #==========================================================================
     # External API
-    #===========================================================================
+    #==========================================================================
     # Errors
     def log_error(self, msg, lineno=None):
         """Log an error in the provided code
@@ -86,7 +87,7 @@ class Python2ASTTranslator(object):
         method = 'visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.convert_to_python_node)
         return visitor(node)
-    
+
     def get_node(self, code):
         """Get the Py2C AST from the Python ``code``
 
@@ -110,7 +111,6 @@ class Python2ASTTranslator(object):
             self.handle_errors()
             return retval
 
-    # Modified: Uses ``syntax_tree`` nodes instead of ``ast`` nodes accordingly.
     def generic_visit(self, node):
         """
         """
@@ -128,10 +128,9 @@ class Python2ASTTranslator(object):
                     setattr(node, field, new_node)
         # print(node)
 
-
-    #===========================================================================
+    #==========================================================================
     # Helpers
-    #===========================================================================
+    #==========================================================================
     def add_types(self, target, right):
         """Add the types in right to target, recursively.
         """
@@ -179,7 +178,7 @@ class Python2ASTTranslator(object):
         return wrapper
 
     def convert_to_python_node(self, node):
-        """Convert ``ast`` node and its children into ``py2c.syntax_tree`` nodes
+        """Convert ``ast`` node (and children) into ``py2c.syntax_tree`` nodes.
         """
         self.generic_visit(node)
 
@@ -191,9 +190,9 @@ class Python2ASTTranslator(object):
 
         return retval
 
-    #===========================================================================
+    #==========================================================================
     # Visitors, only for specially handled nodes
-    #===========================================================================
+    #==========================================================================
     # Needed in Python < 3.4
     @finalize
     def visit_Name(self, node):

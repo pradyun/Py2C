@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """Delete all unnecessary files and directories in repository
 """
 import os
