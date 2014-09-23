@@ -2,7 +2,7 @@
 """Tests for the AST used to represent Python and C in one Tree.
 """
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 #
@@ -18,16 +18,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 import unittest
 from py2c import syntax_tree
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # A bunch of nodes used during testing
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class BasicNode(syntax_tree.AST):
     """Basic node
     """
@@ -93,9 +93,9 @@ class AllSingletonModifersNode(syntax_tree.AST):
     ]
 
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Tests
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 class NodeTestCase(unittest.TestCase):
     """Tests for nodes
     """
@@ -104,6 +104,7 @@ class NodeTestCase(unittest.TestCase):
 class NodeInitializationTestCase(NodeTestCase):
     """Tests for the initialization of the values of nodes
     """
+
     def test_empty(self):
         """Test for empty initialization
         """
@@ -171,6 +172,7 @@ class NodeInitializationTestCase(NodeTestCase):
 class NodeValidAssignmentTestCase(NodeTestCase):
     """Tests for validity checks of node valid assignments
     """
+
     def test_NEEDED(self):
         node = AllIntModifersNode()
 
@@ -247,6 +249,7 @@ class NodeValidAssignmentTestCase(NodeTestCase):
 class NodeInValidAssignmentTestCase(NodeTestCase):
     """Tests for validity checks of node valid assignments
     """
+
     def test_extra(self):
         node = BasicNode()
         with self.assertRaises(syntax_tree.FieldError) as context:
@@ -302,6 +305,7 @@ class NodeInValidAssignmentTestCase(NodeTestCase):
 class NodeFinalizationTestCase(NodeTestCase):
     """Tests for `finalize` method of nodes
     """
+
     def test_all_given(self):
         node = AllIntModifersNode()
         node.f1 = 1
@@ -389,6 +393,7 @@ class NodeFinalizationTestCase(NodeTestCase):
 class NodeEqualityTestCase(NodeTestCase):
     """Tests for node's equality
     """
+
     def test_equality_1(self):
         """Test for equality (equal nodes with integer attributes)
         """
@@ -443,6 +448,7 @@ class NodeEqualityTestCase(NodeTestCase):
 class NodeReprTestCase(NodeTestCase):
     """Tests for node's string representation
     """
+
     def test_no_attrs(self):
         self.assertEqual(repr(BasicNode()), "BasicNode()")
         self.assertEqual(repr(AllIntModifersNode()), "AllIntModifersNode()")
@@ -468,10 +474,10 @@ class NodeReprTestCase(NodeTestCase):
             repr(node), "AllIntModifersNode(f1=0, f2=None, f3=(1,), f4=(2,))"
         )
 
-#-------------------------------------------------------------------------------
-# Special Properties
-#-------------------------------------------------------------------------------
 
+#------------------------------------------------------------------------------
+# Special Properties
+#------------------------------------------------------------------------------
 class PropertyTestCase(unittest.TestCase):
     """Tests for custom properties of the AST specification.
     """

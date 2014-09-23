@@ -2,7 +2,7 @@
 """Tests for the generation of the AST nodes from the definitions.
 """
 
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 #
@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 import sys
