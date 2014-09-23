@@ -1,60 +1,41 @@
-﻿----
+﻿> This project is still in the planning/pre-alpha stages.
+> It is **NOT producing any output**.
 
-Anyone who forked the repo before 06-06-2014 is requested to delete and
-re-fork the repository, as a major rebase was done to the repo, cleaning up
-its history. Sorry, but the rebase was necessary.
+## Py2C
 
-----
-
-> This project is still in the planning/pre-alpha stages.
-> It is **NOT producing any useful output**.
-
-Py2C
-====
 [![Build Status](https://travis-ci.org/pradyun/Py2C.svg?branch=master)](https://travis-ci.org/pradyun/Py2C)
 [![Coverage Status](https://img.shields.io/coveralls/pradyun/Py2C.svg)](https://coveralls.io/r/pradyun/Py2C?branch=master)
 
-Py2C for compiling Python code into (hopefully fairly) human-readable C++
-code, (hopefully) somewhat like what humans might actually write.
+A trans-compiler for compiling Python code into hopefully human-readable
+C++ code, (hopefully) somewhat like what humans might actually write.
 
-This project is currently focused on statically typed programs and optimizing
-them. This means the current scope of the project is limited. On some future
-date, this project may also support the entire dynamism of Python, subject to
-whether such a change is helpful and feasible for the project.
+This project is currently focused on statically typed programs and optimizing them. This means the current scope of the project is limited. On some future date, this project may also support the entire dynamism of Python, subject to whether such a change is helpful and feasible for the project.
 
-The idea is that even in highly dynamic languages (like Python) often
-variables end up holding (references to) values have only one "type".
-This is a major area for improving performance as statically typed languages
-(like C++) often are better with, well, typed variables!
+The idea is that even in highly dynamic languages (like Python) variables often end up holding (references to) values have only one "type". This is a major area for improving performance as statically typed languages (like C++) often are better with, well, typed variables. So if these one-type variables can be in a faster language, why not have them there?
 
-> The documentation is hosted in the Github wiki as of now, but it needs to be
-> be written for most part.
+Well because then you have to leave the comforts of Python and write C++ code. And here's where Py2C's supposed to come in! You can just tweak the existing Python code a bit and pass it through Py2C and it automagically outputs C++ code that does that same thing as the Python code, just a whole lot faster!
 
-
-Here's Py2C in action on Hello World:
+Here's Py2C in action (rather Py2C's planned action) on "Hello World!":
 
 ```python
 print("Hello World!")
 ```
 
-would compile to something like (Or so is planned :)
+The above should compile to something like:
 
-```c
+```cpp
 #include <iostream.h>
 
-using namespace std;
-
 int main() {
-    cout<<"Hello World!\n";
-    return 0;
+   std::cout << "Hello World!\n";
+   return 0;
 }
 ```
 
-Or if you think it is OK to have a special header file in the generated file
-it would compile to (Or so is planned :)
+If you think it is OK to have a special header file in the generated file
+it would compile to
 
-```c
-#include <iostream.h>
+```cpp
 #include "py2c.h"
 
 int main() {
@@ -64,10 +45,10 @@ int main() {
 ```
 
 Py2C is also extensible though a modifier API, which can be used to accommodate
-for API changes across the languages, for third party packages (like Numpy).
+for API changes across the languages, for third party packages (like NumPy).
 
 If you are interested in participating in the development of this project,
 read the 'CONTRIBUTING.md' file in the repository root.
 
 For more details, refer to the GitHub wiki pages. Oh wait! I have to write
-those. Sorry!
+them. Sorry!
