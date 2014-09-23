@@ -103,5 +103,16 @@ class ModifierTestCase(unittest.TestCase):
 
         GoodModifier()
 
+    def test_super_calling(self):
+        class SuperCallingModifier(Modifier):
+            matcher = Instance(object)
+
+            def modify(self, node):
+                super().modify(node)
+
+        modifier = SuperCallingModifier()
+        with self.assertRaises(NotImplementedError):
+            modifier.modify(object())
+
 if __name__ == '__main__':
     unittest.main()
