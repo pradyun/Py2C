@@ -40,6 +40,11 @@ class SimpleMatcher(Matcher):
         return getattr(node, 'should_match', None) is True
 
 
+class SuperCallingMatcher(Matcher):
+    def match(self, node):
+        super().match(node)
+
+
 #------------------------------------------------------------------------------
 # Helper classes (Matching happens against these)
 #------------------------------------------------------------------------------
@@ -115,6 +120,11 @@ class MatcherInheritenceTestCase(MatcherTestCase):
 
         err = context.exception
         self.assertIn("InvalidMatcher", err.args[0])
+
+    def test_super_calling(self):
+        matcher = SuperCallingMatcher()
+        with self.assertRaises(NotImplementedError):
+            matcher.match(object())
 
 
 class AttributeTestCase(MatcherTestCase):

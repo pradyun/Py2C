@@ -19,7 +19,6 @@ exclude_lines =
 
     # Defensive code
     raise AssertionError
-    raise NotImplementedError
 
     def __repr__
 
