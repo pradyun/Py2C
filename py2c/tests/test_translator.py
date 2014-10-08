@@ -38,6 +38,7 @@ from py2c.translator import Python2ASTTranslator, TranslationError
 class ErrorReportingTestCase(unittest.TestCase):
     """Tests for Error Reporting in Python2ASTTranslator
     """
+
     def setUp(self):
         self.translator = Python2ASTTranslator()
 
@@ -57,12 +58,8 @@ class ErrorReportingTestCase(unittest.TestCase):
             self.fail("Raised error unexpectedly")
 
     def test_logging_one_error(self):
-        self.translator.log_error("foo")
-
-        with self.assertRaises(TranslationError) as obj:
-            self.translator.handle_errors()
-
-        self.assertIn("foo", obj.exception.errors)
+        errors = self.template([("foo", None)])
+        self.assertIn("foo", errors)
 
     def test_logging_error_with_lineno(self):
         num = random.randint(1, 2000)
@@ -89,6 +86,7 @@ class ErrorReportingTestCase(unittest.TestCase):
 class TranslationErrorTestCase(unittest.TestCase):
     """Tests for TranslationError's attribute handling
     """
+
     def test_no_args(self):
         err = TranslationError()
         self.assertEqual(err.msg, "")
@@ -138,7 +136,7 @@ class CodeTestCase(unittest.TestCase):
                 # print("Got     :", result)
 
         if failed:
-            msg_parts = [" something incorrectly:"]
+            msg_parts = ["Translated something(s) incorrectly:"]
             for code, expected, result in failed:
                 msg_parts.append("{!r}".format(code))
                 msg_parts.append("    Expected: {}".format(expected))
@@ -153,7 +151,7 @@ class CodeTestCase(unittest.TestCase):
 
     # Allows addition of boiler-plate to processing (eg. Moving inside a loop)
     def process_node(self, node):
-        node.finalize()
+        # node.finalize()
         return node.body
 
     def process_code(self, code):
@@ -163,6 +161,7 @@ class CodeTestCase(unittest.TestCase):
 class LiteralTestCase(CodeTestCase):
     """Tests for literals
     """
+
     def test_int(self):
         tests = [
             # Binary
@@ -210,10 +209,11 @@ class LiteralTestCase(CodeTestCase):
             (s, python.Complex(eval(s))) for s in tests
         ], remove_expr=True)
 
+    # XXX: Depends on implementation details
     def test_invalid_number(self):
         node = ast.Num("string!!")
 
-        self.translator.visit(node)
+        self.translator._visit(node)
         with self.assertRaises(TranslationError):
             self.translator.handle_errors()
 
@@ -257,46 +257,46 @@ class SimpleStmtTestCase(CodeTestCase):
         # Tests for type-info below..
         self.template([
             ("a = b", python.Assign(
-                targets=(python.Name("a", python.Store()),),
+                targets=[python.Name("a", python.Store())],
                 value=python.Name("b", python.Load()),
             )),
             ("a = b = c", python.Assign(
-                targets=(
+                targets=[
                     python.Name("a", python.Store()),
                     python.Name("b", python.Store()),
-                ),
+                ],
                 value=python.Name("c", python.Load()),
             )),
         ])
 
     def test_del(self):
         self.template([
-            ("del a", python.Delete(targets=(
+            ("del a", python.Delete(targets=[
                 python.Name("a", python.Del()),
-            ))),
-            ("del a, b", python.Delete(targets=(
+            ])),
+            ("del a, b", python.Delete(targets=[
                 python.Name("a", python.Del()),
                 python.Name("b", python.Del()),
-            ))),
-            ("del (a, b)", python.Delete(targets=(
-                python.Tuple((
+            ])),
+            ("del (a, b)", python.Delete(targets=[
+                python.Tuple([
                     python.Name("a", python.Del()),
                     python.Name("b", python.Del()),
-                ), python.Del()),
-            ))),
-            ("del (a\n, b)", python.Delete(targets=(
-                python.Tuple((
+                ], python.Del()),
+            ])),
+            ("del (a\n, b)", python.Delete(targets=[
+                python.Tuple([
                     python.Name("a", python.Del()),
                     python.Name("b", python.Del())
-                ), python.Del()),
-            ))),
-            ("del (a\n, b), c", python.Delete(targets=(
-                python.Tuple((
+                ], python.Del()),
+            ])),
+            ("del (a\n, b), c", python.Delete(targets=[
+                python.Tuple([
                     python.Name("a", python.Del()),
                     python.Name("b", python.Del())
-                ), python.Del()),
+                ], python.Del()),
                 python.Name("c", python.Del()),
-            ))),
+            ])),
         ])
 
     def test_raise(self):
@@ -318,42 +318,42 @@ class SimpleStmtTestCase(CodeTestCase):
         self.template([
             (  # Single import
                 "import apple",
-                python.Import((
+                python.Import([
                     python.alias("apple", None),
-                ))
+                ])
             ),
             (  # Single subpackage import
                 "import apple.ball",
-                python.Import((
+                python.Import([
                     python.alias("apple.ball", None),
-                ))
+                ])
             ),
             (  # Single alias import
                 "import apple as ball",
-                python.Import((
+                python.Import([
                     python.alias("apple", "ball"),
-                ))
+                ])
             ),
             (  # Multiple imports, 1 alias, 1 simple
                 "import apple as ball, cat",
-                python.Import((
+                python.Import([
                     python.alias("apple", "ball"),
                     python.alias("cat", None),
-                ))
+                ])
             ),
             (  # Multiple alias imports
                 "import apple as ball, cat as dog",
-                python.Import((
+                python.Import([
                     python.alias("apple", "ball"),
                     python.alias("cat", "dog"),
-                ))
+                ])
             ),
             (  # Multiple alias imports from subpackage
                 "import apple.ball as ball, cat as dog",
-                python.Import((
+                python.Import([
                     python.alias("apple.ball", "ball"),
                     python.alias("cat", "dog"),
-                ))
+                ])
             ),
         ])
 
@@ -362,18 +362,18 @@ class SimpleStmtTestCase(CodeTestCase):
             (
                 "from apple import *",
                 python.ImportFrom(
-                    "apple", (
-                        python.alias("*", None),
-                    ),
+                    "apple", [
+                        python.alias("*", None)
+                    ],
                     0
                 )
             ),
             (
                 "from apple.ball import *",
                 python.ImportFrom(
-                    "apple.ball", (
-                        python.alias("*", None),
-                    ),
+                    "apple.ball", [
+                        python.alias("*", None)
+                    ],
                     0
                 )
             ),
@@ -384,18 +384,18 @@ class SimpleStmtTestCase(CodeTestCase):
             (
                 "from apple import ball",
                 python.ImportFrom(
-                    "apple", (
-                        python.alias("ball", None),
-                    ),
+                    "apple", [
+                        python.alias("ball", None)
+                    ],
                     0
                 )
             ),
             (
                 "from apple import ball as cat",
                 python.ImportFrom(
-                    "apple", (
-                        python.alias("ball", "cat"),
-                    ),
+                    "apple", [
+                        python.alias("ball", "cat")
+                    ],
                     0
                 )
             ),
@@ -407,10 +407,10 @@ class SimpleStmtTestCase(CodeTestCase):
                 "from apple.ball import (\n    cat, \n    dog,)",
                 python.ImportFrom(
                     "apple.ball",
-                    (
+                    [
                         python.alias("cat", None),
                         python.alias("dog", None),
-                    ),
+                    ],
                     0
                 )
             ),
@@ -418,9 +418,9 @@ class SimpleStmtTestCase(CodeTestCase):
                 "from apple.ball import cat as dog",
                 python.ImportFrom(
                     "apple.ball",
-                    (
-                        python.alias("cat", "dog"),
-                    ),
+                    [
+                        python.alias("cat", "dog")
+                    ],
                     0
                 )
             ),
@@ -428,10 +428,10 @@ class SimpleStmtTestCase(CodeTestCase):
                 "from apple.ball import cat as dog, egg",
                 python.ImportFrom(
                     "apple.ball",
-                    (
+                    [
                         python.alias("cat", "dog"),
                         python.alias("egg", None),
-                    ),
+                    ],
                     0
                 )
             ),
@@ -439,10 +439,10 @@ class SimpleStmtTestCase(CodeTestCase):
                 "from apple.ball import (\n    cat as dog, \n    egg as frog)",
                 python.ImportFrom(
                     "apple.ball",
-                    (
+                    [
                         python.alias("cat", "dog"),
                         python.alias("egg", "frog"),
-                    ),
+                    ],
                     0
                 )
             ),
@@ -452,15 +452,15 @@ class SimpleStmtTestCase(CodeTestCase):
         self.template([
             (
                 "from __future__ import with_statement",
-                python.Future((
-                    python.alias("with_statement", None),
-                ))
+                python.Future([
+                    python.alias("with_statement", None)
+                ])
             ),
             (
                 "import __future__ as future",
-                python.Import((
-                    python.alias("__future__", "future"),
-                ))
+                python.Import([
+                    python.alias("__future__", "future")
+                ])
             ),
         ])
 
@@ -480,6 +480,7 @@ class SimpleStmtTestCase(CodeTestCase):
 class CompoundStmtTestCase(CodeTestCase):
     """Tests for statements containing other statements
     """
+
     def test_if(self):
         self.template([
             (
@@ -489,8 +490,8 @@ class CompoundStmtTestCase(CodeTestCase):
                 """,
                 python.If(
                     python.NameConstant(True),
-                    (python.Pass(),),
-                    ()
+                    [python.Pass()],
+                    []
                 )
             ),
             (
@@ -506,20 +507,20 @@ class CompoundStmtTestCase(CodeTestCase):
                     python.Name(
                         "first_cond", python.Load()
                     ),
-                    (python.Expr(
+                    [python.Expr(
                         python.Name("first", python.Load())
-                    ),),
-                    (
+                    )],
+                    [
                         python.If(
                             python.Name("second_cond", python.Load()),
-                            (python.Expr(
+                            [python.Expr(
                                 python.Name("second", python.Load())
-                            ),),
-                            (python.Expr(
+                            )],
+                            [python.Expr(
                                 python.Name("third", python.Load())
-                            ),)
-                        ),
-                    )
+                            )]
+                        )
+                    ]
                 )
             ),
 
@@ -531,8 +532,8 @@ class CompoundStmtTestCase(CodeTestCase):
                 "while True: pass",
                 python.While(
                     python.NameConstant(True),
-                    (python.Pass(),),
-                    ()
+                    [python.Pass()],
+                    []
                 )
             )
 
@@ -545,8 +546,8 @@ class CompoundStmtTestCase(CodeTestCase):
                 python.For(
                     python.Name("x", python.Store()),
                     python.Name("li", python.Load()),
-                    (python.Pass(),),
-                    ()
+                    [python.Pass()],
+                    []
                 )
             )
 
@@ -566,14 +567,14 @@ class CompoundStmtTestCase(CodeTestCase):
                     pass
                 """,
                 python.Try(
-                    (python.Pass(),),
-                    (python.ExceptHandler(
+                    [python.Pass()],
+                    [python.ExceptHandler(
                         python.Name("SomeException", python.Load()),
                         "error",
-                        (python.Pass(),)
-                    ),),
-                    (python.Pass(),),
-                    (python.Pass(),),
+                        [python.Pass()]
+                    )],
+                    [python.Pass()],
+                    [python.Pass()]
                 )
             )
         ])
@@ -586,11 +587,11 @@ class CompoundStmtTestCase(CodeTestCase):
                     pass
                 """,
                 python.With(
-                    (python.withitem(
+                    [python.withitem(
                         python.Name("some_context", python.Load()),
                         python.Name("some_name", python.Store()),
-                    ),),
-                    (python.Pass(),)
+                    )],
+                    [python.Pass()]
                 )
             )
         ])
@@ -601,6 +602,7 @@ class CompoundStmtTestCase(CodeTestCase):
 class CompoundStmtPartTestCase(CodeTestCase):
     """Tests for statements that can only be part of compound statements
     """
+
     def process_node(self, node):
         return node.body[0].body
 
@@ -615,6 +617,7 @@ class CompoundStmtPartTestCase(CodeTestCase):
 class LoopStmtPartTestCase(CompoundStmtPartTestCase):
     """Tests for statements that can be inside loops for flow control
     """
+
     def test_while(self):
         self.prefix = "while True:"
 
@@ -642,10 +645,10 @@ class FunctionStmtPartTestCase(CompoundStmtPartTestCase):
     def test_statements(self):
         self.template([
             ("pass", python.Pass()),
-            ("global a", python.Global(('a',))),
-            ("global a, b", python.Global(('a', "b"))),
-            ("nonlocal a", python.Nonlocal(('a',))),
-            ("nonlocal a, b", python.Nonlocal(('a', "b"))),
+            ("global a", python.Global(['a'])),
+            ("global a, b", python.Global(['a', "b"])),
+            ("nonlocal a", python.Nonlocal(['a'])),
+            ("nonlocal a, b", python.Nonlocal(['a', "b"])),
         ])
 
 

@@ -2,25 +2,6 @@
 """Translates Python code into an AST containing type information
 """
 
-#------------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#------------------------------------------------------------------------------
-
-
 import ast
 import __future__ as future
 from py2c.syntax_tree import python
@@ -42,15 +23,15 @@ class TranslationError(Exception):
         self.errors = errors
 
 
-# Although it is like a NodeTransformer, it doesn't need to be inherit
-# from it as we define our own custom versions of those functions
-# NodeTrasnsformer implements in itself.
+# Although it is like a NodeTransformer, it doesn't inherit from it as we
+# define our own custom versions of those functions NodeTransformer implements
+# in itself. Plus we need this added stuff too...
 class Python2ASTTranslator(object):
     """Translates Python code into Py2C AST
 
-    This is a NodeTrasnsformer that visits the Python AST validates it for
-    conversion and creates another AST with space for type definitions and
-    other stuff, from which code can be generated.
+    This is a Node-visitor that visits the Python AST and creates another AST
+    with space for type definitions and other stuff, on which further
+    processing takes place.
     """
 
     def __init__(self):
@@ -61,6 +42,7 @@ class Python2ASTTranslator(object):
         """Resets all attributes of the CodeGenerator before parsing
         """
         self.errors = []
+        self.names_used = set()
 
     #==========================================================================
     # External API
@@ -81,10 +63,10 @@ class Python2ASTTranslator(object):
         # print(self.errors)
         raise TranslationError(errors=self.errors)
 
-    def visit(self, node):
-        """Visit a node.
+    def _visit(self, node):
+        """Visits a node.
         """
-        method = 'visit_' + node.__class__.__name__
+        method = '_visit_' + node.__class__.__name__
         visitor = getattr(self, method, self.convert_to_python_node)
         return visitor(node)
 
@@ -107,7 +89,7 @@ class Python2ASTTranslator(object):
             raise TranslationError("Invalid Python code provided.")
         else:
             # print("AST:    ", ast.dump(node))
-            retval = self.visit(node)
+            retval = self._visit(node)
             self.handle_errors()
             return retval
 
@@ -117,9 +99,9 @@ class Python2ASTTranslator(object):
         for field, old_value in ast.iter_fields(node):
             old_value = getattr(node, field, None)
             if isinstance(old_value, list):
-                self.visit_list(old_value)
+                self._visit_list(old_value)
             elif isinstance(old_value, ast.AST):
-                new_node = self.visit(old_value)
+                new_node = self._visit(old_value)
                 if new_node is None:
                     delattr(node, field)
                 else:
@@ -131,28 +113,13 @@ class Python2ASTTranslator(object):
     #==========================================================================
     # Helpers
     #==========================================================================
-    def add_types(self, target, right):
-        """Add the types in right to target, recursively.
-        """
-        if isinstance(target, python.AST) and hasattr(target, "types"):
-            if isinstance(right, python.Name):
-                target.types.update(right.types)
-            elif right.__class__ in self.type_map:
-                target.types.add(self.types[right.__class__])
-            else:
-                # TODO: FIx this!
-                raise NotImplementedError("Can't handle non-literals yet.")
 
-        elif hasattr(target, "__iter__"):
-            for elem in target:
-                self.add_types(elem, right)
-
-    def visit_list(self, old):
+    def _visit_list(self, old):
         new_list = []
         for value in old:
             # Python AST object
             if isinstance(value, ast.AST):
-                value = self.visit(value)
+                value = self._visit(value)
                 if value is None:
                     continue
                 elif value is NONE_STUB:
@@ -163,19 +130,19 @@ class Python2ASTTranslator(object):
             new_list.append(value)
         old[:] = new_list
 
-    def visit_children(func):
+    def _visit_children(func):
         def wrapper(self, node):
             self.generic_visit(node)
             return func(self, node)
         return wrapper
 
-    def finalize(func):
-        def wrapper(self, node):
-            retval = func(self, node)
-            if retval is not None:
-                retval.finalize()
-            return retval
-        return wrapper
+    # def finalize(func):
+    #     def wrapper(self, node):
+    #         retval = func(self, node)
+    #         # if retval is not None:
+    #         #     retval.finalize()
+    #         return retval
+    #     return wrapper
 
     def convert_to_python_node(self, node):
         """Convert ``ast`` node (and children) into ``py2c.syntax_tree`` nodes.
@@ -186,7 +153,7 @@ class Python2ASTTranslator(object):
         py_node = getattr(python, node_name)
 
         retval = py_node(**dict(ast.iter_fields(node)))
-        retval.finalize()
+        # retval.finalize()
 
         return retval
 
@@ -194,19 +161,20 @@ class Python2ASTTranslator(object):
     # Visitors, only for specially handled nodes
     #==========================================================================
     # Needed in Python < 3.4
-    @finalize
-    def visit_Name(self, node):
+    # @finalize
+    def _visit_Name(self, node):
         if node.id in ["True", "False", "None"]:  # coverage: no partial
             return python.NameConstant(eval(node.id))  # coverage: not missing
         else:
             self.generic_visit(node)
+            self.names_used.add(node.id)
             return python.Name(node.id, node.ctx)
 
-    def visit_NoneType(self, node):
+    def _visit_NoneType(self, node):
         return NONE_STUB
 
-    @finalize
-    def visit_Num(self, node):
+    # @finalize
+    def _visit_Num(self, node):
         n = node.n
         if isinstance(n, int):
             cls = python.Int
@@ -220,18 +188,11 @@ class Python2ASTTranslator(object):
             return None
         return cls(n)
 
-    # Statements
-    @finalize
-    @visit_children
-    def visit_Assign(self, node):
-        self.add_types(node.targets, node.value)
-        return python.Assign(node.targets, node.value)
-
-    @finalize
-    @visit_children
-    def visit_ImportFrom(self, node):
+    # @finalize
+    @_visit_children
+    def _visit_ImportFrom(self, node):
         # We handle Future imports specially, although they do nothing in Py3!
-        # Just incase we want to support Python 2!
+        # Just incase we ever want to support Python 2!
         if node.module is "__future__" and not node.level:
             bail_out = False
             for feature in node.names:
@@ -252,10 +213,10 @@ if __name__ == '__main__':
     from textwrap import dedent
 
     s = """
-    with some_context as some_name:
-        pass
+    if a:
+        betterc
     """
-    print("    AST:", ast.dump(ast.parse(dedent(s))))
+    print("AST    :", ast.dump(ast.parse(dedent(s))))
     translator = Python2ASTTranslator()
     print("Returns:", end=" ")
     # print(translator.convert_to_python_node(ast.parse(s)))
