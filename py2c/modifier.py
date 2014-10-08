@@ -39,7 +39,7 @@ class Modifier(object, metaclass=abc.ABCMeta):
                 A node that the Matcher matched sucessfully with.
 
         Returns:
-            A replacement value (node), that is placed in-place of the node
-            passed.
+            A replacement value (AST node, list containing AST nodes etc),
+            that replaces the node passed.
         """
         raise NotImplementedError()
