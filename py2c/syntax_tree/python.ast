@@ -4,15 +4,14 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-
-################################################################################
+#==============================================================================
 # From this file, the Python AST nodes is dynamically generated.
 #
-# This file's syntax is based on ASDL definitions, modified for ease of parsing,
-# readability and ease of editting IMO.
+# This file's syntax is based off ASDL definitions, modified for ease of
+# parsing, readability (kinda) and ease of editting IMNSHO.
 #
-# Built in types: str, int, identifier, bool, bytes, int, float, complex
-################################################################################
+# Already known types: str, int, identifier, bool, bytes, int, float, complex
+#==============================================================================
 
 #------------------------------------------------------------------------------
 # Base nodes

@@ -39,7 +39,7 @@ it would compile to
 #include "py2c.h"
 
 int main() {
-    Py::print(Py::str("Hello World!"));
+    py2c::print(py2c::str("Hello World!"));
     return 0;
 }
 ```

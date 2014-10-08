@@ -13,7 +13,7 @@ except ImportError:
     sys.exit(1)
 
 try:
-    # If ever setuptools decides to improve the build command!
+    # If ever setuptools decides to implement a build_py command!
     from setuptools.command.build_py import build_py as _build_py
 except ImportError:
     from distutils.command.build_py import build_py as _build_py
@@ -39,6 +39,7 @@ path_to_ast_definitions = realpath(join(__file__, "..", "py2c", "syntax_tree"))
 class build_py(_build_py):
     """A customized version to build the AST definition files
     """
+
     def run(self):
         ast_gen = get_ast_gen()
         ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
