@@ -1,6 +1,10 @@
-#!/usr/bin/python3
 """Translates Python code into an AST containing type information
 """
+
+#------------------------------------------------------------------------------
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+#------------------------------------------------------------------------------
 
 import ast
 import __future__ as future

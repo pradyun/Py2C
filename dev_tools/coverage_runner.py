@@ -2,6 +2,11 @@
 """Run tests under coverage's measurement system
 """
 
+#------------------------------------------------------------------------------
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+#------------------------------------------------------------------------------
+
 import os
 import sys
 from os.path import join, realpath, dirname
