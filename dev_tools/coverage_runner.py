@@ -16,7 +16,7 @@ test_dir = join(dirname(base_dir), "py2c")
 cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 
 cov.start()
-success = nose.run(env={"NOSE_INCLUDE_EXE": True}, defaultTest=test_dir)
+success = nose.run(env={"NOSE_INCLUDE_EXE": "True"}, defaultTest=test_dir)
 cov.stop()
 cov.save()
 

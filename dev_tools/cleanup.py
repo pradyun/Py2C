@@ -9,7 +9,7 @@ from os.path import join, realpath
 DEV = True
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
-FOLDER_PATTERNS = ["__pycache__", "build", "dist"]
+FOLDER_PATTERNS = ["__pycache__", "build", "dist", "_coverage_reports"]
 FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py"
 ]
