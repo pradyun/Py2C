@@ -1,3 +1,8 @@
+<!-- 
+ Py2C - A Python to C++ compiler
+ Copyright (C) 2014 Pradyun S. Gedam
+ -->
+
 So, if you have a deadly idea and just can't wait to put it in code, well 
 here's what you can do:
 
