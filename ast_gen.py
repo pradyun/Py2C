@@ -264,7 +264,7 @@ def generate(source_dir, output_dir, update=False):  # coverage: not missing
 
         sources = src_gen.generate_sources(parser.parse(text))
 
-        print("Generating {}".format(outfile_name))
+        print("---- Generated {}".format(outfile_name))
         with open(outfile_name, "w+t") as outfile:
             outfile.write(PREFIX)
             outfile.write("\n")
