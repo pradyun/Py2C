@@ -20,7 +20,6 @@ import ply.lex
 import ply.yacc
 
 PREFIX = dedent("""
-
     #------------------------------------------------------------------------------
     # Py2C - A Python to C++ compiler
     # Copyright (C) 2014 Pradyun S. Gedam

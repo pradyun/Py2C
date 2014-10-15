@@ -171,7 +171,7 @@ class AST(object):
                 elif modifier == ZERO_OR_MORE:
                     self.__dict__[name] = ()
                 else:
-                    raise AttributeError("{} Unknown modifier for {}".format(
+                    raise AttributeError("{} uses unknown modifier for {}".format(
                         self.__class__.__name__, name
                     ))
             else:
