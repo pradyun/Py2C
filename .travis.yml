@@ -10,14 +10,18 @@ python:
   - 3.4
 
 install:
-  # Use the latest version.
-  - pip install -U nose mock
-  # For coverage reports
-  - pip install coverage coveralls
-  # This all we expect the installer (user or tool) to have to do
-  - python setup.py install
+  # Install/Upgrade Dependencies (NOTE: We don't use mock, atleast not now)
+  - pip install -U nose mock coverage coveralls
+
+  # Auto-generate AST files
+  - pip install ply
+  - python setup.py build_py
+
+  - python setup.py develop
 
 script:
+  # Run the tests
   - python dev_tools/run_tests.py
+
 after_success:
   - coveralls --rcfile=dev_tools/.coveragerc

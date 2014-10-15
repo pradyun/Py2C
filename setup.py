@@ -9,11 +9,10 @@ import sys
 try:
     from setuptools import setup, find_packages
 except ImportError:
-    print("Need setuptools to run this script. Please install setuptools.")
+    print("Please install 'setuptools' to run this script.")
     sys.exit(1)
 
 try:
-    # If ever setuptools decides to implement a build_py command!
     from setuptools.command.build_py import build_py as _build_py
 except ImportError:
     from distutils.command.build_py import build_py as _build_py
@@ -21,29 +20,28 @@ except ImportError:
 #------------------------------------------------------------------------------
 # Generating the AST
 #------------------------------------------------------------------------------
-from os.path import join, realpath
+from os.path import join, dirname, realpath
 
-
-def get_ast_gen():
-    """Loads and returns `ast_gen` module.
-    """
-    sys.path.append(realpath(join(__file__, "..")))
+sys.path.append(realpath(dirname(__file__)))
+try:
     import ast_gen
-    sys.path.pop()
+except Exception:
+    print("ERROR: Unable to generate required files...")
+    print(" ----> Try again after installing PLY.")
+    sys.exit(1)
+sys.path.pop()
 
-    return ast_gen
-
-path_to_ast_definitions = realpath(join(__file__, "..", "py2c", "syntax_tree"))
+path_to_ast_definitions = realpath(join(dirname(__file__), "py2c", "syntax_tree"))
 
 
 class build_py(_build_py):
     """A customized version to build the AST definition files
     """
 
-    def run(self):
-        ast_gen = get_ast_gen()
+    def initialize_options(self):
         ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
-        _build_py.run(self)
+        # This line also prevents installation on Python 2 (Not intentional, but helpful)
+        super().initialize_options()
 
 
 #------------------------------------------------------------------------------
@@ -74,6 +72,7 @@ setup(
     name="py2c",
     version="0.1-dev",
     packages=find_packages(exclude=["dev_tools"]),
+    setup_requires=["ply"],
     install_requires=["ply"],
     # Metadata
     description=description,
