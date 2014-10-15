@@ -31,4 +31,4 @@ partial_branches =
     coverage: no partial
 
 [html]
-directory = _coverage_reports
+directory = _test_reports/coverage

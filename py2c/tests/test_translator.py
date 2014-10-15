@@ -16,6 +16,7 @@ from py2c.syntax_tree import python
 from py2c.translator import Python2ASTTranslator, TranslationError
 
 
+# To be re-written soon...
 #------------------------------------------------------------------------------
 # Even though most of the stuff works.. These tests are not extensive enough..
 # If any one has any ideas how these can be simplified, feel free to open an

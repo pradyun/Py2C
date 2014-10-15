@@ -7,7 +7,7 @@
 #------------------------------------------------------------------------------
 
 import abc
-from . import matcher
+from py2c import matcher
 
 
 class Modifier(object, metaclass=abc.ABCMeta):
@@ -24,9 +24,10 @@ class Modifier(object, metaclass=abc.ABCMeta):
             )
         elif not isinstance(self.matcher, matcher.Matcher):
             raise TypeError(
-                "{}.matcher should be an instance of a subclass of {}".format(
-                    self.__class__.__qualname__,
-                    matcher.Matcher.__class__.__qualname__
+                "{}.matcher should be an instance of a subclass of "
+                "'py2c.matcher.Matcher'"
+                .format(
+                    self.__class__.__qualname__
                 )
             )
 
