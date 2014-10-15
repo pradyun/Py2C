@@ -1,8 +1,10 @@
 # Compiled README.md (To verify the looks of it)
 README.html
 
-# Coverage reports
-_coverage_reports
+# Misc notes
+dev_tools/notes
+# Test-related reports
+_test_reports
 
 # PLY
 *parser.out

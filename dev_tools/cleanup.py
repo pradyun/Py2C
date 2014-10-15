@@ -12,12 +12,13 @@ import fnmatch
 import shutil
 from os.path import join, realpath
 
-DEV = True
+REMOVE_GENERATED_AST = False
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
-FOLDER_PATTERNS = ["__pycache__", "build", "dist", "_coverage_reports"]
+FOLDER_PATTERNS = ["__pycache__", "build", "dist", "_test_reports"]
 FILE_PATTERNS = [
-    "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py"
+    "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
+    ".fuse_hidden*"
 ]
 
 
@@ -37,7 +38,7 @@ def should_remove_file(root, name):
     return (
         matches_any_pattern(name, FILE_PATTERNS) or
         (
-            not DEV and
+            REMOVE_GENERATED_AST and
             root.endswith(os.path.join("py2c", "syntax_tree")) and
             name.endswith(".py") and
             name != "__init__.py"

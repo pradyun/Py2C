@@ -8,11 +8,12 @@
 #------------------------------------------------------------------------------
 
 import sys
-# import timeit
-import unittest
 from io import StringIO
 
 from py2c.matcher import Matcher, Instance, Attributes
+
+from py2c.tests import Test
+from nose.tools import assert_in, assert_raises
 
 
 #------------------------------------------------------------------------------
@@ -46,51 +47,39 @@ class SimpleClass(object):
         self.should_match = True
 
 
+class Level1Class(object):
+    def __init__(self):
+        super().__init__()
+        self.level = 1
+
+
 class Level2Class(object):
     def __init__(self):
         super().__init__()
         self.level = 2
-        self.object = ClassWithMultipleAttributes()
+        self.object = Level1Class()
 
 
-class Level3Class(object):
+class MultiAttrClass(object):
+    value_dict = {
+        "int": 2,
+        "float": 2.3,
+        "bool": True,
+        "complex": 2j,
+        "str": "2.3",
+        "bytes": b"2.3",
+    }
+
     def __init__(self):
         super().__init__()
-        self.level = 3
-        self.object = Level2Class()
-
-
-class ClassWithMultipleAttributes(object):
-    def __init__(self):
-        super().__init__()
-        self.level = 1
-        self.int = 2
-        self.float = 2.3
-        self.complex = 2j
-        self.bool = True
-        self.str = "2.3"
-        self.bytes = b"2.3"
-
-# Match the values with ClassWithMultipleAttributes
-value_dict = {
-    "int": 2,
-    "float": 2.3,
-    "bool": True,
-    "complex": 2j,
-    "str": "2.3",
-    "bytes": b"2.3",
-}
+        for key, val in self.value_dict.items():
+            setattr(self, key, val)
 
 
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
-class MatcherTestCase(unittest.TestCase):
-    """Tests for Matchers
-    """
-
-
-class MatcherInheritenceTestCase(MatcherTestCase):
+class TestMatcherInheritence(Test):
     """Tests for inheritence-related behaviour of Matcher
     """
 
@@ -100,68 +89,63 @@ class MatcherInheritenceTestCase(MatcherTestCase):
         except Exception:
             raise
         else:
-            self.assertTrue(matcher.match(SimpleClass()))
+            assert matcher.match(SimpleClass())
 
     def test_invalid_matcher(self):
-        with self.assertRaises(TypeError) as context:
+        with assert_raises(TypeError) as context:
             InvalidMatcher()
 
         err = context.exception
-        self.assertIn("InvalidMatcher", err.args[0])
+        assert_in("InvalidMatcher", err.args[0])
 
     def test_super_calling(self):
-        matcher = SuperCallingMatcher()
-        with self.assertRaises(NotImplementedError):
-            matcher.match(object())
+        with assert_raises(NotImplementedError):
+            SuperCallingMatcher().match(object())
 
 
-class AttributeTestCase(MatcherTestCase):
+class TestAttributeMatcher(Test):
     """Tests for Attribute matcher
     """
 
-    def attribute_match(self, attributes, value):
-        return Attributes(attributes).match(value)
+    def check_attribute_match(self, attributes, value, should_match):
+        assert_val = Attributes(attributes).match(value)
+        if not should_match:
+            assert_val = not assert_val
+            msg = "{!r} matched Attributes({!r})"
+        else:
+            msg = "{!r} didn't match Attributes({!r})"
+        assert assert_val, msg.format(value, attributes)
 
-    def test_attribute_basic_match(self):
-        self.assertTrue(self.attribute_match(
-            value_dict, ClassWithMultipleAttributes()
-        ))
+    def test_attribute_match(self):
+        """Tests py2c.matcher.Attribute.match's matching
+        """
+        # Initial dictionary
+        value_dict = MultiAttrClass.value_dict.copy()
+        # Dictionary with diff value
+        mismatch_value_dict = value_dict.copy()
+        mismatch_value_dict["int"] += 1  # Change the value
 
-    def test_attribute_level2_match(self):
+        # Dictionary with missing value
+        attr = "supposed_to_be_missing"
+        assert attr not in value_dict, "{!r} was supposed to be missing.".format(attr)  # noqa
+        missing_value_dict = value_dict.copy()
+        missing_value_dict[attr] = None
+
+        # Multilevel dictionary
         level2_value_dict = {
             "level": 2,
             "object": Attributes({
                 "level": 1
             })
         }
+        yield from self.yield_tests(self.check_attribute_match, [
+            (value_dict, MultiAttrClass(), True),
+            (level2_value_dict, Level2Class(), True),
+            (mismatch_value_dict, MultiAttrClass(), False),
+            (missing_value_dict, MultiAttrClass(), False),
+        ])
 
-        self.assertTrue(self.attribute_match(
-            level2_value_dict, Level2Class()
-        ))
-
-    def test_attribute_simple_mismatch(self):
-        # Manipulate the dictionary
-        mismatch_value_dict = value_dict.copy()
-        mismatch_value_dict["int"] += 1  # Change a value.
-
-        # Check for changes in matching
-        self.assertFalse(self.attribute_match(
-            mismatch_value_dict, ClassWithMultipleAttributes()
-        ))
-
-    def test_attribute_missing(self):
-        # Make 100% sure the attribute is missing.
-        attr = "supposed_to_be_missing"
-        if attr in value_dict:
-            self.fail("{!r} was supposed to be missing.".format(attr))
-        # Manipulate the dictionary
-        missing_value_dict = value_dict.copy()
-        missing_value_dict[attr] = None
-        # Check for changes in matching
-        self.assertFalse(self.attribute_match(
-            missing_value_dict, ClassWithMultipleAttributes()
-        ))
-
+    # FIXME: Clean up...
     def test_attribute_invalid_matcher(self):
         class Klass(object):
             pass
@@ -175,48 +159,46 @@ class AttributeTestCase(MatcherTestCase):
         old, sys.stdout = sys.stdout, StringIO()
 
         try:
-            self.assertFalse(self.attribute_match(
-                bad_value_dict, ClassWithMultipleAttributes()
-            ))
-        except Exception:
-            raise
+            self.check_attribute_match(
+                bad_value_dict, MultiAttrClass(), False
+            )
+        except AssertionError:
+            raise  # There's a finally so, this is needed...
         else:
             output = sys.stdout.getvalue()
-            self.assertIn("unknown matcher", output.lower())
-            self.assertIn("klass", output.lower())
+            assert_in("unknown matcher", output.lower())
+            assert_in("klass", output.lower())
         finally:
             sys.stdout.close()
             sys.stdout = old
 
 
-class InstanceTestCase(MatcherTestCase):
+class TestInstanceMatcher(Test):
     """Tests for Instance matcher
     """
 
-    def instance_match(self, clazz, attrs=None, obj=None):
-        if obj is None:
-            return Instance(clazz, attrs).match(clazz())
+    def instance_match(self, clazz, attrs=None, obj=None, should_match=True):
+        match_with = obj if obj is not None else clazz()
+        assert_val = Instance(clazz, attrs).match(match_with)
+
+        if not should_match:
+            assert_val = not assert_val
+            msg = "{0!r} matched Instance({0.__class__.__qualname__}, {1})"
         else:
-            return Instance(clazz, attrs).match(obj)
+            msg = "{0!r} didn't match Instance({0.__class__.__qualname__}, {1})"  # noqa
+        assert assert_val, msg.format(match_with, attrs)
 
-    def test_instance_basic_match(self):
-        self.assertTrue(self.instance_match(BasicClass))
-
-    def test_instance_attribute_match(self):
-        self.assertTrue(self.instance_match(
-            ClassWithMultipleAttributes, value_dict
-        ))
-
-    def test_instance_mismatch(self):
-        self.assertFalse(self.instance_match(BasicClass, obj=object()))
-
-    def test_instance_attribute_mismatch(self):
-        obj = ClassWithMultipleAttributes()
-        obj.int += 1
-        self.assertFalse(self.instance_match(
-            ClassWithMultipleAttributes, value_dict, obj
-        ))
+    def test_instance_match(self):
+        mis_match_class = MultiAttrClass()
+        mis_match_class.int += 1
+        yield from self.yield_tests(self.instance_match, [
+            [BasicClass],
+            [MultiAttrClass, MultiAttrClass.value_dict],  # noqa
+            [BasicClass, None, object(), False],
+            [MultiAttrClass, MultiAttrClass.value_dict, mis_match_class, False]  # noqa
+        ])
 
 
 if __name__ == '__main__':
-    unittest.main()
+    from py2c.tests import runmodule
+    runmodule()

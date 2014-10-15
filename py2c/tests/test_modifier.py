@@ -7,9 +7,11 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import unittest
-from py2c.modifier import Modifier
 from py2c.matcher import Instance
+from py2c.modifier import Modifier
+
+from py2c.tests import Test
+from nose.tools import assert_raises
 
 
 #------------------------------------------------------------------------------
@@ -30,57 +32,9 @@ class SimpleModifier(Modifier):
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
-class ModifierTestCase(unittest.TestCase):
+class TestModifier(Test):
     """Tests for Modifiers
     """
-
-    def test_bad_initialization_nothing(self):
-        class BadModifier(Modifier):
-            pass
-
-        with self.assertRaises(TypeError) as context:
-            BadModifier()
-
-        err = context.exception
-        self.assertIn("BadModifier", err.args[0])
-
-    def test_bad_initialization_no_modify(self):
-        class BadModifier(Modifier):
-            matcher = Instance(object)
-
-        with self.assertRaises(TypeError) as context:
-            BadModifier()
-
-        err = context.exception
-        self.assertIn("BadModifier", err.args[0])
-        self.assertIn("modify", err.args[0])
-
-    def test_bad_initialization_no_matcher(self):
-        class BadModifier(Modifier):
-
-            def modify(self, node):
-                pass
-
-        with self.assertRaises(AttributeError) as context:
-            BadModifier()
-
-        err = context.exception
-        self.assertIn("BadModifier", err.args[0])
-        self.assertIn("matcher attribute", err.args[0])
-
-    def test_bad_initialization_matcher_is_not_Matcher(self):
-        class BadModifier(Modifier):
-            matcher = object()  # Not instance of py2c.matcher.Matcher
-
-            def modify(self, node):
-                pass
-
-        with self.assertRaises(TypeError) as context:
-            BadModifier()
-
-        err = context.exception
-        self.assertIn("BadModifier", err.args[0])
-        self.assertIn("matcher", err.args[0])
 
     def test_good_initialization(self):
         class GoodModifier(Modifier):
@@ -91,6 +45,45 @@ class ModifierTestCase(unittest.TestCase):
 
         GoodModifier()
 
+    def check_bad_initialization(self, modifier_class, err, required_phrases):
+        with assert_raises(err) as context:
+            modifier_class()
+
+        self.check_error_msg(context.exception, required_phrases)
+
+    def test_bad_initialization(self):
+
+        class EmptyModifier(Modifier):
+            pass
+
+        class NoModifyModifier(Modifier):
+            matcher = Instance(object)
+
+        class NoMatcherModifier(Modifier):
+
+            def modify(self, node):
+                pass
+
+        class MatcherNotAMatcherModifier(Modifier):
+            matcher = object()  # Not instance of py2c.matcher.Matcher
+
+            def modify(self, node):
+                pass
+
+        yield from self.yield_tests(self.check_bad_initialization, [
+            (EmptyModifier, TypeError, ["EmptyModifier"]),
+            (NoModifyModifier, TypeError, ["NoModifyModifier", "modify"]),
+            (NoMatcherModifier, AttributeError,
+                ["NoMatcherModifier", "matcher", "attribute"]
+            ),
+            (MatcherNotAMatcherModifier, TypeError,
+                [
+                    "MatcherNotAMatcherModifier", "matcher", "should be",
+                    "instance", "py2c.matcher.Matcher"
+                ]
+            ),
+        ])
+
     def test_super_calling(self):
         class SuperCallingModifier(Modifier):
             matcher = Instance(object)
@@ -99,8 +92,10 @@ class ModifierTestCase(unittest.TestCase):
                 super().modify(node)
 
         modifier = SuperCallingModifier()
-        with self.assertRaises(NotImplementedError):
+
+        with assert_raises(NotImplementedError):
             modifier.modify(object())
 
 if __name__ == '__main__':
-    unittest.main()
+    from py2c.tests import runmodule
+    runmodule()
