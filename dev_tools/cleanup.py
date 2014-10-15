@@ -15,7 +15,7 @@ from os.path import join, realpath
 REMOVE_GENERATED_AST = False
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
-FOLDER_PATTERNS = ["__pycache__", "build", "dist", "_test_reports"]
+FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
     ".fuse_hidden*"

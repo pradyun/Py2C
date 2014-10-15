@@ -15,21 +15,15 @@ from os.path import join, realpath, dirname
 import nose
 import coverage
 
-# Local stuff
-import html_runner
-
 
 base_dir = realpath(dirname(__file__))
 test_dir = join(dirname(base_dir), "py2c")
 
 cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
-
-html_plugin = html_runner.HTMLOutputNosePlugin()
 cov.start()
 success = nose.run(
-    env={"NOSE_INCLUDE_EXE": "True", "NOSE_WITH_HTML_GEN": "True"},
+    env={"NOSE_INCLUDE_EXE": "True", "NOSE_WITH_HTML_REPORT": "True"},
     defaultTest=test_dir,
-    addplugins=[html_plugin],
     # argv=["foo", "--help"]
 )
 cov.stop()
