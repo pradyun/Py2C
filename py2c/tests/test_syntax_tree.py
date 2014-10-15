@@ -322,7 +322,7 @@ class TestIdentifier(PropertyTestBase):
             ("valid.name", True),
             ("_valid_name_", True),
             ("_valid._attr_", True),
-            ("虎", True),
+            ("虎", False),
             ("Invalid name", False)
         ])
 
