@@ -17,13 +17,13 @@ import coverage
 
 
 base_dir = realpath(dirname(__file__))
-test_dir = join(dirname(base_dir), "py2c")
+root_dir = join(dirname(base_dir), "py2c")
 
 cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 cov.start()
 success = nose.run(
     env={"NOSE_INCLUDE_EXE": "True", "NOSE_WITH_HTML_REPORT": "True"},
-    defaultTest=test_dir,
+    defaultTest=root_dir,
     # argv=["foo", "--help"]
 )
 cov.stop()
