@@ -8,17 +8,18 @@
 #------------------------------------------------------------------------------
 
 import os
+import sys
 import fnmatch
 import shutil
 from os.path import join, realpath
 
-REMOVE_GENERATED_AST = False
+REMOVE_GENERATED_AST = len(sys.argv) > 1 and sys.argv[1].lower() == "all"
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
-    ".fuse_hidden*"
+    ".fuse_hidden*", "*.egg"
 ]
 
 
