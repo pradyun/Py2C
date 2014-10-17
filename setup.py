@@ -73,7 +73,6 @@ setup(
     version="0.1-dev",
     packages=find_packages(exclude=["dev_tools"]),
     setup_requires=["ply"],
-    install_requires=["ply"],
     # Metadata
     description=description,
     long_description=long_description,
