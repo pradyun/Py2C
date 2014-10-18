@@ -42,31 +42,31 @@ class TestYieldTests(Test):
 class TestCheckErrorMsg(Test):
 
     def test_complete_phrase(self):
-        """Tests py2c.tests.Test.check_error_msg with same phrase.
+        """Tests py2c.tests.Test.assert_message_contains with same phrase.
         """
-        self.check_error_msg(
+        self.assert_message_contains(
             Exception("Hello World!"), ["Hello World!"]
         )
 
     def test_partial_phrases_with_overlap(self):
-        """Tests py2c.tests.Test.check_error_msg with overlapping parts of the phrase.
+        """Tests py2c.tests.Test.assert_message_contains with overlapping parts of the phrase.
         """
-        self.check_error_msg(
+        self.assert_message_contains(
             Exception("Hello World!"), ["lo ", " Wo"]
         )
 
     def test_partial_phrases_without_overlap(self):
-        """Tests py2c.tests.Test.check_error_msg with non-overlapping parts of the phrase.
+        """Tests py2c.tests.Test.assert_message_contains with non-overlapping parts of the phrase.
         """
-        self.check_error_msg(
+        self.assert_message_contains(
             Exception("Hello World!"), ["Hello", "World!"]
         )
 
     def test_complete_phrase_diff_case(self):
-        """Tests py2c.tests.Test.check_error_msg with same phrase.
+        """Tests py2c.tests.Test.assert_message_contains with same phrase.
         """
         with assert_raises(AssertionError):
-            self.check_error_msg(
+            self.assert_message_contains(
                 Exception("Hello World!"), ["hello world!"]
             )
 

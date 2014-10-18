@@ -49,7 +49,7 @@ class TestModifier(Test):
         with assert_raises(err) as context:
             modifier_class()
 
-        self.check_error_msg(context.exception, required_phrases)
+        self.assert_message_contains(context.exception, required_phrases)
 
     def test_bad_initialization(self):
 
