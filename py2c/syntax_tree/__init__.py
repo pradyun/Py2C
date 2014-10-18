@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Package containing AST definitions for use in translation
 """
 
@@ -57,8 +56,7 @@ class _IdentifierMetaClass(type):
 
 
 class identifier(str, metaclass=_IdentifierMetaClass):
-    """Names of identifiers
-    """
+
     # A regex that matches valid, optionally dotted, Python names
     _regex = re.compile(
         "^(?:[_a-zA-Z][a-zA-Z0-9_]*)(?:\.(?:[_a-zA-Z][a-zA-Z0-9_]*))*$"
@@ -78,6 +76,9 @@ class identifier(str, metaclass=_IdentifierMetaClass):
 #------------------------------------------------------------------------------
 class _SingletonMetaClass(type):
 
+    def __subclasscheck__(self, obj):
+        return issubclass(obj, (bool, None.__class__)) or super().__subclasscheck__(obj)
+
     def __instancecheck__(cls, obj):
         return any(obj is elem for elem in cls._valid_values)
 
@@ -88,13 +89,13 @@ class singleton(object, metaclass=_SingletonMetaClass):
     _valid_values = (True, False, None)
 
     def __new__(cls, value):
-        if value not in cls._valid_values:
+        if any(value is elem for elem in cls._valid_values):
+            return value
+        else:
             msg = "Expected a bool or None. Got a {}"
             raise WrongAttributeValueError(
-                msg.format(value.__class__.__name__)
+                msg.format(value.__class__.__qualname__)
             )
-        else:
-            return value
 
 
 #------------------------------------------------------------------------------
