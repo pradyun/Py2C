@@ -122,7 +122,7 @@ class TestASTNode(Test):
         with assert_raises(error) as context:
             cls(*args, **kwargs)
 
-        self.check_error_msg(context.exception, required_phrases)
+        self.assert_message_contains(context.exception, required_phrases)
 
     def test_invalid_initialization(self):
         """Tests syntax_tree.AST.__init__'s behaviour on invalid initialization
@@ -167,7 +167,7 @@ class TestASTNode(Test):
         with assert_raises(error) as context:
             setattr(node, attr, value)
 
-        self.check_error_msg(context.exception, required_phrases)
+        self.assert_message_contains(context.exception, required_phrases)
 
     def test_invalid_assignment(self):
         """Tests syntax_tree.AST.__setattr__'s behaviour on invalid assignments to fields
@@ -217,7 +217,7 @@ class TestASTNode(Test):
         with assert_raises(AttributeError) as context:
             node.finalize()
 
-        self.check_error_msg(context.exception, required_phrases)
+        self.assert_message_contains(context.exception, required_phrases)
 
     def test_invalid_finalize(self):
         """Tests syntax_tree.AST.finalize's behaviour on invalid attributes \
@@ -386,7 +386,7 @@ class TestIdentifier(PropertyTestBase):
             node.f1 = ("invalid value", "invalid value 2")
 
 
-class SingletonTestCase(PropertyTestBase):
+class TestSingleton(PropertyTestBase):
     """Tests for 'singleton' object in the definitions
     """
     class_ = syntax_tree.singleton
@@ -422,9 +422,9 @@ class SingletonTestCase(PropertyTestBase):
         class SubClass(syntax_tree.singleton):
             pass
 
-        assert issubclass(SubClass, self._class)
-        assert issubclass(bool, self._class)
-        assert not issubclass(int, self._class)
+        assert issubclass(SubClass, self.class_)
+        assert issubclass(bool, self.class_)
+        assert not issubclass(int, self.class_)
 
     def test_repr(self):
         assert_equal(repr(syntax_tree.singleton(True)), "True")
@@ -441,6 +441,7 @@ class SingletonTestCase(PropertyTestBase):
         except syntax_tree.ASTError:
             self.fail("Raised Exception for valid values")
 
+    # FIXME: Generalize and make more comprehensive..
     def test_modifiers_valid_all(self):
         try:
             node = AllSingletonModifersNode(True, None, (), (False,))
@@ -448,22 +449,22 @@ class SingletonTestCase(PropertyTestBase):
         except syntax_tree.ASTError:
             self.fail("Raised exception when values were proper")
         else:
-            self.assertEqual(node.f1, True)
-            self.assertEqual(node.f2, None)
-            self.assertEqual(node.f3, ())
-            self.assertEqual(node.f4, (False,))
+            assert_equal(node.f1, True)
+            assert_equal(node.f2, None)
+            assert_equal(node.f3, ())
+            assert_equal(node.f4, (False,))
 
     # FIXME: 4 tests in one...
     def test_modifiers_invalid_values(self):
         node = AllSingletonModifersNode()
 
-        with self.assertRaises(syntax_tree.WrongTypeError):
+        with assert_raises(syntax_tree.WrongTypeError):
             node.f1 = 0
-        with self.assertRaises(syntax_tree.WrongTypeError):
+        with assert_raises(syntax_tree.WrongTypeError):
             node.f2 = 0
-        with self.assertRaises(syntax_tree.WrongTypeError):
+        with assert_raises(syntax_tree.WrongTypeError):
             node.f3 = (0,)
-        with self.assertRaises(syntax_tree.WrongTypeError):
+        with assert_raises(syntax_tree.WrongTypeError):
             node.f4 = (1, 2, 3)
 
 
