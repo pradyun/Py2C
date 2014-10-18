@@ -1,0 +1,102 @@
+
+FunctionDef  -
+ClassDef     -
+Return       -
+
+Delete       Done
+Assign       Done
+AugAssign    -
+
+For          -
+While        Done
+If           Done
+With         -
+
+Raise        Done
+Try          -
+Assert       -
+
+Import       Done
+ImportFrom   Done
+Future       Done
+
+Global       -
+Nonlocal     -
+Expr         Done
+
+Pass         -
+Break        -
+Continue     -
+
+BoolOp       -
+BinOp        -
+UnaryOp      -
+Lambda       -
+IfExp        -
+Dict         -
+Set          -
+ListComp     -
+SetComp      -
+DictComp     -
+GeneratorExp -
+Yield        -
+YieldFrom    -
+Compare      -
+Call         -
+Attribute    -
+Subscript    -
+Starred      -
+Name         -
+List         -
+Tuple        -
+Ellipsis     -
+NameConstant Done
+
+Str          Done
+Bytes        Done
+Int          Done
+Float        Done
+Complex      Done
+
+Load         -
+Store        -
+Del          -
+AugLoad      -
+AugStore     -
+Param        -
+
+Slice        -
+ExtSlice     -
+Index        -
+
+And          -
+Or           -
+
+Add          -
+Sub          -
+Mult         -
+Div          -
+Mod          -
+Pow          -
+LShift       -
+RShift       -
+BitOr        -
+BitXor       -
+BitAnd       -
+FloorDiv     -
+
+Invert       -
+Not          -
+UAdd         -
+USub         -
+
+Eq           -
+NotEq        -
+Lt           -
+LtE          -
+Gt           -
+GtE          -
+Is           -
+IsNot        -
+In           -
+NotIn        -

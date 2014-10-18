@@ -97,8 +97,11 @@ class Python2ASTTranslator(object):
             self.handle_errors()
             return retval
 
-    def generic_visit(self, node):
-        """
+    #==========================================================================
+    # Helpers
+    #==========================================================================
+    def _visit_children(self, node):  # coverage: not missing
+        """Visit all children of node.
         """
         for field, old_value in ast.iter_fields(node):
             old_value = getattr(node, field, None)
@@ -114,11 +117,7 @@ class Python2ASTTranslator(object):
                     setattr(node, field, new_node)
         # print(node)
 
-    #==========================================================================
-    # Helpers
-    #==========================================================================
-
-    def _visit_list(self, old):
+    def _visit_list(self, old):  # coverage: not missing
         new_list = []
         for value in old:
             # Python AST object
@@ -134,9 +133,9 @@ class Python2ASTTranslator(object):
             new_list.append(value)
         old[:] = new_list
 
-    def _visit_children(func):
+    def visit_children_then_call(func):
         def wrapper(self, node):
-            self.generic_visit(node)
+            self._visit_children(node)
             return func(self, node)
         return wrapper
 
@@ -151,7 +150,7 @@ class Python2ASTTranslator(object):
     def convert_to_python_node(self, node):
         """Convert ``ast`` node (and children) into ``py2c.syntax_tree`` nodes.
         """
-        self.generic_visit(node)
+        self._visit_children(node)
 
         node_name = node.__class__.__name__
         py_node = getattr(python, node_name)
@@ -164,20 +163,18 @@ class Python2ASTTranslator(object):
     #==========================================================================
     # Visitors, only for specially handled nodes
     #==========================================================================
-    # Needed in Python < 3.4
-    # @finalize
     def _visit_Name(self, node):
+        # Condition is never True in Python 3.4
         if node.id in ["True", "False", "None"]:  # coverage: no partial
             return python.NameConstant(eval(node.id))  # coverage: not missing
-        else:
-            self.generic_visit(node)
-            self.names_used.add(node.id)
-            return python.Name(node.id, node.ctx)
 
-    def _visit_NoneType(self, node):
+        self._visit_children(node)
+        self.names_used.add(node.id)
+        return python.Name(node.id, node.ctx)
+
+    def _visit_NoneType(self, node):  # coverage: not missing
         return NONE_STUB
 
-    # @finalize
     def _visit_Num(self, node):
         n = node.n
         if isinstance(n, int):
@@ -186,14 +183,13 @@ class Python2ASTTranslator(object):
             cls = python.Float
         elif isinstance(n, complex):
             cls = python.Complex
-        # Shouldn't happen, but better safe than sorry!
+        # Can't happen, but still there... :)
         else:
             self.log_error("Unknown number type: {}".format(type(n)))
             return None
         return cls(n)
 
-    # @finalize
-    @_visit_children
+    @visit_children_then_call
     def _visit_ImportFrom(self, node):
         # We handle Future imports specially, although they do nothing in Py3!
         # Just incase we ever want to support Python 2!
@@ -207,9 +203,8 @@ class Python2ASTTranslator(object):
                     bail_out = True
             if bail_out:
                 return None
-
             return python.Future(node.names)
-
+        # Default
         return python.ImportFrom(node.module, node.names, node.level)
 
 
