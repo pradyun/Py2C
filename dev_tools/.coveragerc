@@ -4,13 +4,11 @@ exe=1
 [run]
 branch = True
 
+source =
+    py2c
+
 omit =
-    */test*
-    *tab*
-    */site-packages/*
-    */dist-packages/*
-    */python?.?/*
-    */lib-python/?.?/*.py
+    **/py2c/tests/*
 
 [report]
 exclude_lines =
