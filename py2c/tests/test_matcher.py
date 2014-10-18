@@ -163,7 +163,7 @@ class TestAttributeMatcher(Test):
                 bad_value_dict, MultiAttrClass(), False
             )
         except AssertionError:
-            raise  # There's a finally so, this is needed...
+            raise
         else:
             output = sys.stdout.getvalue()
             assert_in("unknown matcher", output.lower())
