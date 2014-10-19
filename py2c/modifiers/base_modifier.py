@@ -7,10 +7,10 @@
 #------------------------------------------------------------------------------
 
 import abc
-from py2c import matcher
+from py2c.matcher import Matcher
 
 
-class Modifier(object, metaclass=abc.ABCMeta):
+class BaseModifier(object, metaclass=abc.ABCMeta):
     """Base class of all modifier
     """
 
@@ -22,7 +22,7 @@ class Modifier(object, metaclass=abc.ABCMeta):
                     self.__class__.__qualname__
                 )
             )
-        elif not isinstance(self.matcher, matcher.Matcher):
+        elif not isinstance(self.matcher, Matcher):
             raise TypeError(
                 "{}.matcher should be an instance of a subclass of "
                 "'py2c.matcher.Matcher'"
