@@ -8,7 +8,7 @@ source =
     py2c
 
 omit =
-    **/py2c/tests/*
+    **/tests/*.py
 
 [report]
 exclude_lines =

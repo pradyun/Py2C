@@ -8,7 +8,7 @@
 #------------------------------------------------------------------------------
 
 from py2c.matcher import Instance
-from py2c.modifier import Modifier
+from py2c.modifiers.base_modifier import BaseModifier
 
 from py2c.tests import Test
 from nose.tools import assert_raises
@@ -23,7 +23,7 @@ class SimpleClass(object):
         self.should_match = True
 
 
-class SimpleModifier(Modifier):
+class SimpleModifier(BaseModifier):
     matcher = Instance(SimpleClass, {
         "should_match": True
     })
@@ -37,7 +37,7 @@ class TestModifier(Test):
     """
 
     def test_good_initialization(self):
-        class GoodModifier(Modifier):
+        class GoodModifier(BaseModifier):
             matcher = Instance(object)
 
             def modify(self, node):
@@ -53,18 +53,18 @@ class TestModifier(Test):
 
     def test_bad_initialization(self):
 
-        class EmptyModifier(Modifier):
+        class EmptyModifier(BaseModifier):
             pass
 
-        class NoModifyModifier(Modifier):
+        class NoModifyModifier(BaseModifier):
             matcher = Instance(object)
 
-        class NoMatcherModifier(Modifier):
+        class NoMatcherModifier(BaseModifier):
 
             def modify(self, node):
                 pass
 
-        class MatcherNotAMatcherModifier(Modifier):
+        class MatcherNotAMatcherModifier(BaseModifier):
             matcher = object()  # Not instance of py2c.matcher.Matcher
 
             def modify(self, node):
@@ -85,7 +85,7 @@ class TestModifier(Test):
         ])
 
     def test_super_calling(self):
-        class SuperCallingModifier(Modifier):
+        class SuperCallingModifier(BaseModifier):
             matcher = Instance(object)
 
             def modify(self, node):

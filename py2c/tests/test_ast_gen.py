@@ -15,20 +15,20 @@ from nose.tools import eq_, assert_in, assert_raises
 
 def get_ast_gen():
     # Imports ast_gen.py for testing purposes.
-    import os
     import sys
+    from os.path import dirname, exists, join
 
-    path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    path = dirname(dirname(dirname(__file__)))
+
     # This if statement exists to prevent the user from getting a wierd
     # import error about some non-existent file. Instead
-    if os.path.exists(os.path.join(path, "ast_gen.py")):
+    if exists(join(path, "ast_gen.py")):
         sys.path.append(path)
         import ast_gen
         sys.path.pop()
     else:
         raise ImportError(
-            "Can't import ast_gen.py, these tests can only be run on source "
-            "package, not distribution."
+            "Can't import ast_gen.py. Please check that it exists."
         )
 
     return ast_gen

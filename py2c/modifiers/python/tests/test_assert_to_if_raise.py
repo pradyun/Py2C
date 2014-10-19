@@ -8,15 +8,15 @@
 #------------------------------------------------------------------------------
 
 from py2c.syntax_tree import python as py
-from py2c.py_modifiers.assert_to_if_raise import AssertToIfModifier
+from py2c.modifiers.python.assert_to_if_raise import AssertToIfModifier
 
-from py2c.tests.py_modifiers import PyModifierTest
+from . import PyModifierTest
 
 
 class TestAssertToIf(PyModifierTest):
 
     def test_assert_to_if_without_message(self):
-        """Test py2c.py_modifiers.assert_to_if_raise for an assert without message.
+        """Test py2c.modifiers.python.assert_to_if_raise for an assert without message.
 
             assert a
 
@@ -44,7 +44,7 @@ class TestAssertToIf(PyModifierTest):
         self.check_modifier_result(AssertToIfModifier(), node, expected)
 
     def test_assert_to_if_with_message(self):
-        """Test py2c.py_modifiers.assert_to_if_raise for an assert with message.
+        """Test py2c.modifiers.python.assert_to_if_raise for an assert with message.
 
             assert a, "text"
 

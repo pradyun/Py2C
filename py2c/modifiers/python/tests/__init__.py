@@ -7,7 +7,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import py2c.modifier_util
+import py2c.modifiers.modifier_util
 
 from py2c.tests import Test
 from nose.tools import ok_, eq_
@@ -25,4 +25,4 @@ class PyModifierTest(Test):
     @classmethod
     def setUp(cls):
         # Clear the variable name counter
-        py2c.modifier_util.VARIABLE_HINT_COUNT = {}
+        py2c.modifiers.modifier_util.VARIABLE_HINT_COUNT = {}

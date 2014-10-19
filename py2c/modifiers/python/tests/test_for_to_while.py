@@ -8,15 +8,15 @@
 #------------------------------------------------------------------------------
 
 from py2c.syntax_tree import python as py
-from py2c.py_modifiers.for_to_while import ForToWhileModifier
+from py2c.modifiers.python.for_to_while import ForToWhileModifier
 
-from py2c.tests.py_modifiers import PyModifierTest
+from . import PyModifierTest
 
 
 class TestForToWhile(PyModifierTest):
 
     def test_for_to_while_without_else_clause(self):
-        """Test py2c.py_modifiers.for_to_while for a for loop without else.
+        """Test py2c.modifiers.python.for_to_while for a for loop without else.
 
             for a in some_list:
                 print(a)
@@ -113,7 +113,7 @@ class TestForToWhile(PyModifierTest):
         self.check_modifier_result(ForToWhileModifier(), node, expected)
 
     def test_for_to_while_with_else_clause(self):
-        """Test py2c.py_modifiers.for_to_while for a for loop with else.
+        """Test py2c.modifiers.python.for_to_while for a for loop with else.
 
             for a,b in some_list:
                 print("In Body")
