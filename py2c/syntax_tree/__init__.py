@@ -107,15 +107,15 @@ NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 #==============================================================================
 # AST base node
 #==============================================================================
+# TODO: Restrict field names to allow for common attributes that help transfer
+#       information.
 class AST(object):
     """The base class of all nodes defined in the declarations
     """
+    # Basic node has no fields
     _fields = []
 
     def __init__(self, *args, **kwargs):
-        # A Python equivalent of what is done in _ast.AST.__init__
-        # See Python/Python-ast.c:ast_type_init in CPython's sources
-        # Added type-checking for type-safety
         super(AST, self).__init__()
         num_fields = len(self._fields)
 
