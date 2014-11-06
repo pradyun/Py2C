@@ -3,28 +3,16 @@
  Copyright (C) 2014 Pradyun S. Gedam
  -->
 
-So, if you have a deadly idea and just can't wait to put it in code, well 
-here's what you can do:
-
+So, you want to contribute? It's as simple as 1, 2, 3!
  1. Fork the repo.
- 2. Create a new branch on your fork. Keeping the master branch clean seems
-    like a nice idea to me. (It's not necessary though)
- 3. Run the tests and make sure they all pass. 
-    (If they don't, file an issue and continue)
- 4. Make sure you have tests for your what you want the stuff to end up like.
- 5. Start your work. Put that idea into code.
- 6. Make those tests pass.
- 7. Push to your fork and submit a pull request.
+ 2. Start your work. Put that idea you have on paper, not code... :P.
+ 3. Submit a pull request.
 
-At this point you're waiting on me. I'll try to, at the very least, comment on 
-the pull request as soon as I can. I may suggest some changes or improvements
-or alternatives.
+At this point you're waiting on me. I'll try to respond to all pull requests as soon as I humanly can.
 
-Ooh.. And yes, a bunch of things that I would like to mention:
+A bunch of things that I would like to mention:
+ - Tests are lovely, one you have them...
+ - PEP-8 has served me well as the Coding style guideline.
+   *Please* stick to it.
 
- - Pull requests are awesome!
- - Tests are lovely once they are written. So, write them! 
- - PEP-8 has served me well as the Coding style guideline. Please try to stick 
-   to it.
-
-And in case I didn't emphasize enough: **I love tests!!**
+And just in case I didn't emphasize enough: **I love tests!!**

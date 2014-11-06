@@ -10,7 +10,7 @@ python:
   - 3.4
 
 install:
-  # Install/Upgrade Dependencies (NOTE: We don't use mock, atleast not now)
+  # Install/Upgrade Dependencies (NOTE: Doesn't use mock, at least not now)
   - pip install -U nose mock coverage coveralls
 
   # Auto-generate AST files
