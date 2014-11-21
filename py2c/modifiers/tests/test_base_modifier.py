@@ -10,7 +10,7 @@
 from py2c.matcher import Instance
 from py2c.modifiers.base_modifier import BaseModifier
 
-from py2c.tests import Test
+from py2c.modifiers.tests import ModifierTest
 from nose.tools import assert_raises
 
 
@@ -32,7 +32,7 @@ class SimpleModifier(BaseModifier):
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
-class TestModifier(Test):
+class TestBaseModifier(ModifierTest):
     """Tests for Modifiers
     """
 
@@ -75,13 +75,13 @@ class TestModifier(Test):
             (NoModifyModifier, TypeError, ["NoModifyModifier", "modify"]),
             (NoMatcherModifier, AttributeError,
                 ["NoMatcherModifier", "matcher", "attribute"]
-            ),
+            ),  # noqa
             (MatcherNotAMatcherModifier, TypeError,
                 [
                     "MatcherNotAMatcherModifier", "matcher", "should be",
                     "instance", "py2c.matcher.Matcher"
                 ]
-            ),
+            ),  # noqa
         ])
 
     def test_super_calling(self):
