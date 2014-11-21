@@ -224,16 +224,9 @@ class SourceGenerator(object):
 
     def _translate_node(self, node):
         name = node.name
-
-        if node.parent is None:
-            parent = "object"
-            field_text = _prettify_list(node.attrs)
-        else:
-            parent = node.parent
-            field_text = parent + "._fields"
-            if node.attrs:
-                field_text += " + " + _prettify_list(node.attrs)
-
+        field_text = _prettify_list(node.attrs)
+        # node.parent is None or a string...
+        parent = node.parent or "object"
         return dedent("""
             class {0}({1}):
                 _fields = {2}

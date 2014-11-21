@@ -195,7 +195,7 @@ class TestSourceGenerator(Test):
                 [ast_gen.Node('FooBar', 'AST', [])],
                 """
                 class FooBar(AST):
-                    _fields = AST._fields
+                    _fields = []
                 """
             ),
             (
@@ -219,7 +219,7 @@ class TestSourceGenerator(Test):
                 )],
                 """
                 class FooBar(AST):
-                    _fields = AST._fields + [
+                    _fields = [
                         ('bar', int, NEEDED),
                     ]
                 """
@@ -237,7 +237,7 @@ class TestSourceGenerator(Test):
                 )],
                 """
                 class FooBar(AST):
-                    _fields = AST._fields + [
+                    _fields = [
                         ('foo', int, NEEDED),
                         ('bar', int, ONE_OR_MORE),
                         ('baz', int, ZERO_OR_MORE),
@@ -271,13 +271,13 @@ class TestSourceGenerator(Test):
 
 
                 class base2(base1):
-                    _fields = base1._fields + [
+                    _fields = [
                         ('field2', int, NEEDED),
                     ]
 
 
                 class obj(base2):
-                    _fields = base2._fields
+                    _fields = []
                 """
             )
         ])
