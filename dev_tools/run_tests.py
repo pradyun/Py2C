@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Run tests under a consistent environment...
+
+Whether run from the terminal, in CI or from the editor this file makes sure
+the tests are run in a consistent environment.
 """
 
 #------------------------------------------------------------------------------
@@ -21,8 +24,7 @@ cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 cov.start()
 success = nose.run(
     env={"NOSE_INCLUDE_EXE": "True", "NOSE_WITH_HTML_REPORT": "True"},
-    defaultTest=root_dir,
-    # argv=["foo", "--help"]
+    defaultTest=root_dir
 )
 cov.stop()
 cov.save()

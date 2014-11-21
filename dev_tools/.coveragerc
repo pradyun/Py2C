@@ -18,8 +18,6 @@ exclude_lines =
     # Defensive code
     raise AssertionError
 
-    def __repr__
-
     # Not for testing :)
     if False:
     if __name__ == .__main__.:

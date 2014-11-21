@@ -104,5 +104,18 @@ def _dump_node(node, indentor):
 
 
 #------------------------------------------------------------------------------
+# Final stuff
+#------------------------------------------------------------------------------
 def dump_ast(node, indent_with="   "):
     return _dump(node, Indentor())
+
+
+def main():
+    import textwrap
+    dump_ast(ast.parse(textwrap.dedent("""
+        if a > b:
+            pass
+    """)))
+
+if __name__ == '__main__':
+    main()
