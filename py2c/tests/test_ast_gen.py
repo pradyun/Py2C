@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Tests for the Generation of the AST nodes from the definitions.
 """
 
@@ -10,7 +9,7 @@
 from textwrap import dedent
 
 from py2c.tests import Test
-from nose.tools import eq_, assert_in, assert_raises
+from nose.tools import assert_equal, assert_in, assert_raises
 
 
 def get_ast_gen():
@@ -36,10 +35,12 @@ def get_ast_gen():
 ast_gen = get_ast_gen()
 del get_ast_gen
 
+
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
 class TestParser(Test):
+
     """Tests for ast_gen.Parser
     """
 
@@ -47,7 +48,7 @@ class TestParser(Test):
     # Comments
     #--------------------------------------------------------------------------
     def check_remove_comment(self, test_string, expected):
-        eq_(
+        assert_equal(
             ast_gen.remove_comments(test_string),
             expected
         )
@@ -79,7 +80,7 @@ class TestParser(Test):
     #--------------------------------------------------------------------------
     def check_property_parsing(self, test_string, expected):
         parser = ast_gen.Parser()
-        eq_(parser.parse(dedent(test_string)), tuple(expected))
+        assert_equal(parser.parse(dedent(test_string)), tuple(expected))
 
     def test_parsing(self):
         """Tests ast_gen.Parser's parsing of properties
@@ -162,13 +163,14 @@ class TestParser(Test):
         """
         yield from self.yield_tests(self.check_error_report, [
             ("foo: [int bar, int bar]", ["multiple", "attribute", "foo", "bar"]),  # noqa
-            ("foo: [int bar, int bar]\n"*2, ["multiple", "declaration", "foo"]),  # noqa
+            ("foo: [int bar, int bar]\n" * 2, ["multiple", "declaration", "foo"]),  # noqa
             ("$foo: []", ["token", "unable", "$foo"]),
             ("foo: [bar, baz]", ["unexpected", "','"])
         ])
 
 
 class TestSourceGenerator(Test):
+
     """Tests for ast_gen.SourceGenerator
     """
 
@@ -176,7 +178,7 @@ class TestSourceGenerator(Test):
         src_gen = ast_gen.SourceGenerator()
         generated = src_gen.generate_sources(data)
 
-        eq_(
+        assert_equal(
             dedent(expected_output).strip(), generated.strip()
         )
 

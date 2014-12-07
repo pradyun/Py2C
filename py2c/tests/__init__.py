@@ -1,8 +1,5 @@
-#!/usr/bin/python3
-"""This package contains tests for Py2C.
-
-All tests should be run using dev_tools/run_tests.py as it also generates
-useful HTML reports.
+"""This package contains tests for the basic Py2C modules. \
+It also contains the integration tests for Py2C.
 """
 
 #------------------------------------------------------------------------------
@@ -11,30 +8,35 @@ useful HTML reports.
 #------------------------------------------------------------------------------
 
 import inspect
-# import warnings
-# import traceback
+import warnings
+import traceback
+
 from nose.tools import nottest, assert_in, assert_not_in
 
 
 #------------------------------------------------------------------------------
-# BE VERY CAREFUL IN HERE. Changes here are capable of breaking all tests...
+# BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
 #------------------------------------------------------------------------------
 class _TestMetaClass(type):
     """A metaclass for all tests for convenience in working with code.
 
     This metaclass:
       - Makes the 1st line of a test method's docstring it's description.
-      - Warns when a subclass if not named like a test. (disabled)
+      - Warns when a subclass has test methods but is not named like a test.
     """
 
     def __new__(meta, name, bases, dic):
-        # if not name.startswith("Test"):
-        #     traceback.print_stack(inspect.currentframe(), 2)
-        #     warnings.warn("Test subclasses' name should start with 'Test'")
+        has_tests = False
         for attr, value in dic.items():
             if attr.startswith("test_") and inspect.isfunction(value):
+                has_tests = True
                 if value.__doc__ is not None:
                     value.description = value.__doc__.splitlines()[0]
+
+        if has_tests and not name.startswith("Test"):
+            traceback.print_stack(inspect.currentframe(), 2)
+            warnings.warn("Test subclasses' name should start with 'Test'")
+
         return super(_TestMetaClass, meta).__new__(meta, name, bases, dic)
 
 
