@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Tests for the Python -> AST translator
 """
 
@@ -11,42 +10,43 @@ import ast
 import random
 import textwrap
 
-from py2c.syntax_tree import python
-from py2c.translator import Python2ASTTranslator, TranslationError
+from py2c.ast import python
+from py2c.pre_processing.to_ast import PythonToAST, TranslationError
 
 from py2c.tests import Test
 from nose.tools import assert_equal, assert_raises, assert_in
 
 
-# TODO: Refactor translator.py to use 'logging' module.
+# TODO: Refactor to_ast.py to use 'logging' module.
+# XXX: Depends on implementation detail
 class TestErrorReporting(Test):
-    """Tests for error reporting for Python2ASTTranslator
+    """Tests for error reporting for PythonToAST
     """
 
     def test_no_errors(self):
         """Make sure the initial state of the Translator doesn't have errors
         """
-        translator = Python2ASTTranslator()
+        translator = PythonToAST()
         try:
-            translator.handle_errors()
+            translator._handle_errors()
         except TranslationError:
             self.fail("Raised error unexpectedly")
 
     def test_invalid_code_input(self):
         with assert_raises(TranslationError) as obj:
-            Python2ASTTranslator().get_node("$$$")
+            PythonToAST().convert("$$$")
 
         err = obj.exception
         assert_in("invalid", err.args[0].lower())
         assert_in("code", err.args[0].lower())
 
     def check_error_reporter(self, errors, required_phrases):
-        translator = Python2ASTTranslator()
+        translator = PythonToAST()
         for err in errors:
-            translator.log_error(*err)
+            translator._log_error(*err)
 
         with assert_raises(TranslationError) as context:
-            translator.handle_errors()
+            translator._handle_errors()
 
         for msg, logged_msg in zip(required_phrases, context.exception.errors):
             for part in msg:
@@ -79,13 +79,13 @@ class TestTranslationError(Test):
         ])
 
 
-class TestCode(Test):
+class CodeTest(Test):
     """Base for Python code to AST translation
     """
 
     def check_code_translation(self, code, expected):
         processed_code = self.process_code(code)
-        node = Python2ASTTranslator().get_node(processed_code)
+        node = PythonToAST().convert(processed_code)
         result = self.process_node(node)
 
         if not result:
@@ -111,18 +111,20 @@ class TestCode(Test):
         return node.body
 
 
-class TestLiterals(TestCode):
+class TestLiterals(CodeTest):
     """Tests for literals
     """
 
-    # XXX: Depends on implementation details
+    # XXX: Uses implementation details
     def test_invalid_number(self):
         node = ast.Num("string!!")
 
-        translator = Python2ASTTranslator()
+        translator = PythonToAST()
         translator._visit(node)
-        with assert_raises(TranslationError):
-            translator.handle_errors()
+        with assert_raises(TranslationError) as context:
+            translator._handle_errors()
+        errors = context.exception.errors
+        assert_equal(len(errors), 1)
 
     def test_int(self):
         yield from self.yield_tests(self.check_code_translation, [
@@ -188,7 +190,7 @@ class TestLiterals(TestCode):
         ])
 
 
-class TestSimpleStatement(TestCode):
+class TestSimpleStatement(CodeTest):
     """Tests for simple statements
     """
 
@@ -397,34 +399,8 @@ class TestSimpleStatement(TestCode):
             ),
         ])
 
-    def test_future_valid(self):
-        yield from self.yield_tests(self.check_code_translation, [
-            (
-                "from __future__ import with_statement",
-                python.Future([
-                    python.alias("with_statement", None)
-                ])
-            ),
-            (
-                "import __future__ as future",
-                python.Import([
-                    python.alias("__future__", "future")
-                ])
-            ),
-        ])
 
-    def test_future_invalid(self):
-        with assert_raises(TranslationError) as context:
-            self.check_code_translation(
-                "from __future__ import some_wrong_name", None
-            )
-
-        msg = context.exception.errors[-1]
-        assert_in("no feature", msg)
-        assert_in("'some_wrong_name'", msg)
-
-
-class TestCompoundStatement(TestCode):
+class TestCompoundStatement(CodeTest):
     """Tests for statements containing other statements
     """
 
@@ -470,40 +446,6 @@ class TestCompoundStatement(TestCode):
                     ]
                 )
             ),
-
-        ])
-
-    def test_while(self):
-        yield from self.yield_tests(self.check_code_translation, [
-            (
-                "while True: pass",
-                python.While(
-                    python.NameConstant(True),
-                    [python.Pass()],
-                    []
-                )
-            ),
-            (
-                "while False: break",
-                python.While(
-                    python.NameConstant(False),
-                    [python.Break()],
-                    []
-                )
-            )
-        ])
-
-    def test_for(self):
-        yield from self.yield_tests(self.check_code_translation, [
-            (
-                "for x in li: pass",
-                python.For(
-                    python.Name("x", python.Store()),
-                    python.Name("li", python.Load()),
-                    [python.Pass()],
-                    []
-                )
-            )
 
         ])
 
@@ -553,7 +495,7 @@ class TestCompoundStatement(TestCode):
     # TODO: Add tests for classes and functions
 
 
-class TestsCompoundStatementPart(TestCode):
+class TestsCompoundStatementPart(CodeTest):
     """Tests for statements that can only be part of compound statements
     """
 

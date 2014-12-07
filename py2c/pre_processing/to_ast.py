@@ -7,7 +7,6 @@
 #------------------------------------------------------------------------------
 
 import ast
-import __future__ as future
 
 from py2c.ast import python
 
@@ -23,44 +22,33 @@ class TranslationError(Exception):
     """
 
     def __init__(self, msg="", errors=None):
-        super(TranslationError, self).__init__(msg, errors)
+        super().__init__(msg, errors)
         self.msg = msg
         self.errors = errors
 
 
-# Although it is like a NodeTransformer, it doesn't inherit from it as we
-# define our own custom versions of those functions NodeTransformer implements
-# in itself. Plus we need this added stuff too...
-class Python2ASTTranslator(object):
+class PythonToAST(object):
     """Translates Python code into Py2C AST
-
-    This is a Node-visitor that visits the Python AST and creates another AST
-    with space for type definitions and other stuff, on which further
-    processing takes place.
     """
 
     def __init__(self):
-        super(Python2ASTTranslator, self).__init__()
+        super().__init__()
         self._reset()
 
     def _reset(self):
-        """Resets all attributes of the CodeGenerator before parsing
-        """
         self.errors = []
-        self.names_used = set()
+        # Basic knowledge of what names have been used
+        self.names_used = set()  # Make note that the name has been used.
 
-    #==========================================================================
-    # External API
-    #==========================================================================
     # Errors
-    def log_error(self, msg, lineno=None):
+    def _log_error(self, msg, lineno=None):
         """Log an error in the provided code
         """
         if lineno is not None:
             msg = "Line {0}: {1}".format(lineno, msg)
         self.errors.append(msg)
 
-    def handle_errors(self):
+    def _handle_errors(self):
         """Handle the errors, if any, logged during generation
         """
         if not self.errors:
@@ -75,7 +63,10 @@ class Python2ASTTranslator(object):
         visitor = getattr(self, method, self.convert_to_python_node)
         return visitor(node)
 
-    def get_node(self, code):
+    #==========================================================================
+    # API
+    #==========================================================================
+    def convert(self, code):
         """Get the Py2C AST from the Python ``code``
 
         Arguments:
@@ -95,7 +86,7 @@ class Python2ASTTranslator(object):
         else:
             # print("AST:    ", ast.dump(node))
             retval = self._visit(node)
-            self.handle_errors()
+            self._handle_errors()
             return retval
 
     #==========================================================================
@@ -118,9 +109,10 @@ class Python2ASTTranslator(object):
                     setattr(node, field, new_node)
         # print(node)
 
-    def _visit_list(self, old):  # coverage: not missing
+    def _visit_list(self, original_list):  # coverage: not missing
+        # Moved out of '_visit' for readablity
         new_list = []
-        for value in old:
+        for value in original_list:
             # Python AST object
             if isinstance(value, ast.AST):
                 value = self._visit(value)
@@ -132,24 +124,10 @@ class Python2ASTTranslator(object):
                     new_list.extend(value)
                     continue
             new_list.append(value)
-        old[:] = new_list
-
-    def visit_children_then_call(func):
-        def wrapper(self, node):
-            self._visit_children(node)
-            return func(self, node)
-        return wrapper
-
-    # def finalize(func):
-    #     def wrapper(self, node):
-    #         retval = func(self, node)
-    #         # if retval is not None:
-    #         #     retval.finalize()
-    #         return retval
-    #     return wrapper
+        original_list[:] = new_list
 
     def convert_to_python_node(self, node):
-        """Convert ``ast`` node (and children) into ``py2c.syntax_tree`` nodes.
+        """Convert ``ast`` node (and children) into ``py2c.ast`` nodes.
         """
         self._visit_children(node)
 
@@ -165,12 +143,12 @@ class Python2ASTTranslator(object):
     # Visitors, only for specially handled nodes
     #==========================================================================
     def _visit_Name(self, node):
-        # Condition is never True in Python 3.4
+        # coverage excluded as condition is never True in Python 3.4
         if node.id in ["True", "False", "None"]:  # coverage: no partial
             return python.NameConstant(eval(node.id))  # coverage: not missing
 
-        self._visit_children(node)
-        self.names_used.add(node.id)
+        self._visit_children(node)  # XXX: Check if needed.
+        self.names_used.add(node.id)  # Make note that the name has been used.
         return python.Name(node.id, node.ctx)
 
     def _visit_NoneType(self, node):  # coverage: not missing
@@ -186,38 +164,6 @@ class Python2ASTTranslator(object):
             cls = python.Complex
         # Can't happen, but still there... :)
         else:
-            self.log_error("Unknown number type: {}".format(type(n)))
+            self._log_error("Unknown number type: {}".format(type(n)))
             return None
         return cls(n)
-
-    @visit_children_then_call
-    def _visit_ImportFrom(self, node):
-        # We handle Future imports specially, although they do nothing in Py3!
-        # Just incase we ever want to support Python 2!
-        if node.module is "__future__" and not node.level:
-            bail_out = False
-            for feature in node.names:
-                if not hasattr(future, feature.name):
-                    self.log_error(
-                        "__future__ has no feature {!r}".format(feature.name)
-                    )
-                    bail_out = True
-            if bail_out:
-                return None
-            return python.Future(node.names)
-        # Default
-        return python.ImportFrom(node.module, node.names, node.level)
-
-
-if __name__ == '__main__':
-    from textwrap import dedent
-
-    s = """
-    if a:
-        betterc
-    """
-    print("AST    :", ast.dump(ast.parse(dedent(s))))
-    translator = Python2ASTTranslator()
-    print("Returns:", end=" ")
-    # print(translator.convert_to_python_node(ast.parse(s)))
-    print(translator.get_node(dedent(s)))
