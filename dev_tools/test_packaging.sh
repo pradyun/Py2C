@@ -12,22 +12,15 @@
 #   - Current working directory is the root of the project.
 #------------------------------------------------------------------------------
 
-# TODO: Convert into a pure-python script (using subprocess)
+# TODO: Convert into a pure-python script (that uses subprocess)
+
 RED=1
 GREEN=2
 YELLOW=3
 
 write_text() {
-    level=$1
-    if [ $level == $RED ]; then
-        echo -e -n "\e[1;31m$2\e[0m"
-    elif [ $level == $GREEN ]; then
-        echo -e -n "\e[1;32m$2\e[0m"
-    elif [ $level == $YELLOW ]; then
-        echo -e -n "\e[1;33m$2\e[0m"
-    else
-        echo "(Unknown color) $2"
-    fi
+    # write_text color text
+    echo -e -n "\e[1;3$1m$2\e[0m"
 }
 
 delete_venv() {
@@ -47,7 +40,7 @@ write_text $GREEN "done\n"
 
 write_text $YELLOW "Installing build requirements\n"
 write_text $YELLOW "    ply..."
-pip install -q ply
+pip install -q ply || pip install dev_tools/ply-3.4.tar.gz
 if [ $? != 0 ]; then
     write_text $RED "failed\n"
     delete_venv $RED
@@ -82,7 +75,7 @@ else
 fi
 
 write_text $YELLOW "Check: Is the auto-generated file generated, importable? "
-python -c "import py2c.syntax_tree.python" 2> /dev/null
+python -c "import py2c.ast.python" 2> /dev/null
 if [ $? != 0 ]; then
     write_text $RED "No!\n"
     delete_venv $RED
@@ -94,7 +87,7 @@ fi
 write_text $YELLOW "Installing requirements for testing\n"
 
 write_text $YELLOW "    nose..."
-pip install -q nose
+pip install -q nose || pip install dev_tools/nose-1.3.4.tar.gz
 if [ $? != 0 ]; then
     write_text $RED "failed\n"
     delete_venv $RED
