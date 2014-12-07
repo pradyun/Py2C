@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """AST nodes file generator
 
 This file generates the ast that we use as the medium to translate Python code.
@@ -266,4 +265,4 @@ def generate(source_dir, output_dir, update=False):  # coverage: not missing
             outfile.write(sources)
 
 if __name__ == '__main__':
-    generate("py2c/syntax_tree", "py2c/syntax_tree", True)
+    generate("py2c/ast", "py2c/ast", True)

@@ -10,7 +10,7 @@ from . import PyModifier
 from ..modifier_util import new_var
 
 from py2c.matcher import Instance
-from py2c.syntax_tree import python as py
+from py2c.ast import python as py
 
 
 class ForToWhileModifier(PyModifier):

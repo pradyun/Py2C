@@ -7,9 +7,9 @@
 #------------------------------------------------------------------------------
 
 import ast
-import py2c.syntax_tree
+import py2c.ast
 
-import py2c.syntax_tree.python as py
+import py2c.ast.python as py
 
 
 class Indentor(object):
@@ -45,7 +45,7 @@ def write(*args, sep="", end=""):
 def _dump(node, indentor):
     if isinstance(node, (list, tuple)):
         _dump_list(node, indentor)
-    elif isinstance(node, (py2c.syntax_tree.AST, ast.AST)):
+    elif isinstance(node, (py2c.ast.AST, ast.AST)):
         _dump_node(node, indentor)
     else:
         write(indentor, repr(node))
@@ -73,9 +73,9 @@ def _dump_list(li, indentor):
 
 def _dump_node(node, indentor):
     # Initial header
-    if isinstance(node, py2c.syntax_tree.AST):
+    if isinstance(node, py2c.ast.AST):
         module = "py"
-        iter_fields = py2c.syntax_tree.iter_fields
+        iter_fields = py2c.ast.iter_fields
     else:
         module = "ast"
         iter_fields = ast.iter_fields

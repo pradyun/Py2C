@@ -8,7 +8,8 @@
 
 import ast
 import __future__ as future
-from py2c.syntax_tree import python
+
+from py2c.ast import python
 
 # Serves as a stub when a function needs to return None
 NONE_STUB = object()

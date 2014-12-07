@@ -1,4 +1,12 @@
-from py2c import syntax_tree
+"""Tests supporting data-types in py2c.ast
+"""
+
+#------------------------------------------------------------------------------
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+#------------------------------------------------------------------------------
+
+from py2c import ast
 
 from py2c.tests import Test
 from nose.tools import (
@@ -9,25 +17,25 @@ from nose.tools import (
 #------------------------------------------------------------------------------
 # A bunch of nodes used during testing
 #------------------------------------------------------------------------------
-class AllIdentifierModifersNode(syntax_tree.AST):
+class AllIdentifierModifersNode(ast.AST):
     """Node with all modifiers of identifier type
     """
     _fields = [
-        ('f1', syntax_tree.identifier, syntax_tree.NEEDED),
-        ('f2', syntax_tree.identifier, syntax_tree.OPTIONAL),
-        ('f3', syntax_tree.identifier, syntax_tree.ZERO_OR_MORE),
-        ('f4', syntax_tree.identifier, syntax_tree.ONE_OR_MORE),
+        ('f1', ast.identifier, ast.NEEDED),
+        ('f2', ast.identifier, ast.OPTIONAL),
+        ('f3', ast.identifier, ast.ZERO_OR_MORE),
+        ('f4', ast.identifier, ast.ONE_OR_MORE),
     ]
 
 
-class AllSingletonModifersNode(syntax_tree.AST):
+class AllSingletonModifersNode(ast.AST):
     """Node with all modifiers of singleton type
     """
     _fields = [
-        ('f1', syntax_tree.singleton, syntax_tree.NEEDED),
-        ('f2', syntax_tree.singleton, syntax_tree.OPTIONAL),
-        ('f3', syntax_tree.singleton, syntax_tree.ZERO_OR_MORE),
-        ('f4', syntax_tree.singleton, syntax_tree.ONE_OR_MORE),
+        ('f1', ast.singleton, ast.NEEDED),
+        ('f2', ast.singleton, ast.OPTIONAL),
+        ('f3', ast.singleton, ast.ZERO_OR_MORE),
+        ('f4', ast.singleton, ast.ONE_OR_MORE),
     ]
 
 
@@ -42,7 +50,7 @@ class DataTypeTestBase(Test):
         assert_equal(self.class_(arg), arg)
 
     def check_invalid_initialization(self, arg):
-        with assert_raises(syntax_tree.WrongAttributeValueError):
+        with assert_raises(ast.WrongAttributeValueError):
             self.class_(arg)
 
     def check_instance(self, value, is_):
@@ -58,7 +66,7 @@ class DataTypeTestBase(Test):
 class TestIdentifier(DataTypeTestBase):
     """Tests for 'identifier' object in the definitions
     """
-    class_ = syntax_tree.identifier
+    class_ = ast.identifier
 
     def test_valid_initialization(self):
         yield from self.yield_tests(self.check_valid_initialization, [
@@ -78,7 +86,7 @@ class TestIdentifier(DataTypeTestBase):
             ("ValidName", True),
             ("VALID_NAME", True),
             ("Valid_1_name", True),
-            (syntax_tree.identifier("valid_name"), True),
+            (ast.identifier("valid_name"), True),
             ("valid.name", True),
             ("_valid_name_", True),
             ("_valid._attr_", True),
@@ -87,18 +95,18 @@ class TestIdentifier(DataTypeTestBase):
         ])
 
     def test_issubclass(self):
-        class SubClass(syntax_tree.identifier):
+        class SubClass(ast.identifier):
             pass
 
-        assert issubclass(str, syntax_tree.identifier)
-        assert issubclass(SubClass, syntax_tree.identifier)
-        assert not issubclass(int, syntax_tree.identifier)
+        assert issubclass(str, ast.identifier)
+        assert issubclass(SubClass, ast.identifier)
+        assert not issubclass(int, ast.identifier)
 
     def test_equality(self):
-        assert_equal(syntax_tree.identifier("name"), "name")
+        assert_equal(ast.identifier("name"), "name")
 
     def test_repr(self):
-        identifier = syntax_tree.identifier
+        identifier = ast.identifier
         assert_equal(repr(identifier("a_name")), "'a_name'")
         assert_equal(repr(identifier("some_name")), "'some_name'")
         assert_equal(repr(identifier("camelCase")), "'camelCase'")
@@ -110,7 +118,7 @@ class TestIdentifier(DataTypeTestBase):
         node.f4 = ["bar"]
         try:
             node.finalize()
-        except syntax_tree.ASTError:
+        except ast.ASTError:
             raise AssertionError(
                 "Raised Exception for valid values"
             )
@@ -119,7 +127,7 @@ class TestIdentifier(DataTypeTestBase):
         try:
             node = AllIdentifierModifersNode("foo", "bar", (), ("baz",))
             node.finalize()
-        except syntax_tree.ASTError:
+        except ast.ASTError:
             raise AssertionError(
                 "Raised exception when values were proper"
             )
@@ -133,23 +141,23 @@ class TestIdentifier(DataTypeTestBase):
     def test_modifiers_invalid_values(self):
         node = AllIdentifierModifersNode()
 
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f1 = "invalid value"
 
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f2 = "invalid value"
 
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f3 = ("invalid value")
 
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f1 = ("invalid value", "invalid value 2")
 
 
 class TestSingleton(DataTypeTestBase):
     """Tests for 'singleton' object in the definitions
     """
-    class_ = syntax_tree.singleton
+    class_ = ast.singleton
 
     def test_valid_initialization(self):
         yield from self.yield_tests(self.check_valid_initialization, [
@@ -179,7 +187,7 @@ class TestSingleton(DataTypeTestBase):
         ])
 
     def test_issubclass(self):
-        class SubClass(syntax_tree.singleton):
+        class SubClass(ast.singleton):
             pass
 
         assert issubclass(SubClass, self.class_)
@@ -187,9 +195,9 @@ class TestSingleton(DataTypeTestBase):
         assert not issubclass(int, self.class_)
 
     def test_repr(self):
-        assert_equal(repr(syntax_tree.singleton(True)), "True")
-        assert_equal(repr(syntax_tree.singleton(False)), "False")
-        assert_equal(repr(syntax_tree.singleton(None)), "None")
+        assert_equal(repr(ast.singleton(True)), "True")
+        assert_equal(repr(ast.singleton(False)), "False")
+        assert_equal(repr(ast.singleton(None)), "None")
 
     # FIXME: Generalize the next 2 and make more them comprehensive..
     def test_modifiers_valid_minimal(self):
@@ -198,14 +206,14 @@ class TestSingleton(DataTypeTestBase):
         node.f4 = [None, True, False]
         try:
             node.finalize()
-        except syntax_tree.ASTError:
+        except ast.ASTError:
             self.fail("Raised Exception for valid values")
 
     def test_modifiers_valid_all(self):
         try:
             node = AllSingletonModifersNode(True, None, (), (False,))
             node.finalize()
-        except syntax_tree.ASTError:
+        except ast.ASTError:
             self.fail("Raised exception when values were proper")
         else:
             assert_equal(node.f1, True)
@@ -217,13 +225,13 @@ class TestSingleton(DataTypeTestBase):
     def test_modifiers_invalid_values(self):
         node = AllSingletonModifersNode()
 
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f1 = 0
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f2 = 0
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f3 = (0,)
-        with assert_raises(syntax_tree.WrongTypeError):
+        with assert_raises(ast.WrongTypeError):
             node.f4 = (1, 2, 3)
 
 

@@ -31,7 +31,7 @@ except Exception:
     sys.exit(1)
 sys.path.pop()
 
-path_to_ast_definitions = realpath(join(dirname(__file__), "py2c", "syntax_tree"))
+path_to_ast_definitions = realpath(join(dirname(__file__), "py2c", "ast"))
 
 
 class build_py(_build_py):

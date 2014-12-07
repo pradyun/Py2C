@@ -9,7 +9,7 @@
 from . import PyModifier
 
 from py2c.matcher import Instance
-from py2c.syntax_tree.python import Assert, If, Raise, Call, Name, Load
+from py2c.ast.python import Assert, If, Raise, Call, Name, Load
 
 
 class AssertToIfModifier(PyModifier):

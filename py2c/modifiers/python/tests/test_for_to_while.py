@@ -7,7 +7,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.syntax_tree import python as py
+from py2c.ast import python as py
 from py2c.modifiers.python.for_to_while import ForToWhileModifier
 
 from . import PyModifierTest
