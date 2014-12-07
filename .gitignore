@@ -20,7 +20,7 @@ venv
 *.sublime*
 
 # Auto-generated, include according to files in the directory.
-py2c/syntax_tree/python.py
+py2c/ast/python.py
 
 #-----------------------------------------------------------
 # Beyond this is Github's .gitignore for Python projects.
