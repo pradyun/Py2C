@@ -7,8 +7,8 @@
 #------------------------------------------------------------------------------
 
 from . import PyModifier
+from ..matchers.instance import Instance
 
-from py2c.matcher import Instance
 from py2c.ast.python import Assert, If, Raise, Call, Name, Load
 
 

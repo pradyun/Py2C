@@ -8,6 +8,7 @@
 
 import abc
 from py2c.matcher import Matcher
+from py2c.modifiers.matchers.base_matcher import BaseMatcher
 
 
 class BaseModifier(object, metaclass=abc.ABCMeta):

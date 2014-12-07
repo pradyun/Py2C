@@ -7,9 +7,9 @@
 #------------------------------------------------------------------------------
 
 from . import PyModifier
+from ..matchers.instance import Instance
 from ..modifier_util import new_var
 
-from py2c.matcher import Instance
 from py2c.ast import python as py
 
 

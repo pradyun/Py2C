@@ -1,5 +1,4 @@
-#!/usr/bin/python3
-"""Tests for the Matchers that are used in modifiers
+"""Tests for the Attributes matchers
 """
 
 #------------------------------------------------------------------------------
@@ -7,46 +6,15 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import sys
-from io import StringIO
-
-from py2c.matcher import Matcher, Instance, Attributes
+from py2c.modifiers.matchers.attributes import Attributes
 
 from py2c.tests import Test
-from nose.tools import assert_in, assert_raises
-
-
-#------------------------------------------------------------------------------
-# Sample Matchers
-#------------------------------------------------------------------------------
-class InvalidMatcher(Matcher):
-    # Doesn't implement "match"
-    pass
-
-
-class SimpleMatcher(Matcher):
-    def match(self, node):
-        return getattr(node, 'should_match', None) is True
-
-
-class SuperCallingMatcher(Matcher):
-    def match(self, node):
-        super().match(node)
+from nose.tools import assert_raises
 
 
 #------------------------------------------------------------------------------
 # Helper classes (Matching happens against these)
 #------------------------------------------------------------------------------
-class BasicClass(object):
-    pass
-
-
-class SimpleClass(object):
-    def __init__(self):
-        super().__init__()
-        self.should_match = True
-
-
 class Level1Class(object):
     def __init__(self):
         super().__init__()
@@ -60,6 +28,7 @@ class Level2Class(object):
         self.object = Level1Class()
 
 
+# XXX: Repeated in test_instance.py
 class MultiAttrClass(object):
     value_dict = {
         "int": 2,
@@ -79,30 +48,6 @@ class MultiAttrClass(object):
 #------------------------------------------------------------------------------
 # Tests
 #------------------------------------------------------------------------------
-class TestMatcherInheritence(Test):
-    """Tests for inheritence-related behaviour of Matcher
-    """
-
-    def test_valid_matcher(self):
-        try:
-            matcher = SimpleMatcher()
-        except Exception:
-            raise
-        else:
-            assert matcher.match(SimpleClass())
-
-    def test_invalid_matcher(self):
-        with assert_raises(TypeError) as context:
-            InvalidMatcher()
-
-        err = context.exception
-        assert_in("InvalidMatcher", err.args[0])
-
-    def test_super_calling(self):
-        with assert_raises(NotImplementedError):
-            SuperCallingMatcher().match(object())
-
-
 class TestAttributeMatcher(Test):
     """Tests for Attribute matcher
     """
@@ -155,48 +100,10 @@ class TestAttributeMatcher(Test):
             "int": Klass()
         }
 
-        # Backup and Replace stdout with StringIO
-        old, sys.stdout = sys.stdout, StringIO()
-
-        try:
+        with assert_raises(Exception):
             self.check_attribute_match(
                 bad_value_dict, MultiAttrClass(), False
             )
-        except AssertionError:
-            raise
-        else:
-            output = sys.stdout.getvalue()
-            assert_in("unknown matcher", output.lower())
-            assert_in("klass", output.lower())
-        finally:
-            sys.stdout.close()
-            sys.stdout = old
-
-
-class TestInstanceMatcher(Test):
-    """Tests for Instance matcher
-    """
-
-    def instance_match(self, clazz, attrs=None, obj=None, should_match=True):
-        match_with = obj if obj is not None else clazz()
-        assert_val = Instance(clazz, attrs).match(match_with)
-
-        if not should_match:
-            assert_val = not assert_val
-            msg = "{0!r} matched Instance({0.__class__.__qualname__}, {1})"
-        else:
-            msg = "{0!r} didn't match Instance({0.__class__.__qualname__}, {1})"  # noqa
-        assert assert_val, msg.format(match_with, attrs)
-
-    def test_instance_match(self):
-        mis_match_class = MultiAttrClass()
-        mis_match_class.int += 1
-        yield from self.yield_tests(self.instance_match, [
-            [BasicClass],
-            [MultiAttrClass, MultiAttrClass.value_dict],  # noqa
-            [BasicClass, None, object(), False],
-            [MultiAttrClass, MultiAttrClass.value_dict, mis_match_class, False]  # noqa
-        ])
 
 
 if __name__ == '__main__':
