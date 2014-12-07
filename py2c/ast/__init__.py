@@ -7,6 +7,7 @@
 #------------------------------------------------------------------------------
 
 import re
+from py2c.utils import get_article
 
 
 #------------------------------------------------------------------------------
@@ -229,8 +230,8 @@ class AST(object):
                     "Expected {0} {1} for attribute {2}.{3}, "
                     "got {4!r} which is not {0} {1}"
                 ).format(
-                    "an" if type_.__name__[0] in "aeiou" else "a",
-                    type_.__name__, self.__class__.__name__, name, value
+                    get_article(type_), type_.__name__,
+                    self.__class__.__name__, name, value
                 )
             )
 

@@ -1,4 +1,4 @@
-"""Implements an Abstract Base Class for Modifiers
+"""An Abstract Base Class for Modifiers
 """
 
 #------------------------------------------------------------------------------
@@ -7,30 +7,18 @@
 #------------------------------------------------------------------------------
 
 import abc
-from py2c.matcher import Matcher
+
+from py2c.utils import verify_attribute
 from py2c.modifiers.matchers.base_matcher import BaseMatcher
 
 
 class BaseModifier(object, metaclass=abc.ABCMeta):
-    """Base class of all modifier
+    """Base class of all modifiers
     """
 
     def __init__(self):
         super().__init__()
-        if not hasattr(self, "matcher"):
-            raise AttributeError(
-                "{} should have a matcher attribute.".format(
-                    self.__class__.__qualname__
-                )
-            )
-        elif not isinstance(self.matcher, Matcher):
-            raise TypeError(
-                "{}.matcher should be an instance of a subclass of "
-                "'py2c.matcher.Matcher'"
-                .format(
-                    self.__class__.__qualname__
-                )
-            )
+        verify_attribute(self, "matcher", BaseMatcher)
 
     @abc.abstractmethod  # coverage: no partial
     def modify(self, node):
