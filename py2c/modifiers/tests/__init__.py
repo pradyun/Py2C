@@ -1,7 +1,13 @@
-"""This package contains tests for the modifier infrastructure.
+"""This package contains tests for the modifiers and related infrastructure.
 """
 
+#------------------------------------------------------------------------------
+# Py2C - A Python to C++ compiler
+# Copyright (C) 2014 Pradyun S. Gedam
+#------------------------------------------------------------------------------
+
 from py2c.modifiers import modifier_util
+
 from py2c.tests import Test
 from nose.tools import ok_, eq_
 
@@ -17,5 +23,5 @@ class ModifierTest(Test):
 
     @classmethod
     def setUp(cls):
-        # Clear the variable name counter
-        modifier_util.VARIABLE_HINT_COUNT = {}
+        # Reset the variables in modifier util.
+        modifier_util.reset()

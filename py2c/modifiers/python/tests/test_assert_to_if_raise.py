@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Tests for the conversion of a for-loop into it's equaivalent while-loop
 """
 
@@ -10,7 +9,7 @@
 from py2c.ast import python as py
 from py2c.modifiers.python.assert_to_if_raise import AssertToIfModifier
 
-from . import PyModifierTest
+from py2c.modifiers.python.tests import PyModifierTest
 
 
 class TestAssertToIf(PyModifierTest):

@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """Tests for the conversion of a for-loop into it's equaivalent while-loop
 """
 
@@ -10,7 +9,7 @@
 from py2c.ast import python as py
 from py2c.modifiers.python.for_to_while import ForToWhileModifier
 
-from . import PyModifierTest
+from py2c.modifiers.python.tests import PyModifierTest
 
 
 class TestForToWhile(PyModifierTest):

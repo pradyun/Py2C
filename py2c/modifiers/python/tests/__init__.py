@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """This package contains tests for the Python-level default modifiers.
 """
 
