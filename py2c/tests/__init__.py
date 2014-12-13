@@ -7,11 +7,12 @@ It also contains the integration tests for Py2C.
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+from functools import partial
+from nose.tools import nottest, assert_in, assert_not_in
+
 import inspect
 import warnings
 import traceback
-
-from nose.tools import nottest, assert_in, assert_not_in
 
 
 #------------------------------------------------------------------------------
@@ -19,12 +20,10 @@ from nose.tools import nottest, assert_in, assert_not_in
 #------------------------------------------------------------------------------
 class _TestMetaClass(type):
     """A metaclass for all tests for convenience in working with code.
-
     This metaclass:
       - Makes the 1st line of a test method's docstring it's description.
       - Warns when a subclass has test methods but is not named like a test.
     """
-
     def __new__(meta, name, bases, dic):
         has_tests = False
         for attr, value in dic.items():
@@ -32,11 +31,9 @@ class _TestMetaClass(type):
                 has_tests = True
                 if value.__doc__ is not None:
                     value.description = value.__doc__.splitlines()[0]
-
         if has_tests and not name.startswith("Test"):
             traceback.print_stack(inspect.currentframe(), 2)
             warnings.warn("Test subclasses' name should start with 'Test'")
-
         return super(_TestMetaClass, meta).__new__(meta, name, bases, dic)
 
 
@@ -45,9 +42,14 @@ class Test(object, metaclass=_TestMetaClass):
     """
 
     @nottest
-    def yield_tests(self, test_method, args):
+    def yield_tests(self, test_method, args, described=False):
         for test_args in args:
-            yield tuple([test_method] + list(test_args))
+            if described:
+                func = partial(test_method, *test_args[1:])
+                func.description = test_args[0]
+            else:
+                func = partial(test_method, *test_args)
+            yield func
 
     def assert_message_contains(self, error, required_phrases):
         msg = error.args[0]
