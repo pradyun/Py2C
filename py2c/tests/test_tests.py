@@ -52,6 +52,15 @@ class TestYieldTests(Test):
         for i, test_method in enumerate(tests):
             assert_equal(test_method.description, "Test " + str(i))
 
+    def test_proper_addition_of_prefix_to_description(self):
+        tests = self.yield_tests(check, [
+            ["0", 0],
+            ("1", 1),
+        ], described=True, prefix="Test ")
+
+        for i, test_method in enumerate(tests):
+            assert_equal(test_method.description, "Test " + str(i))
+
 
 class TestAssertMessageContains(Test):
     """py2c.tests.Test.assert_message_contains

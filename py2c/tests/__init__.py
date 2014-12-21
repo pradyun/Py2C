@@ -42,11 +42,11 @@ class Test(object, metaclass=_TestMetaClass):
     """
 
     @nottest
-    def yield_tests(self, test_method, args, described=False):
+    def yield_tests(self, test_method, args, described=False, prefix=""):
         for test_args in args:
             if described:
                 func = partial(test_method, *test_args[1:])
-                func.description = test_args[0]
+                func.description = prefix + test_args[0]
             else:
                 func = partial(test_method, *test_args)
             yield func
