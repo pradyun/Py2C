@@ -1,13 +1,10 @@
-﻿> This project is still in the planning/pre-alpha stages.
-> It is **NOT producing any output**.
+﻿> This project is still in the planning/pre-alpha stages. It is **not working**. 
 
 ## Py2C
 
-[![Build Status](https://travis-ci.org/pradyun/Py2C.svg?branch=master)](https://travis-ci.org/pradyun/Py2C)
-[![Coverage Status](https://img.shields.io/coveralls/pradyun/Py2C.svg)](https://coveralls.io/r/pradyun/Py2C?branch=master)
+[![Build Status](https://travis-ci.org/pradyun/Py2C.svg?branch=master)](https://travis-ci.org/pradyun/Py2C) [![Coverage Status](https://img.shields.io/coveralls/pradyun/Py2C.svg)](https://coveralls.io/r/pradyun/Py2C?branch=master)
 
-A trans-compiler for compiling Python code into hopefully human-readable
-C++ code, (hopefully) somewhat like what humans might actually write.
+A trans-compiler for compiling Python code into hopefully human-readable C++ code, (hopefully) somewhat like what humans might actually write.
 
 This project is currently focused on statically typed programs and optimizing them. This means the current scope of the project is limited. On some future date, this project may also support the entire dynamism of Python, subject to whether such a change is helpful and feasible for the project.
 
@@ -46,9 +43,3 @@ int main() {
 
 Py2C is also extensible though a modifier API, which can be used to accommodate
 for API changes across the languages, for third party packages (like NumPy).
-
-If you are interested in participating in the development of this project,
-read the 'CONTRIBUTING.md' file in the repository root.
-
-For more details, refer to the GitHub wiki pages. Oh wait! I have to write
-them. Sorry!
