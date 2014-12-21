@@ -35,12 +35,12 @@ mktmpenv
 popd > /dev/null
 
 write_text $YELLOW "Cleaning project..."
-python dev_tools/cleanup.py all > /dev/null 2> /dev/null || return 1
+python .dev_tools/cleanup.py all > /dev/null 2> /dev/null || return 1
 write_text $GREEN "done\n"
 
 write_text $YELLOW "Installing build requirements\n"
 write_text $YELLOW "    ply..."
-pip install -q ply || pip install dev_tools/ply-3.4.tar.gz
+pip install -q ply || pip install .dev_tools/ply-3.4.tar.gz
 if [ $? != 0 ]; then
     write_text $RED "failed\n"
     delete_venv $RED
@@ -87,7 +87,7 @@ fi
 write_text $YELLOW "Installing requirements for testing\n"
 
 write_text $YELLOW "    nose..."
-pip install -q nose || pip install dev_tools/nose-1.3.4.tar.gz
+pip install -q nose || pip install .dev_tools/nose-1.3.4.tar.gz
 if [ $? != 0 ]; then
     write_text $RED "failed\n"
     delete_venv $RED

@@ -77,7 +77,7 @@ setup(
     # Package data
     name="py2c",
     version="0.1-dev",
-    packages=find_packages(exclude=["dev_tools"]),
+    packages=find_packages(),
     setup_requires=["ply"],
     # Metadata
     description=description,

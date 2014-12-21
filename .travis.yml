@@ -21,7 +21,7 @@ install:
 
 script:
   # Run the tests
-  - python dev_tools/run_tests.py
+  - python .dev_tools/run_tests.py
 
 after_success:
-  - coveralls --rcfile=dev_tools/.coveragerc
+  - coveralls --rcfile=.dev_tools/.coveragerc
