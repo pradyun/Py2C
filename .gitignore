@@ -1,0 +1,9 @@
+# Ignore auto-build files
+_site
+
+# OS or Editor folders
+Thumbs.db
+*.sublime-*
+
+# Ignore project-specific details
+.dev_tools
