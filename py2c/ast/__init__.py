@@ -6,8 +6,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import re
-from py2c.utils import get_article
+from py2c.utils import get_article, is_valid_dotted_identifier
 
 
 #------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ def iter_fields(node):
 class _IdentifierMetaClass(type):
 
     def __instancecheck__(self, obj):
-        return isinstance(obj, str) and self._regex.match(obj) is not None
+        return isinstance(obj, str) and is_valid_dotted_identifier(obj)
 
     def __subclasscheck__(self, obj):
         return issubclass(obj, str)
@@ -58,18 +57,13 @@ class _IdentifierMetaClass(type):
 
 class identifier(str, metaclass=_IdentifierMetaClass):
 
-    # A regex that matches valid, optionally dotted, Python names
-    _regex = re.compile(
-        "^(?:[_a-zA-Z][a-zA-Z0-9_]*)(?:\.(?:[_a-zA-Z][a-zA-Z0-9_]*))*$"
-    )
-
     def __new__(self, s):
-        if self._regex.match(s) is None:
+        if is_valid_dotted_identifier(s):
+            return s
+        else:
             raise WrongAttributeValueError(
                 "Invalid value for identifier: {}".format(s)
             )
-        else:
-            return s
 
 
 #------------------------------------------------------------------------------

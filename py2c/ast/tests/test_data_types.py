@@ -47,7 +47,8 @@ class DataTypeTestBase(Test):
     """
 
     def check_valid_initialization(self, arg):
-        assert_equal(self.class_(arg), arg)
+        obj = self.class_(arg)
+        assert_equal(obj, arg)
 
     def check_invalid_initialization(self, arg):
         with assert_raises(ast.WrongAttributeValueError):
@@ -90,7 +91,7 @@ class TestIdentifier(DataTypeTestBase):
             ("valid.name", True),
             ("_valid_name_", True),
             ("_valid._attr_", True),
-            ("虎", False),  # Should this be?
+            ("虎", True),
             ("Invalid name", False)
         ])
 
