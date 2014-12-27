@@ -20,7 +20,7 @@ echo -e "\e[1;32mDone\e[0m"
 popd > /dev/null
 
 # Delegated to a python script...
-python ./.dev_tools/check_packaging.py
+python ./dev_tools/check_packaging.py
 
 echo -e -n "\e[1;33mDeleting temporary virtualenv...\e[0m"
 deactivate > /dev/null

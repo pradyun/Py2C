@@ -24,11 +24,11 @@ DEBUG = False
 
 # Dependencies
 BUILD_DEPENDENCIES = [
-    ("ply", "./.dev_tools/packages/ply-3.4.tar.gz"),
+    ("ply", "./dev_tools/packages/ply-3.4.tar.gz"),
 ]
 TEST_DEPENDENCIES = [
-    ("nose", "./.dev_tools/packages/nose-1.3.4.tar.gz"),
-    ("coverage", "./.dev_tools/packages/coverage-3.7.1.tar.gz"),
+    ("nose", "./dev_tools/packages/nose-1.3.4.tar.gz"),
+    ("coverage", "./dev_tools/packages/coverage-3.7.1.tar.gz"),
 ]
 
 
@@ -92,7 +92,7 @@ def install_dependency(name, local_file_name):
 def clean_project():
     run_and_report(
         "Cleaning project...", "Couldn't clean!", "Done!",
-        "python .dev_tools/cleanup.py all", False
+        "python dev_tools/cleanup.py all", False
     )
 
 

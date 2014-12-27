@@ -2,9 +2,9 @@
 README.html
 
 # Misc notes
-.dev_tools/notes
+dev_tools/notes
 # Some helper-packages (Custom bootstrap)
-.dev_tools/packages
+dev_tools/packages
 # Test-related reports
 test-report
 
