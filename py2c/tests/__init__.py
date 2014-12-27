@@ -66,8 +66,10 @@ def runmodule(capture=True):
     """
     import nose
     env = {
-        "NOSE_WITH_HTML_REPORT": "1",
+        "NOSE_WITH_HTML_REPORT": "True",
         "NOSE_HTML_OUTPUT_FILE": "/tmp/test-html/index.html",
+        "NOSE_WITH_SPECPLUGIN": "True",
+        "NOSE_NO_SPEC_COLOR": "True"
     }
     if not capture:
         env["NOSE_NOCAPTURE"] = "1"
