@@ -27,6 +27,9 @@ class TranslationError(Exception):
         self.errors = errors
 
 
+#------------------------------------------------------------------------------
+# Translator
+#------------------------------------------------------------------------------
 class PythonToAST(object):
     """Translates Python code into Py2C AST
     """

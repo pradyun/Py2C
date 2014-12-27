@@ -1,4 +1,4 @@
-"""Miscellaneous things done multiple times in the package, moved here.
+"""Miscellaneous things done multiple times in the package, moved here. (Implementation detail)
 """
 
 #------------------------------------------------------------------------------

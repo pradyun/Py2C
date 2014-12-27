@@ -7,7 +7,6 @@
 #------------------------------------------------------------------------------
 
 import abc
-import warnings
 
 
 class BaseMatcher(object, metaclass=abc.ABCMeta):
