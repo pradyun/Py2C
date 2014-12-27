@@ -19,7 +19,7 @@ BASE_DIR = realpath(join(__file__, "..", ".."))
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
-    ".fuse_hidden*", "*.egg"
+    "*.fuse_hidden*", "*.egg"
 ]
 
 

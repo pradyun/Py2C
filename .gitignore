@@ -3,6 +3,8 @@ README.html
 
 # Misc notes
 .dev_tools/notes
+# Some helper-packages (Custom bootstrap)
+.dev_tools/packages
 # Test-related reports
 test-report
 

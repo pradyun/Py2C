@@ -20,16 +20,25 @@ import coverage
 base_dir = realpath(dirname(__file__))
 root_dir = join(dirname(base_dir), "py2c")
 
+REPORT = True
+if "--dont-report" in sys.argv:
+    sys.argv.remove("--dont-report")
+    REPORT = False
+
 cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
 cov.start()
 success = nose.run(
-    env={"NOSE_INCLUDE_EXE": "True", "NOSE_WITH_HTML_REPORT": "True"},
-    defaultTest=root_dir
+    env={
+        "NOSE_INCLUDE_EXE": "True",
+        "NOSE_WITH_HTML_REPORT": "True",
+        "NOSE_WITH_SPECPLUGIN": "True"
+    },
+    defaultTest=root_dir,
 )
 cov.stop()
 cov.save()
 
-if success:
+if success and REPORT:
     cov.html_report()
     cov.report()
 
