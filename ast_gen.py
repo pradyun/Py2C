@@ -97,6 +97,8 @@ class Parser(object):
         self._lexer = ply.lex.lex(module=self, optimize=True)
         self._parser = ply.yacc.yacc(module=self, start="start", optimize=True)
 
+        self.seen_node_names = set()
+
     def parse(self, text):
         """Parses the definition text into a data representation of it.
         """
@@ -135,20 +137,25 @@ class Parser(object):
     def p_declaration(self, p):
         "declaration : NAME parent_class_opt ':' '[' attr_list ']'"
         name, attrs = (p[1], p[5])
-        # Check for duplicates
-        seen = []
-        duplicated = []
+        if name in self.seen_node_names:
+            raise ParserError(
+                "Multiple declarations of name {!r}".format(name)
+            )
+        self.seen_node_names.add(name)
+        # Check for duplicate fields
+        seen_fields = []
+        duplicated_fields = []
         for field_name, _, _ in attrs:
-            if field_name in seen:
-                duplicated.append(field_name)
+            if field_name in seen_fields:
+                duplicated_fields.append(field_name)
             else:
-                seen.append(field_name)
+                seen_fields.append(field_name)
 
-        if duplicated:
+        if duplicated_fields:
             msg = "Multiple declarations in {!r} of attribute{} {!r}".format(
                 name,
-                "s" if len(duplicated) > 1 else "",
-                ", ".join(duplicated)
+                "s" if len(duplicated_fields) > 1 else "",
+                ", ".join(duplicated_fields)
             )
             raise ParserError(msg)
         else:

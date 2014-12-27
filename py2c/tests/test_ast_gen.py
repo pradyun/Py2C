@@ -40,14 +40,13 @@ del get_ast_gen
 # Tests
 #------------------------------------------------------------------------------
 class TestParser(Test):
-
-    """Tests for ast_gen.Parser
+    """ast_gen.Parser
     """
 
     #--------------------------------------------------------------------------
     # Comments
     #--------------------------------------------------------------------------
-    def check_remove_comment(self, test_string, expected):
+    def check_removal_of_comments(self, test_string, expected):
         assert_equal(
             ast_gen.remove_comments(test_string),
             expected
@@ -56,24 +55,33 @@ class TestParser(Test):
     def test_comment_handling(self):
         """Tests ast_gen.Parser's comment handling capability
         """
-        yield from self.yield_tests(self.check_remove_comment, [
+        yield from self.yield_tests(self.check_removal_of_comments, [
             (
-                "#test: [a,string]",
-                ""
-            ),
-            (
+                "empty input",
                 "",
                 ""
             ),
             (
+                "full line comment without trailing newline",
+                "#test: [a,string]",
+                ""
+            ),
+            (
+                "full line comment with trailing newline",
+                "#test: [a,string]\n",
+                "\n"
+            ),
+            (
+                "inline comment",
                 "foo: [] #test: [a,string]",
                 "foo: [] "
             ),
             (
+                "inline comment with a rule on next line",
                 "foo:[] # test\nblah: []",
                 "foo:[] \nblah: []"
             )
-        ])
+        ], described=True, prefix="comment removal with ")
 
     #--------------------------------------------------------------------------
     # Properties
@@ -87,14 +95,17 @@ class TestParser(Test):
         """
         yield from self.yield_tests(self.check_property_parsing, [
             (
+                "an empty node, without parent",
                 "foo: []",
                 [ast_gen.Node('foo', None, [])]
             ),
             (
+                "an empty node, with parent",
                 "foo(AST): []",
                 [ast_gen.Node('foo', 'AST', [])]
             ),
             (
+                "a simple node, without parent",
                 "foo: [int bar]",
                 [ast_gen.Node(
                     'foo',
@@ -103,6 +114,7 @@ class TestParser(Test):
                 )]
             ),
             (
+                "a simple node, with parent",
                 "foo(AST): [int bar]",
                 [ast_gen.Node(
                     'foo',
@@ -111,6 +123,7 @@ class TestParser(Test):
                 )]
             ),
             (
+                "a node with all modifiers",
                 "FooBar: [int foo, int+ bar, int* baz, int? spam]",
                 [
                     ast_gen.Node(
@@ -125,6 +138,7 @@ class TestParser(Test):
                 ]
             ),
             (
+                "a node with multiple rules",
                 """
                 base1: [int field1]
                 base2(base1): [int field2]
@@ -145,12 +159,12 @@ class TestParser(Test):
                     ),
                 ]
             )
-        ])
+        ], described=True, prefix="parsing of ")
 
     #--------------------------------------------------------------------------
     # Errors
     #--------------------------------------------------------------------------
-    def check_error_report(self, test_string, required_words):
+    def check_error_reporting(self, test_string, required_words):
         with assert_raises(ast_gen.ParserError) as context:
             ast_gen.Parser().parse(test_string)
         msg = context.exception.args[0].lower()
@@ -161,17 +175,32 @@ class TestParser(Test):
     def test_error_reporting(self):
         """Tests ast_gen.Parser's error reports for important information
         """
-        yield from self.yield_tests(self.check_error_report, [
-            ("foo: [int bar, int bar]", ["multiple", "attribute", "foo", "bar"]),  # noqa
-            ("foo: [int bar, int bar]\n" * 2, ["multiple", "declaration", "foo"]),  # noqa
-            ("$foo: []", ["token", "unable", "$foo"]),
-            ("foo: [bar, baz]", ["unexpected", "','"])
-        ])
+        yield from self.yield_tests(self.check_error_reporting, [
+            (
+                "multiple attributes with same name",
+                "foo: [int bar, int bar]",
+                ["multiple", "attribute", "foo", "bar"]
+            ),
+            (
+                "multiple declarations of node",
+                "foo: []\n" * 2,
+                ["multiple", "declaration", "foo"]
+            ),
+            (
+                "invalid token",
+                "$foo: []",
+                ["token", "unable", "$foo"]
+            ),
+            (
+                "no data-type",
+                "foo: [bar, baz]",
+                ["unexpected", "','"]
+            )
+        ], described=True, prefix="error reporting for ")
 
 
 class TestSourceGenerator(Test):
-
-    """Tests for ast_gen.SourceGenerator
+    """ast_gen.SourceGenerator
     """
 
     def check_generated_source(self, data, expected_output):
@@ -187,6 +216,7 @@ class TestSourceGenerator(Test):
         """
         yield from self.yield_tests(self.check_generated_source, [
             (
+                "without fields, without parent",
                 [ast_gen.Node('FooBar', None, [])],
                 """
                 class FooBar(object):
@@ -194,6 +224,7 @@ class TestSourceGenerator(Test):
                 """
             ),
             (
+                "without fields, with parent",
                 [ast_gen.Node('FooBar', 'AST', [])],
                 """
                 class FooBar(AST):
@@ -201,6 +232,7 @@ class TestSourceGenerator(Test):
                 """
             ),
             (
+                "with fields, without parent",
                 [ast_gen.Node(
                     'FooBar',
                     None,
@@ -214,6 +246,7 @@ class TestSourceGenerator(Test):
                 """
             ),
             (
+                "with fields, with parent",
                 [ast_gen.Node(
                     'FooBar',
                     'AST',
@@ -227,6 +260,7 @@ class TestSourceGenerator(Test):
                 """
             ),
             (
+                "with fields, with parent, with all modifiers",
                 [ast_gen.Node(
                     'FooBar',
                     'AST',
@@ -248,6 +282,7 @@ class TestSourceGenerator(Test):
                 """
             ),
             (
+                "with multiple fields",
                 [
                     ast_gen.Node(
                         'base1',
@@ -282,7 +317,7 @@ class TestSourceGenerator(Test):
                     _fields = []
                 """
             )
-        ])
+        ], described=True, prefix="code generation for node ")
 
 if __name__ == '__main__':
     from py2c.tests import runmodule

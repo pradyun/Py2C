@@ -29,3 +29,9 @@ def get_article(type_):
         return "an"
     else:
         return "a"
+
+
+def is_valid_dotted_identifier(string):
+    """Check if the given string is a valid dotted identifier.
+    """
+    return all(part.isidentifier() for part in string.split("."))
