@@ -6,10 +6,10 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.modifiers.matchers.attributes import Attributes
-
-from py2c.tests import Test
 from nose.tools import assert_raises
+
+from py2c.modifiers.matchers.attributes import Attributes
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -108,4 +108,5 @@ class TestAttributeMatcher(Test):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

@@ -6,15 +6,15 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import ast
 import random
 import textwrap
 
+from nose.tools import assert_equal, assert_raises, assert_in
+
+import ast
 from py2c.ast import python
 from py2c.pre_processing.to_ast import PythonToAST, TranslationError
-
 from py2c.tests import Test
-from nose.tools import assert_equal, assert_raises, assert_in
 
 
 # TODO: Refactor to_ast.py to use 'logging' module.
@@ -231,21 +231,21 @@ class TestSimpleStatement(CodeTest):
             ])),
             ("del (a, b)", python.Delete(targets=[
                 python.Tuple([
-                    python.Name("a", python.Del()),
-                    python.Name("b", python.Del()),
-                ], python.Del()),
+                                 python.Name("a", python.Del()),
+                                 python.Name("b", python.Del()),
+                             ], python.Del()),
             ])),
             ("del (a\n, b)", python.Delete(targets=[
                 python.Tuple([
-                    python.Name("a", python.Del()),
-                    python.Name("b", python.Del())
-                ], python.Del()),
+                                 python.Name("a", python.Del()),
+                                 python.Name("b", python.Del())
+                             ], python.Del()),
             ])),
             ("del (a\n, b), c", python.Delete(targets=[
                 python.Tuple([
-                    python.Name("a", python.Del()),
-                    python.Name("b", python.Del())
-                ], python.Del()),
+                                 python.Name("a", python.Del()),
+                                 python.Name("b", python.Del())
+                             ], python.Del()),
                 python.Name("c", python.Del()),
             ])),
         ])
@@ -268,43 +268,43 @@ class TestSimpleStatement(CodeTest):
     def test_import_module(self):
         yield from self.yield_tests(self.check_code_translation, [
             (  # Single import
-                "import apple",
-                python.Import([
-                    python.alias("apple", None),
-                ])
+               "import apple",
+               python.Import([
+                   python.alias("apple", None),
+               ])
             ),
             (  # Single subpackage import
-                "import apple.ball",
-                python.Import([
-                    python.alias("apple.ball", None),
-                ])
+               "import apple.ball",
+               python.Import([
+                   python.alias("apple.ball", None),
+               ])
             ),
             (  # Single alias import
-                "import apple as ball",
-                python.Import([
-                    python.alias("apple", "ball"),
-                ])
+               "import apple as ball",
+               python.Import([
+                   python.alias("apple", "ball"),
+               ])
             ),
             (  # Multiple imports, 1 alias, 1 simple
-                "import apple as ball, cat",
-                python.Import([
-                    python.alias("apple", "ball"),
-                    python.alias("cat", None),
-                ])
+               "import apple as ball, cat",
+               python.Import([
+                   python.alias("apple", "ball"),
+                   python.alias("cat", None),
+               ])
             ),
             (  # Multiple alias imports
-                "import apple as ball, cat as dog",
-                python.Import([
-                    python.alias("apple", "ball"),
-                    python.alias("cat", "dog"),
-                ])
+               "import apple as ball, cat as dog",
+               python.Import([
+                   python.alias("apple", "ball"),
+                   python.alias("cat", "dog"),
+               ])
             ),
             (  # Multiple alias imports from subpackage
-                "import apple.ball as ball, cat as dog",
-                python.Import([
-                    python.alias("apple.ball", "ball"),
-                    python.alias("cat", "dog"),
-                ])
+               "import apple.ball as ball, cat as dog",
+               python.Import([
+                   python.alias("apple.ball", "ball"),
+                   python.alias("cat", "dog"),
+               ])
             ),
         ])
 
@@ -528,4 +528,5 @@ class TestsCompoundStatementPart(CodeTest):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

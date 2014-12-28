@@ -47,7 +47,6 @@ def iter_fields(node):
 # identifier object
 #------------------------------------------------------------------------------
 class _IdentifierMetaClass(type):
-
     def __instancecheck__(self, obj):
         return isinstance(obj, str) and is_valid_dotted_identifier(obj)
 
@@ -56,7 +55,6 @@ class _IdentifierMetaClass(type):
 
 
 class identifier(str, metaclass=_IdentifierMetaClass):
-
     def __new__(self, s):
         if is_valid_dotted_identifier(s):
             return s
@@ -70,7 +68,6 @@ class identifier(str, metaclass=_IdentifierMetaClass):
 # Singleton object
 #------------------------------------------------------------------------------
 class _SingletonMetaClass(type):
-
     def __subclasscheck__(self, obj):
         return issubclass(obj, (bool, None.__class__)) or super().__subclasscheck__(obj)
 
@@ -81,6 +78,7 @@ class _SingletonMetaClass(type):
 class singleton(object, metaclass=_SingletonMetaClass):
     """Names pointing to constant values
     """
+
     _valid_values = (True, False, None)
 
     def __new__(cls, value):
@@ -167,9 +165,11 @@ class AST(object):
                 elif modifier == ZERO_OR_MORE:
                     self.__dict__[name] = ()
                 else:
-                    raise AttributeError("{} uses unknown modifier for {}".format(
-                        self.__class__.__name__, name
-                    ))
+                    raise AttributeError(
+                        "{} uses unknown modifier for {}".format(
+                            self.__class__.__name__, name
+                        )
+                    )
             else:
                 if modifier in (ZERO_OR_MORE, ONE_OR_MORE):
                     self.__dict__[name] = tuple(getattr(self, name))

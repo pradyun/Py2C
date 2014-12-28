@@ -6,10 +6,10 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.managers.base_manager import BaseManager
-
-from py2c.tests import Test
 from nose.tools import assert_raises
+
+from py2c.managers.base_manager import BaseManager
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -31,7 +31,6 @@ class NoRunManager(BaseManager):
 
 
 class NoOptionsManager(BaseManager):
-
     def run(self, node):
         pass
 
@@ -84,7 +83,7 @@ class TestBaseManager(Test):
             (
                 "with a non-dictionary options attribute",
                 OptionsNotADictManager, TypeError,
-                ["OptionsNotADictManager", "options", "should be", "instance", dict.__qualname__] # noqa
+                ["OptionsNotADictManager", "options", "should be", "instance", dict.__qualname__]  # noqa
             ),
         ], described=True, prefix="initialization of manager ")
 
@@ -94,6 +93,8 @@ class TestBaseManager(Test):
         with assert_raises(NotImplementedError):
             manager.run(object())
 
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

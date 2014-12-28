@@ -8,11 +8,12 @@ It also contains the integration tests for Py2C.
 #------------------------------------------------------------------------------
 
 from functools import partial
-from nose.tools import nottest, assert_in, assert_not_in
-
 import inspect
 import warnings
 import traceback
+
+from nose.tools import nottest, assert_in, assert_not_in
+
 
 
 #------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ class _TestMetaClass(type):
       - Makes the 1st line of a test method's docstring it's description.
       - Warns when a subclass has test methods but is not named like a test.
     """
+
     def __new__(meta, name, bases, dic):
         has_tests = False
         for attr, value in dic.items():
@@ -65,6 +67,7 @@ def runmodule(capture=True):
     """A shorthand for running tests in test modules
     """
     import nose
+
     env = {
         "NOSE_WITH_HTML_REPORT": "True",
         "NOSE_HTML_OUTPUT_FILE": "/tmp/test-html/index.html",

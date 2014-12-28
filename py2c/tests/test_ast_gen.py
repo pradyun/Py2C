@@ -8,8 +8,9 @@
 
 from textwrap import dedent
 
-from py2c.tests import Test
 from nose.tools import assert_equal, assert_in, assert_raises
+
+from py2c.tests import Test
 
 
 def get_ast_gen():
@@ -24,6 +25,7 @@ def get_ast_gen():
     if exists(join(path, "ast_gen.py")):
         sys.path.append(path)
         import ast_gen
+
         sys.path.pop()
     else:
         raise ImportError(
@@ -31,6 +33,7 @@ def get_ast_gen():
         )
 
     return ast_gen
+
 
 ast_gen = get_ast_gen()
 del get_ast_gen
@@ -319,6 +322,8 @@ class TestSourceGenerator(Test):
             )
         ], described=True, prefix="code generation for node ")
 
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

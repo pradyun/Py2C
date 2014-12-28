@@ -13,7 +13,6 @@ from py2c.modifiers.python.tests import PyModifierTest
 
 
 class TestForToWhile(PyModifierTest):
-
     def test_for_to_while_without_else_clause(self):
         """Test py2c.modifiers.python.for_to_while for a for loop without else.
 
@@ -259,6 +258,8 @@ class TestForToWhile(PyModifierTest):
 
         self.check_modifier_result(ForToWhileModifier(), node, expected)
 
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

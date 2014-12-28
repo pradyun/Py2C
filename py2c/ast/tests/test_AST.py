@@ -6,10 +6,10 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c import ast
-
-from py2c.tests import Test
 from nose.tools import assert_raises, assert_equal, assert_not_equal
+
+from py2c import ast
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ class TestAST(Test):
         """
         yield from self.yield_tests(self.check_assignment, [
             (
-               "NEEDED with False-ish value",
+                "NEEDED with False-ish value",
                 AllIntModifersNode, "f1", 0
             ),
             (
@@ -393,4 +393,5 @@ class TestAST(Test):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

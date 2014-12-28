@@ -6,18 +6,18 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+from nose.tools import assert_raises
+
 from py2c.modifiers.base_modifier import BaseModifier
 from py2c.modifiers.matchers.base_matcher import BaseMatcher
-
-from nose.tools import assert_raises
 from py2c.modifiers.tests import ModifierTest
+
 
 
 #------------------------------------------------------------------------------
 # Helper classes
 #------------------------------------------------------------------------------
 class SimpleMatcher(BaseMatcher):
-
     def match(self, node):
         return hasattr(node, "should_match")
 
@@ -38,7 +38,6 @@ class NoModifyModifier(BaseModifier):
 
 
 class NoMatcherModifier(BaseModifier):
-
     def modify(self, node):
         pass
 
@@ -92,6 +91,8 @@ class TestBaseModifier(ModifierTest):
         with assert_raises(NotImplementedError):
             modifier.modify(object())
 
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

@@ -6,10 +6,10 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.modifiers.matchers.base_matcher import BaseMatcher
-
-from py2c.tests import Test
 from nose.tools import assert_raises
+
+from py2c.modifiers.matchers.base_matcher import BaseMatcher
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -101,4 +101,5 @@ class TestMatcher(Test):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

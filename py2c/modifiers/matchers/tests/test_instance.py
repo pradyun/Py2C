@@ -6,10 +6,10 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.modifiers.matchers.instance import Instance
-
-from py2c.tests import Test
 from nose.tools import assert_true
+
+from py2c.modifiers.matchers.instance import Instance
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -67,4 +67,5 @@ class TestInstanceMatcher(Test):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

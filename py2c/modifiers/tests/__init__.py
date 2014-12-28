@@ -6,14 +6,13 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.modifiers import modifier_util
-
-from py2c.tests import Test
 from nose.tools import ok_, eq_
+
+from py2c.modifiers import modifier_util
+from py2c.tests import Test
 
 
 class ModifierTest(Test):
-
     def check_modifier_result(self, modifier, node, expected):
         ok_(
             modifier.matcher.match(node),

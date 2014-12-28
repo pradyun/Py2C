@@ -6,8 +6,9 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.tests import Test
 from nose.tools import assert_equal, assert_raises
+
+from py2c.tests import Test
 
 
 def check(a, b):
@@ -87,6 +88,8 @@ class TestAssertMessageContains(Test):
             Exception("Hello World!"), ["Hello", "World!"]
         )
 
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()

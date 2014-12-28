@@ -6,12 +6,12 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c import ast
-
-from py2c.tests import Test
 from nose.tools import (
     assert_raises, assert_equal, assert_is_instance, assert_not_is_instance
 )
+
+from py2c import ast
+from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ class TestIdentifier(DataTypeTestBase):
     def test_valid_initialization(self):
         yield from self.yield_tests(self.check_valid_initialization, [
             ["valid_name"],
-            ["a" + "_really"*100 + "_long_name"],
+            ["a" + "_really" * 100 + "_long_name"],
             ["a"],
         ])
 
