@@ -13,6 +13,12 @@ the tests are run in a consistent environment.
 import sys
 from os.path import join, realpath, dirname
 
+# Local modules
+import cleanup
+cleanup.REMOVE_GENERATED_AST = False
+cleanup.PRINT_OUTPUT = False
+cleanup.main()
+
 # Third Party modules
 import nose
 import coverage

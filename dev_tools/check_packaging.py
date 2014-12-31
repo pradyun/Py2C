@@ -23,13 +23,8 @@ COLOR_CODES = {
 DEBUG = False
 
 # Dependencies
-BUILD_DEPENDENCIES = [
-    ("ply", "./dev_tools/packages/ply-3.4.tar.gz"),
-]
-TEST_DEPENDENCIES = [
-    ("nose", "./dev_tools/packages/nose-1.3.4.tar.gz"),
-    ("coverage", "./dev_tools/packages/coverage-3.7.1.tar.gz"),
-]
+BUILD_DEPENDENCIES = []
+TEST_DEPENDENCIES = ["ply", "nose", "coverage"]
 
 
 #------------------------------------------------------------------------------
@@ -77,12 +72,11 @@ def run_and_report(msg, error_msg, success_msg, command, should_show_output=True
 #------------------------------------------------------------------------------
 # Shorthands
 #------------------------------------------------------------------------------
-def install_dependency(name, local_file_name):
+def install_dependency(name):
     run_and_report(
         "   " + name + "...",
         "Couldn't install!", "Done!",
         "pip install -q {}".format(name)
-        # "pip install {}".format(local_file_name)  # Use when offline.
     )
 
 
@@ -92,21 +86,24 @@ def install_dependency(name, local_file_name):
 def clean_project():
     run_and_report(
         "Cleaning project...", "Couldn't clean!", "Done!",
-        "python dev_tools/cleanup.py all", False
+        sys.executable + " dev_tools/cleanup.py all", False
     )
 
 
 def install_dependencies(type_, dependencies):
+    if not dependencies:
+        log("report", "No ", type_, " dependencies.\n")
+        return
     log("report", "Installing ", type_, " dependencies:\n")
     for dependency in dependencies:
-        install_dependency(*dependency)
+        install_dependency(dependency)
 
 
 def install_package():
     run_and_report(
         "Installing package...",
         "Failed to install!", "Done!",
-        "python setup.py install", False
+        sys.executable + " setup.py install", False
     )
 
 
@@ -114,13 +111,13 @@ def basic_installation_checks():
     run_and_report(
         "Check: Is project installed? ",
         "Couldn't import project!", "Yes!",
-        "python -c 'import py2c'", False
+        sys.executable + " -c 'import py2c'", False
     )
 
     run_and_report(
         "Check: Is auto-generated file usable? ",
         "No!", "Yes!",
-        "python -c 'import py2c.ast.python'", False
+        sys.executable + " -c 'import py2c.ast.python'", False
     )
 
 

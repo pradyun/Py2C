@@ -12,6 +12,8 @@
 #   - Current working directory is the root of the project.
 #------------------------------------------------------------------------------
 
+pushd . > /dev/null
+
 # Create a temporary venv (with virtualenvwrapper) and come back to same directory
 pushd /tmp > /dev/null
 echo -e -n "\e[1;33mMaking temporary virtualenv for the build...\e[0m"
@@ -20,8 +22,10 @@ echo -e "\e[1;32mDone\e[0m"
 popd > /dev/null
 
 # Delegated to a python script...
-python ./dev_tools/check_packaging.py
+./dev_tools/check_packaging.py
 
 echo -e -n "\e[1;33mDeleting temporary virtualenv...\e[0m"
 deactivate > /dev/null
 echo -e "\e[1;32mDone\e[0m"
+
+popd

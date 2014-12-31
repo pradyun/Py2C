@@ -13,6 +13,7 @@ import fnmatch
 import shutil
 from os.path import join, realpath
 
+PRINT_OUTPUT = True
 REMOVE_GENERATED_AST = len(sys.argv) > 1 and sys.argv[1].lower() == "all"
 BASE_DIR = realpath(join(__file__, "..", ".."))
 
@@ -21,6 +22,11 @@ FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
     "*.fuse_hidden*", "*.egg"
 ]
+
+
+def log(*args, **kwargs):
+    if PRINT_OUTPUT:
+        print(*args, **kwargs)
 
 
 def matches_any_pattern(name, patterns):
@@ -54,13 +60,13 @@ def main():
 
         for name in dirs:
             if should_remove_folder(root, name):
-                print("Removing Folder:", join(root, name))
+                log("Removing Folder:", join(root, name))
                 shutil.rmtree(join(root, name))
 
         for name in files:
             if should_remove_file(root, name):
                 fname = join(root, name)
-                print("Removing File:", fname)
+                log("Removing File:", fname)
                 os.remove(fname)
 
 
