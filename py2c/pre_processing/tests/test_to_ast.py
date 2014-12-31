@@ -17,7 +17,7 @@ from py2c.pre_processing.to_ast import PythonToAST, TranslationError
 from py2c.tests import Test
 
 
-# TODO: Refactor to_ast.py to use 'logging' module.
+
 # XXX: Depends on implementation detail
 class TestErrorReporting(Test):
     """Tests for error reporting for PythonToAST
@@ -491,8 +491,6 @@ class TestCompoundStatement(CodeTest):
                 )
             )
         ])
-
-    # TODO: Add tests for classes and functions
 
 
 class TestsCompoundStatementPart(CodeTest):

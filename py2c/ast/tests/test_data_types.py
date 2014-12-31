@@ -185,6 +185,7 @@ class TestSingleton(DataTypeTestBase):
             (0.0, False),
             ([], False),
             ((), False),
+            (object(), False),
         ])
 
     def test_issubclass(self):
@@ -238,4 +239,5 @@ class TestSingleton(DataTypeTestBase):
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
+
     runmodule()
