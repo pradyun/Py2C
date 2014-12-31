@@ -1,3 +1,2 @@
 include README.md
-include ast_gen.py
 include py2c/ast/*.ast

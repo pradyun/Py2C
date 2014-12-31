@@ -42,7 +42,7 @@ def should_remove_file(root, name):
             REMOVE_GENERATED_AST and
             root.endswith(os.path.join("py2c", "ast")) and
             name.endswith(".py") and
-            name not in ["__init__.py"]
+            name not in ["__init__.py", "ast_gen.py"]
         )
     )
 

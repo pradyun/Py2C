@@ -273,3 +273,4 @@ def generate(source_dir, output_dir, update=False):  # coverage: not missing
 
 if __name__ == '__main__':
     generate("py2c/ast", "py2c/ast", True)
+

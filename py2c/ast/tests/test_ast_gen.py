@@ -8,35 +8,10 @@
 
 from textwrap import dedent
 
-from nose.tools import assert_equal, assert_in, assert_raises
+from py2c.ast import ast_gen
 
 from py2c.tests import Test
-
-
-def get_ast_gen():
-    # Imports ast_gen.py for testing purposes.
-    import sys
-    from os.path import dirname, exists, join
-
-    path = dirname(dirname(dirname(__file__)))
-
-    # This if statement exists to prevent the user from getting a wierd
-    # import error about some non-existent file. Instead
-    if exists(join(path, "ast_gen.py")):
-        sys.path.append(path)
-        import ast_gen
-
-        sys.path.pop()
-    else:
-        raise ImportError(
-            "Can't import ast_gen.py. Please check that it exists."
-        )
-
-    return ast_gen
-
-
-ast_gen = get_ast_gen()
-del get_ast_gen
+from nose.tools import assert_equal, assert_in, assert_raises
 
 
 #------------------------------------------------------------------------------

@@ -6,6 +6,7 @@
 
 # pylint:disable=C0103
 import sys
+
 if sys.version_info[:2] < (3, 3):
     print("Cannot run on Python versions before Python 3.3")
     sys.exit(1)
@@ -26,16 +27,6 @@ try:  # If ever setuptools improves on the build_py command.
 except ImportError:
     from distutils.command.build_py import build_py as _build_py
 
-sys.path.append(realpath(dirname(__file__)))
-
-try:
-    import ast_gen
-except ImportError as err:
-    print("ERROR: ", err)
-    print(" ----> Try again after installing PLY.")
-    sys.exit(1)
-finally:
-    sys.path.pop()
 
 path_to_ast_definitions = realpath(join(dirname(__file__), "py2c", "ast"))
 
@@ -45,8 +36,17 @@ class build_py(_build_py):
     """
 
     def initialize_options(self):
+        # Add py2c to sys.path
+        sys.path.append(realpath(dirname(__file__)))
+        try:
+            import py2c.ast.ast_gen as ast_gen
+        except Exception as err:
+            print("ERROR: ", err)
+            sys.exit(1)
+        finally:
+            sys.path.pop()
         ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
-        # This line also prevents installation on Python 2 (Not intentional, but helpful)
+
         super().initialize_options()
 
 
@@ -76,9 +76,9 @@ classifiers = [
 setup(
     # Package data
     name="py2c",
-    version="0.1-dev",
+    version="0.1.0-dev",
     packages=find_packages(),
-    setup_requires=["ply"],
+    setup_requires=["ply==3.4"],
     # Metadata
     description=description,
     long_description=long_description,
