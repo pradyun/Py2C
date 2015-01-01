@@ -1,0 +1,59 @@
+To all those who are reading this, please note that this TODO file is used with https://github.com/aziz/PlainTasks in Sublime Text, with "Colour Scheme - Rainbow" as the tasks theme.
+
+Go ahead, at all TODOs marked with @contrib are open to contributions (via pull requests).
+
+I'm not having the time to guide you through any of these. But I hope the code and tests are self-explainatory.
+
+General:
+ - Get everything to use the 'logging' module (or possibly even use Logbook) @moderate
+   Log every method call and arguments passed to it, with varying levels.
+   This way, in case of mis-translations/crashes before code-generation,
+   the debugging should be easier.
+ ✔ Move over to git-flow ready scheme, by re-doing the history of the project. @done (31-December-2014 04:05PM)
+   I've rebased madly and moved commits from one branch to another which isn't
+   something I should've done... But then, no-one had cloned the repository for
+   some time now... So, it's OK, I think.
+
+Packaging:
+ ✔ Make packaging `pip` compatible. @easy @done (31-December-2014 04:20PM)
+
+Testing:
+ ✔ Make a streamlined testing environment, repeatable for every test run. @done (12-December-2014 05:03PM)
+   Just create a new venv for each run. Set it up. Then run the tests there.
+ ✔ Create a universal setup for all tests that allows describing each test. @done (12-December-2014 05:03PM)
+   Allow for each test to be describe uniquely shown in a good-looking way,
+   to make writing tests feel worthwhile.
+
+AST and AST Generator:
+ ✔ Implement. @done (12-December-2014 05:03PM)
+ - Remove dependency on ply for parsing files. @moderate
+ - Make RecursiveASTVisitor tests more comprehensive. @easy
+
+Managers:
+ ✔ Implement BaseManager @done (12-December-2014 05:03PM)
+ - Implement PreProcessingManager
+ - Implement AnalysisManager
+ - Implement ModifiersManager
+ - Implement CodeGenerationManager
+ - Implement TranslationManager
+
+Configuration:
+ ✔ Implement a simple system for configuration. @done (12-December-2014 05:03PM)
+ - Integrate into all components.
+
+Pre-processing:
+ ✔ Implement. @done (12-December-2014 05:03PM)
+ - Change tests to only check the specific changes. @easy
+   The tests should not check every single combination, just a unique bunch of
+   them, to cover the cases where we make changes.
+
+Analysis:
+ Nobody touch these things... PLease let Pradyun handle this on his own...
+ ✔ Do some research into the subject. @done (14-12-28 10:10)
+ - Figure out the appropriate model/structure for the analysis to done by. @started
+ - Implement.
+ - Integrate. (Implement AnalysisManager)
+
+Modifiers:
+ ✔ Implement BaseModifier. @done (12-December-2014 05:03PM)
+ Add more to-do in this section after py2c.analysis is implemented.
