@@ -1,6 +1,6 @@
 ﻿-----
 
-> Forking this repository currently is discouraged as there are frequent rebases and force-pushes. (I do it because I'm mad!)
+> WARNING: `git rebase -i` and `git push --force` may be run on this branch at any point of time because I'm mad and evil!
 
 -----
 
