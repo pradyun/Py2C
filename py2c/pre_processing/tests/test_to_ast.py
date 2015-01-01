@@ -17,7 +17,6 @@ from py2c.pre_processing.to_ast import PythonToAST, TranslationError
 from py2c.tests import Test
 
 
-
 # XXX: Depends on implementation detail
 class TestErrorReporting(Test):
     """Tests for error reporting for PythonToAST
@@ -120,7 +119,7 @@ class TestLiterals(CodeTest):
         node = ast.Num("string!!")
 
         translator = PythonToAST()
-        translator._visit(node)
+        translator.visit(node)
         with assert_raises(TranslationError) as context:
             translator._handle_errors()
         errors = context.exception.errors
