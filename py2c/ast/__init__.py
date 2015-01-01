@@ -249,3 +249,64 @@ class AST(object):
                 raise WrongTypeError(
                     msg + "\nWrong type of element {}: {!r}".format(idx, elem)
                 )
+
+
+#------------------------------------------------------------------------------
+# RecursiveASTVisitor
+#------------------------------------------------------------------------------
+class RecursiveASTVisitor(object):
+    """An AST visitor based on Python's own ast.NodeVisitor
+    """
+
+    # Serves as a stub when a function needs to return None
+    NONE_SENTINEL = object()
+
+    # We allow passing arguments to allow end-user use the same infrastructure
+    # for a similar but different AST system.
+    def __init__(self, root_class=AST, iter_fields=iter_fields):
+        super().__init__()
+        self.root_class = root_class
+        self.iter_fields = iter_fields
+
+    def visit(self, node):
+        """Visits a node.
+        """
+        method = 'visit_' + node.__class__.__name__
+        visitor = getattr(self, method, self.generic_visit)
+        return visitor(node)
+
+    def visit_children(self, node):  # coverage: not missing
+        """Visit all children of node.
+        """
+        for field, old_value in self.iter_fields(node):
+            old_value = getattr(node, field, None)
+            if isinstance(old_value, list):
+                self._visit_list(old_value)
+            elif isinstance(old_value, self.root_class):
+                new_node = self.visit(old_value)
+                if new_node is None:
+                    delattr(node, field)
+                else:
+                    if new_node is self.NONE_SENTINEL:
+                        new_node = None
+                    setattr(node, field, new_node)
+                    # print(node)
+
+    def _visit_list(self, original_list):  # coverage: not missing
+        # Moved out of 'visit_children' for readablity
+        new_list = []
+        for value in original_list:
+            if isinstance(value, self.root_class):
+                value = self.visit(value)
+                if value is None:
+                    continue
+                elif value is self.NONE_SENTINEL:
+                    value = None
+                elif hasattr(value, "__iter__"):
+                    new_list.extend(value)
+                    continue
+            new_list.append(value)
+        original_list[:] = new_list
+
+    def generic_visit(self, node):
+        return self.visit_children(node)
