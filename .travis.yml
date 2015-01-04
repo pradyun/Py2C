@@ -12,16 +12,15 @@ python:
 install:
   # Check the installation infrastructure... (made pip-compatible)
   - pip install .
+  - rm *.tar.gz  # Cleanup after build...
 
   # Install test-dependencies
   - pip install -U ply nose coverage
-
-  # Change directory to not confuse the test-runner script.
-  - cd dev_tools
 
 script:
   # Run the tests
   - python run_tests.py py2c
 
 after_success:
-  - coveralls --rcfile=.coveragerc
+  - pip install coveralls
+  - coveralls --rcfile=dev_tools/.coveragerc
