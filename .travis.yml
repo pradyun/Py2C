@@ -12,7 +12,6 @@ python:
 install:
   # Check the installation infrastructure... (made pip-compatible)
   - pip install .
-  - rm *.tar.gz  # Cleanup after build...
 
   # Install test-dependencies
   - pip install -U ply nose coverage
