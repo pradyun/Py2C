@@ -51,6 +51,6 @@ int main() {
 If all goes as planned, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc).
 
   [travis-page]: https://travis-ci.org/pradyun/Py2C
-  [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg?branch=master
-  [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=master
+  [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg?branch=develop
+  [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
   [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg
