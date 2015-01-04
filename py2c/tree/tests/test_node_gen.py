@@ -8,7 +8,9 @@
 
 from textwrap import dedent
 
-from py2c.tree import ast_gen
+from py2c.tree.node_gen import (
+    Parser, Node, SourceGenerator, remove_comments, ParserError
+)
 
 from py2c.tests import Test
 from nose.tools import assert_equal, assert_in, assert_raises
@@ -18,20 +20,17 @@ from nose.tools import assert_equal, assert_in, assert_raises
 # Tests
 #------------------------------------------------------------------------------
 class TestParser(Test):
-    """ast_gen.Parser
+    """node_gen.Parser
     """
 
     #--------------------------------------------------------------------------
     # Comments
     #--------------------------------------------------------------------------
     def check_removal_of_comments(self, test_string, expected):
-        assert_equal(
-            ast_gen.remove_comments(test_string),
-            expected
-        )
+        assert_equal(remove_comments(test_string), expected)
 
     def test_comment_handling(self):
-        """Tests ast_gen.Parser's comment handling capability
+        """Tests Parser's comment handling capability
         """
         yield from self.yield_tests(self.check_removal_of_comments, [
             (
@@ -65,32 +64,32 @@ class TestParser(Test):
     # Properties
     #--------------------------------------------------------------------------
     def check_property_parsing(self, test_string, expected):
-        parser = ast_gen.Parser()
+        parser = Parser()
         assert_equal(parser.parse(dedent(test_string)), tuple(expected))
 
     def test_parsing(self):
-        """Tests ast_gen.Parser's parsing of properties
+        """Tests Parser's parsing of properties
         """
         yield from self.yield_tests(self.check_property_parsing, [
             (
                 "an empty node, without parent",
                 "foo: []",
-                [ast_gen.Node('foo', None, [])]
+                [Node('foo', None, [])]
             ),
             (
                 "an empty node, with parent",
                 "foo(AST): []",
-                [ast_gen.Node('foo', 'AST', [])]
+                [Node('foo', 'AST', [])]
             ),
             (
                 "a node that inherits, with parent",
                 "foo(AST): inherit",
-                [ast_gen.Node('foo', 'AST', 'inherit')]
+                [Node('foo', 'AST', 'inherit')]
             ),
             (
                 "a simple node, without parent",
                 "foo: [int bar]",
-                [ast_gen.Node(
+                [Node(
                     'foo',
                     None,
                     [('bar', 'int', 'NEEDED')],
@@ -99,7 +98,7 @@ class TestParser(Test):
             (
                 "a simple node, with parent",
                 "foo(AST): [int bar]",
-                [ast_gen.Node(
+                [Node(
                     'foo',
                     'AST',
                     [('bar', 'int', 'NEEDED')],
@@ -109,7 +108,7 @@ class TestParser(Test):
                 "a node with all modifiers",
                 "FooBar: [int foo, int+ bar, int* baz, int? spam]",
                 [
-                    ast_gen.Node(
+                    Node(
                         "FooBar", None,
                         [
                             ('foo', 'int', 'NEEDED'),
@@ -128,15 +127,15 @@ class TestParser(Test):
                 obj(base2): []
                 """,
                 [
-                    ast_gen.Node(
+                    Node(
                         "base1", None,
                         [("field1", "int", "NEEDED")]
                     ),
-                    ast_gen.Node(
+                    Node(
                         "base2", "base1",
                         [("field2", "int", "NEEDED")]
                     ),
-                    ast_gen.Node(
+                    Node(
                         "obj", "base2",
                         []
                     ),
@@ -148,15 +147,15 @@ class TestParser(Test):
     # Errors
     #--------------------------------------------------------------------------
     def check_error_reporting(self, test_string, required_words):
-        with assert_raises(ast_gen.ParserError) as context:
-            ast_gen.Parser().parse(test_string)
+        with assert_raises(ParserError) as context:
+            Parser().parse(test_string)
         msg = context.exception.args[0].lower()
 
         for word in required_words:
             assert_in(word, msg)
 
     def test_error_reporting(self):
-        """Tests ast_gen.Parser's error reports for important information
+        """Tests Parser's error reports for important information
         """
         yield from self.yield_tests(self.check_error_reporting, [
             (
@@ -188,11 +187,11 @@ class TestParser(Test):
 
 
 class TestSourceGenerator(Test):
-    """ast_gen.SourceGenerator
+    """node_gen.SourceGenerator
     """
 
     def check_generated_source(self, data, expected_output):
-        src_gen = ast_gen.SourceGenerator()
+        src_gen = SourceGenerator()
         generated = src_gen.generate_sources(data)
 
         assert_equal(
@@ -200,12 +199,12 @@ class TestSourceGenerator(Test):
         )
 
     def test_code_generation(self):
-        """Tests ast_gen.SourceGenerator's code-generation
+        """Tests SourceGenerator's code-generation
         """
         yield from self.yield_tests(self.check_generated_source, [
             (
                 "without fields, without parent",
-                [ast_gen.Node('FooBar', None, [])],
+                [Node('FooBar', None, [])],
                 """
                 class FooBar(object):
                     _fields = []
@@ -213,15 +212,15 @@ class TestSourceGenerator(Test):
             ),
             (
                 "without fields, with parent",
-                [ast_gen.Node('FooBar', 'AST', [])],
+                [Node('FooBar', 'AST', [])],
                 """
                 class FooBar(AST):
                     _fields = []
                 """
             ),
             (
-                "inheriting from parent",
-                [ast_gen.Node('FooBar', 'AST', 'inherit')],
+                "inheriting fields from parent",
+                [Node('FooBar', 'AST', 'inherit')],
                 """
                 class FooBar(AST):
                     _fields = AST._fields
@@ -229,7 +228,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, without parent",
-                [ast_gen.Node(
+                [Node(
                     'FooBar',
                     None,
                     [('bar', 'int', 'NEEDED')],
@@ -243,7 +242,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, with parent",
-                [ast_gen.Node(
+                [Node(
                     'FooBar',
                     'AST',
                     [('bar', 'int', 'NEEDED')],
@@ -257,7 +256,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, with parent, with all modifiers",
-                [ast_gen.Node(
+                [Node(
                     'FooBar',
                     'AST',
                     [
@@ -280,17 +279,17 @@ class TestSourceGenerator(Test):
             (
                 "with multiple fields",
                 [
-                    ast_gen.Node(
+                    Node(
                         'base1',
                         None,
                         [('field1', 'int', 'NEEDED')],
                     ),
-                    ast_gen.Node(
+                    Node(
                         'base2',
                         'base1',
                         [('field2', 'int', 'NEEDED')],
                     ),
-                    ast_gen.Node(
+                    Node(
                         'obj',
                         'base2',
                         [],

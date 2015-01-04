@@ -5,7 +5,7 @@
 #------------------------------------------------------------------------------
 
 #==============================================================================
-# From this file, the Python AST nodes is dynamically generated.
+# From this file, the py2c/tree/python.py is dynamically generated.
 #
 # This file's syntax is based off ASDL definitions, modified for ease of
 # parsing, readability (kinda) and ease of editting IMNSHO.
@@ -15,9 +15,9 @@
 
 #------------------------------------------------------------------------------
 # Base nodes
-#   Declared beforehand as is used later on, in the definitions.
+#   Declared beforehand as are used later on, in the definitions.
 #------------------------------------------------------------------------------
-PyAST(AST): []
+PyAST(Node): []
 mod(PyAST): []
 stmt(PyAST): []
 expr(PyAST): []

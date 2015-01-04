@@ -8,8 +8,8 @@
 
 import ast
 
-import py2c.ast.python as py_ast
-from py2c.ast import RecursiveASTVisitor
+import py2c.tree.python as py_tree
+from py2c.tree import RecursiveTreeVisitor
 
 
 #------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ class TranslationError(Exception):
 #------------------------------------------------------------------------------
 # Translator
 #------------------------------------------------------------------------------
-class PythonToAST(RecursiveASTVisitor):
+class PythonToAST(RecursiveTreeVisitor):
     """Translates Python code into Py2C AST
     """
 
@@ -95,7 +95,7 @@ class PythonToAST(RecursiveASTVisitor):
         self.visit_children(node)
 
         node_name = node.__class__.__name__
-        py_node = getattr(py_ast, node_name)
+        py_node = getattr(py_tree, node_name)
 
         retval = py_node(**dict(ast.iter_fields(node)))
         # retval.finalize()
@@ -110,9 +110,9 @@ class PythonToAST(RecursiveASTVisitor):
 
         # coverage excluded as condition is never True in Python 3.4
         if node.id in ["True", "False", "None"]:  # coverage: no partial
-            return py_ast.NameConstant(eval(node.id))  # coverage: not missing
+            return py_tree.NameConstant(eval(node.id))  # coverage: not missing
 
-        return py_ast.Name(node.id, self.convert_to_python_node(node.ctx))
+        return py_tree.Name(node.id, self.convert_to_python_node(node.ctx))
 
     def visit_NoneType(self, node):  # coverage: not missing
         return self.NONE_SENTINEL
@@ -120,11 +120,11 @@ class PythonToAST(RecursiveASTVisitor):
     def visit_Num(self, node):
         n = node.n
         if isinstance(n, int):
-            cls = py_ast.Int
+            cls = py_tree.Int
         elif isinstance(n, float):
-            cls = py_ast.Float
+            cls = py_tree.Float
         elif isinstance(n, complex):
-            cls = py_ast.Complex
+            cls = py_tree.Complex
         # Can't happen, but still there... :)
         else:
             self._log_error("Unknown number type: {}".format(type(n)))

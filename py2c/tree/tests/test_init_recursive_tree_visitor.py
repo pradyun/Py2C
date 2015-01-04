@@ -1,4 +1,4 @@
-"""Tests for the RecursiveASTVisitor.
+"""Tests for the RecursiveTreeVisitor.
 """
 
 #------------------------------------------------------------------------------
@@ -6,7 +6,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c import ast
+from py2c.tree import Node, NEEDED, ONE_OR_MORE, RecursiveTreeVisitor
 
 from py2c.tests import Test
 from nose.tools import assert_equal
@@ -15,35 +15,35 @@ from nose.tools import assert_equal
 #------------------------------------------------------------------------------
 # Test helpers
 #------------------------------------------------------------------------------
-class BasicNode(ast.AST):
+class BasicNode(Node):
     """Basic node
     """
     _fields = []
 
 
-class BasicNodeCopy(ast.AST):
+class BasicNodeCopy(Node):
     """Equivalent but not equal to BasicNode
     """
     _fields = []
 
 
-class ParentNode(ast.AST):
+class ParentNode(Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', ast.AST, ast.NEEDED),
+        ('child', Node, NEEDED),
     ]
 
 
-class ParentNodeWithChildrenList(ast.AST):
+class ParentNodeWithChildrenList(Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', ast.AST, ast.ONE_OR_MORE),
+        ('child', Node, ONE_OR_MORE),
     ]
 
 
-class MyVisitor(ast.RecursiveASTVisitor):
+class MyVisitor(RecursiveTreeVisitor):
 
     def __init__(self):
         super().__init__()
@@ -63,7 +63,7 @@ class MyVisitor(ast.RecursiveASTVisitor):
 # Tests
 #------------------------------------------------------------------------------
 class TestRecursiveASTVisitor(Test):
-    """py2c.ast.RecursiveASTVisitor
+    """py2c.tree.RecursiveTreeVisitor
     """
 
     def check_visit(self, node, expected_visited):

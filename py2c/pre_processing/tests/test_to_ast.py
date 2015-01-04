@@ -12,7 +12,7 @@ import textwrap
 from nose.tools import assert_equal, assert_raises, assert_in
 
 import ast
-from py2c.ast import python
+from py2c.tree import python
 from py2c.pre_processing.to_ast import PythonToAST, TranslationError
 from py2c.tests import Test
 

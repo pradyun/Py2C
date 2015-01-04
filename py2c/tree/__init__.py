@@ -1,4 +1,4 @@
-"""Package containing AST definitions for use in translation
+"""Package containing Tree/Node definitions for use in translation
 """
 
 #------------------------------------------------------------------------------
@@ -16,17 +16,17 @@ from py2c.utils import (
 #------------------------------------------------------------------------------
 # Exceptions
 #------------------------------------------------------------------------------
-class ASTError(Exception):
+class TreeError(Exception):
     """Base class of all exceptions raised by this module
     """
 
 
-class WrongTypeError(ASTError, TypeError):
+class WrongTypeError(TreeError, TypeError):
     """Raised when the value of a field does not fit with the field's type
     """
 
 
-class FieldError(ASTError, AttributeError):
+class FieldError(TreeError, AttributeError):
     """Raised when there is a problem related to fields
     """
 
@@ -102,18 +102,18 @@ NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 
 
 #==============================================================================
-# AST base node
+# Node base node
 #==============================================================================
 # TODO: Restrict field names to allow for common attributes that help transfer
 #       information.
-class AST(object):
+class Node(object):
     """The base class of all nodes defined in the declarations
     """
 
     _fields = []
 
     def __init__(self, *args, **kwargs):
-        super(AST, self).__init__()
+        super(Node, self).__init__()
         verify_attribute(self, "_fields", collections.Iterable)
         num_fields = len(self._fields)
 
@@ -257,10 +257,10 @@ class AST(object):
 
 
 #------------------------------------------------------------------------------
-# RecursiveASTVisitor
+# RecursiveTreeVisitor
 #------------------------------------------------------------------------------
-class RecursiveASTVisitor(object):
-    """An visitor that recursively visits every branch and leaf of a AST.
+class RecursiveTreeVisitor(object):
+    """An visitor that recursively visits every branch and leaf of a Node.
 
     Based off ``ast.NodeVisitor``
     """
@@ -269,8 +269,8 @@ class RecursiveASTVisitor(object):
     NONE_SENTINEL = object()
 
     # We allow passing arguments to allow end-user use the same infrastructure
-    # for a similar but different AST system.
-    def __init__(self, root_class=AST, iter_fields=iter_fields):
+    # for a similar but different Node system.
+    def __init__(self, root_class=Node, iter_fields=iter_fields):
         super().__init__()
         self.root_class = root_class
         self.iter_fields = iter_fields

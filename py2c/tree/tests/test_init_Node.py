@@ -1,4 +1,4 @@
-"""Tests for the AST in py2c.ast
+"""Tests for the Node in py2c.tree
 """
 
 #------------------------------------------------------------------------------
@@ -8,49 +8,49 @@
 
 from nose.tools import assert_raises, assert_equal, assert_not_equal
 
-from py2c import ast
+from py2c import tree
 from py2c.tests import Test
 
 
 #------------------------------------------------------------------------------
 # A bunch of nodes used during testing
 #------------------------------------------------------------------------------
-class BasicNode(ast.AST):
+class BasicNode(tree.Node):
     """Basic node
     """
     _fields = [
-        ('f1', int, ast.NEEDED),
+        ('f1', int, tree.NEEDED),
     ]
 
 
-class BasicNodeCopy(ast.AST):
+class BasicNodeCopy(tree.Node):
     """Equivalent but not equal to BasicNode
     """
     _fields = [
-        ('f1', int, ast.NEEDED),
+        ('f1', int, tree.NEEDED),
     ]
 
 
-class AllIntModifersNode(ast.AST):
+class AllIntModifersNode(tree.Node):
     """Node with all modifiers
     """
     _fields = [
-        ('f1', int, ast.NEEDED),
-        ('f2', int, ast.OPTIONAL),
-        ('f3', int, ast.ZERO_OR_MORE),
-        ('f4', int, ast.ONE_OR_MORE),
+        ('f1', int, tree.NEEDED),
+        ('f2', int, tree.OPTIONAL),
+        ('f3', int, tree.ZERO_OR_MORE),
+        ('f4', int, tree.ONE_OR_MORE),
     ]
 
 
-class ParentNode(ast.AST):
+class ParentNode(tree.Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', BasicNode, ast.NEEDED),
+        ('child', BasicNode, tree.NEEDED),
     ]
 
 
-class InvalidModifierNode(ast.AST):
+class InvalidModifierNode(tree.Node):
     """Node with invalid modifier
     """
     _fields = [
@@ -62,20 +62,20 @@ class InvalidModifierNode(ast.AST):
 # Tests
 #------------------------------------------------------------------------------
 class TestAST(Test):
-    """ast.AST subclasses
+    """tree.Node subclasses
     """
 
     def check_valid_initialization(self, cls, args, kwargs, expected_dict):
         try:
             node = cls(*args, **kwargs)
-        except ast.WrongTypeError:
+        except tree.WrongTypeError:
             self.fail("Unexpectedly raised exception")
         else:
             for name, value in expected_dict.items():
                 assert_equal(getattr(node, name), value)
 
     def test_valid_initialization(self):
-        """Tests ast.AST.__init__'s behaviour on valid initialization
+        """Tests tree.Node.__init__'s behaviour on valid initialization
         """
         yield from self.yield_tests(self.check_valid_initialization, [
             (
@@ -111,13 +111,13 @@ class TestAST(Test):
         self.assert_message_contains(context.exception, required_phrases)
 
     def test_invalid_initialization(self):
-        """Tests ast.AST.__init__'s behaviour on invalid initialization
+        """Tests tree.Node.__init__'s behaviour on invalid initialization
         """
         yield from self.yield_tests(self.check_invalid_initialization, [
             (
                 "Node with modifiers with incorrect number of arguments",
                 AllIntModifersNode, [1], {},
-                ast.WrongTypeError, "0 or 4 positional"
+                tree.WrongTypeError, "0 or 4 positional"
             )
         ], described=True, prefix="initialization of ")
 
@@ -142,7 +142,7 @@ class TestAST(Test):
                 )
 
     def test_assignment(self):
-        """Tests ast.AST.__setattr__'s behaviour on assignments to fields.
+        """Tests tree.Node.__setattr__'s behaviour on assignments to fields.
         """
         yield from self.yield_tests(self.check_assignment, [
             (
@@ -208,57 +208,57 @@ class TestAST(Test):
             (
                 "non existent field",
                 BasicNode, "bar", 1,
-                ast.FieldError, ["bar", "no field"]
+                tree.FieldError, ["bar", "no field"]
             ),
             (
                 "NEEDED with incorrect type",
                 AllIntModifersNode, "f1", "",
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "OPTIONAL with incorrect type",
                 AllIntModifersNode, "f2", "",
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with incorrect type",
                 AllIntModifersNode, "f3", "",
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with tuple containing incorrect type",
                 AllIntModifersNode, "f3", ("",),
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with list containing incorrect type",
                 AllIntModifersNode, "f3", [""],
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with incorrect type",
                 AllIntModifersNode, "f4", "",
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with empty tuple",
                 AllIntModifersNode, "f4", (),
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with empty list",
                 AllIntModifersNode, "f4", [],
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with tuple containing incorrect type",
                 AllIntModifersNode, "f4", ("",),
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with list containing incorrect type",
                 AllIntModifersNode, "f4", [""],
-                ast.WrongTypeError
+                tree.WrongTypeError
             ),
         ], described=True, prefix="assignment to ")
 
@@ -279,7 +279,7 @@ class TestAST(Test):
                     assert_equal(getattr(node, attr), val)
 
     def test_finalize(self):
-        """Tests ast.AST.finalize's behaviour on valid attributes.
+        """Tests tree.Node.finalize's behaviour on valid attributes.
         """
         yield from self.yield_tests(self.check_finalize, [
             (
@@ -321,7 +321,7 @@ class TestAST(Test):
             assert_not_equal(node1, node2)
 
     def test_equality(self):
-        """Tests ast.AST.__eq__'s behaviour
+        """Tests tree.Node.__eq__'s behaviour
         """
         yield from self.yield_tests(self.check_equality, [
             (
@@ -350,7 +350,7 @@ class TestAST(Test):
         assert_equal(repr(node), expected)
 
     def test_node_repr(self):
-        """Tests ast.AST's string representation
+        """Tests tree.Node's string representation
         """
         yield from self.yield_tests(self.check_node_repr, [
             (
@@ -369,7 +369,7 @@ class TestAST(Test):
                 "AllIntModifersNode()"
             ),
             (
-                "a multi-field node (with ast.AST attributes) with no arguments",  # noqa
+                "a multi-field node (with tree.Node attributes) with no arguments",  # noqa
                 ParentNode(),
                 "ParentNode()"
             ),
