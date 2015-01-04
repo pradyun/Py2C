@@ -32,14 +32,13 @@ Testing:
    Allow for each test to be describe uniquely shown in a good-looking way,
    to make writing tests feel worthwhile.
 
-AST and AST Generator:
+Tree and Node Generator:
  ✔ Implement. @done (12-December-2014 05:03PM)
- - Remove dependency on ply of ast_gen.py (for parsing files). @contrib @moderate
-   This is really a might-do as since ast_gen.py has been moved into the
+ - Remove dependency on ply of node_gen.py (for parsing files). @contrib @moderate
+   This is really a might-do as since node_gen.py has been moved into the
    package, this dependency is not a problem in any way.
- ✔ Allow inheritence of fields in AST definitions. @done (04-January-2015 10:57AM)
+ ✔ Allow inheritence of fields in Node definitions. @done (04-January-2015 10:57AM)
  - Make RecursiveASTVisitor tests more comprehensive. @contrib @easy
- - Move to a "flow" tree for simplifying analysis.
 
 Managers:
  ✔ Implement BaseManager @done (12-December-2014 05:03PM)
@@ -54,7 +53,8 @@ Configuration:
  - Integrate into all components.
 
 Pre-processing:
- ✔ Implement. @done (12-December-2014 05:03PM)
+ ✘ Implement a code to custom Python AST Tree converter. @cancelled (04-January-2015 11:54AM)
+ - Move to a "flow" tree for simplifying analysis.
  - Change tests to only check the specific changes. @contrib @easy
    The tests should not check every single combination, just a unique bunch of
    them, to cover the cases where we make changes.

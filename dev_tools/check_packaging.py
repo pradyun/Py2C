@@ -117,7 +117,7 @@ def basic_installation_checks():
     run_and_report(
         "Check: Is auto-generated file usable? ",
         "No!", "Yes!",
-        sys.executable + " -c 'import py2c.ast.python'", False
+        sys.executable + " -c 'import py2c.tree.python'", False
     )
 
 

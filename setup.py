@@ -28,24 +28,22 @@ except ImportError:
     from distutils.command.build_py import build_py as _build_py
 
 
-path_to_ast_definitions = realpath(join(dirname(__file__), "py2c", "ast"))
-
-
 class build_py(_build_py):
     """A customized version to build the AST definition files
     """
 
     def initialize_options(self):
+        path_to_definitions = realpath(join(dirname(__file__), "py2c", "tree"))
         # Add py2c to sys.path
         sys.path.append(realpath(dirname(__file__)))
         try:
-            import py2c.ast.ast_gen as ast_gen
+            import py2c.tree.node_gen as node_gen
         except Exception as err:
             print("ERROR: ", err)
             sys.exit(1)
         finally:
             sys.path.pop()
-        ast_gen.generate(path_to_ast_definitions, path_to_ast_definitions)
+        node_gen.generate(path_to_definitions, path_to_definitions)
 
         super().initialize_options()
 
@@ -58,7 +56,8 @@ description = (
     "(hopefully) human-readable C++ code."
 )
 
-long_description = open("README.md").read()
+with open("README.md") as f:
+    long_description = f.read()
 
 classifiers = [
     "Development Status :: 1 - Planning",

@@ -7,9 +7,8 @@
 #------------------------------------------------------------------------------
 
 import ast
-import py2c.ast
-
-import py2c.ast.python as py
+from py2c.tree import Node, iter_fields as py_iter_fields
+import py2c.tree.python as py_tree
 
 
 class Indentor(object):
@@ -45,7 +44,7 @@ def write(*args, sep="", end=""):
 def _dump(node, indentor):
     if isinstance(node, (list, tuple)):
         _dump_list(node, indentor)
-    elif isinstance(node, (py2c.ast.AST, ast.AST)):
+    elif isinstance(node, (Node, ast.AST)):
         _dump_node(node, indentor)
     else:
         write(indentor, repr(node))
@@ -73,16 +72,16 @@ def _dump_list(li, indentor):
 
 def _dump_node(node, indentor):
     # Initial header
-    if isinstance(node, py2c.ast.AST):
-        module = "py"
-        iter_fields = py2c.ast.iter_fields
+    if isinstance(node, Node):
+        module = "py_tree"
+        iter_fields = py_iter_fields
     else:
         module = "ast"
         iter_fields = ast.iter_fields
     write(indentor, "{}.{}(".format(module, node.__class__.__name__))
 
     # Should the node be printed inline
-    in_line = isinstance(node, (py.Name, py.NameConstant, ast.Name, ast.NameConstant))
+    in_line = isinstance(node, (py_tree.Name, py_tree.NameConstant, ast.Name, ast.NameConstant))
     length = len(node._fields)
     for i, (name, value) in enumerate(iter_fields(node)):
         with indentor:

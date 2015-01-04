@@ -1,2 +1,2 @@
 include README.md
-include py2c/ast/*.ast
+include py2c/tree/*.tree

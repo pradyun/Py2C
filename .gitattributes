@@ -9,7 +9,7 @@
 #
 *.py text diff=python
 *.in text
-*.ast text
+*.tree text
 
 # Documents
 *.doc diff=astextplain
