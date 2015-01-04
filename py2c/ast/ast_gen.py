@@ -87,37 +87,41 @@ class Parser(object):
 
     def __init__(self):
         super(Parser, self).__init__()
-        self.tokens = ("NAME",)
+        self.tokens = ("INHERIT", "NAME",)
         self.literals = "()[]:*?+,"
 
         # Tokens for lexer
+        self.t_INHERIT = r"inherit"
         self.t_NAME = r"\w+"
         self.t_ignore = " \t"
 
-        self._lexer = ply.lex.lex(module=self, optimize=True)
-        self._parser = ply.yacc.yacc(module=self, start="start", optimize=True)
+        self._lexer = ply.lex.lex(module=self)
+        self._parser = ply.yacc.yacc(module=self, start="start")
 
         self.seen_node_names = set()
 
+    def t_newline(self, t):
+        r"\n"
+        t.lexer.lineno += 1
+
+    def t_error(self, t):
+        raise ParserError("Unable to generate tokens from: " + repr(t.value))
+
+    #--------------------------------------------------------------------------
+    # API
+    #--------------------------------------------------------------------------
     def parse(self, text):
         """Parses the definition text into a data representation of it.
         """
         text = remove_comments(text)
         return self._parser.parse(text, lexer=self._lexer)
 
-    def t_newline(self, t):
-        r"\n"
-        t.lexer.lineno += 1
-
-    def p_error(self, t):
-        raise ParserError("Unexpected token: " + str(t))
-
-    def t_error(self, t):
-        raise ParserError("Unable to generate tokens from: " + repr(t.value))
-
     #--------------------------------------------------------------------------
     # Parsing
     #--------------------------------------------------------------------------
+    def p_error(self, t):
+        raise ParserError("Unexpected token: " + str(t))
+
     def p_empty(self, p):
         "empty : "
 
@@ -135,31 +139,36 @@ class Parser(object):
             p[0] = p[1] + (p[2],)
 
     def p_declaration(self, p):
-        "declaration : NAME parent_class_opt ':' '[' attr_list ']'"
-        name, attrs = (p[1], p[5])
+        "declaration : NAME parent_class_opt ':' attributes"
+        name, parent, attrs = (p[1], p[2], p[4])
         if name in self.seen_node_names:
             raise ParserError(
                 "Multiple declarations of name {!r}".format(name)
             )
         self.seen_node_names.add(name)
-        # Check for duplicate fields
-        seen_fields = []
-        duplicated_fields = []
-        for field_name, _, _ in attrs:
-            if field_name in seen_fields:
-                duplicated_fields.append(field_name)
-            else:
-                seen_fields.append(field_name)
 
-        if duplicated_fields:
-            msg = "Multiple declarations in {!r} of attribute{} {!r}".format(
-                name,
-                "s" if len(duplicated_fields) > 1 else "",
-                ", ".join(duplicated_fields)
-            )
+        if attrs != 'inherit':
+            # Check for duplicate fields
+            seen_fields = []
+            duplicated_fields = []
+            for field_name, _, _ in attrs:
+                if field_name in seen_fields:
+                    duplicated_fields.append(field_name)
+                else:
+                    seen_fields.append(field_name)
+
+            if duplicated_fields:
+                msg = "Multiple declarations in {!r} of attribute{} {!r}".format(
+                    name,
+                    "s" if len(duplicated_fields) > 1 else "",
+                    ", ".join(duplicated_fields)
+                )
+                raise ParserError(msg)
+        elif parent is None:
+            msg = "Inheriting nodes needs parents to inherit from them."
             raise ParserError(msg)
-        else:
-            p[0] = Node(p[1], p[2], p[5])
+
+        p[0] = Node(name, parent, attrs)
 
     def p_parent_class_opt(self, p):
         """parent_class_opt : '(' NAME ')'
@@ -169,6 +178,15 @@ class Parser(object):
             p[0] = p[2]
         else:
             p[0] = None
+
+    def p_attributes(self, p):
+        """attributes : '[' attr_list ']'
+                      | INHERIT
+        """
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            p[0] = p[2]
 
     def p_attr_list(self, p):
         """attr_list : attr more_attrs_maybe ','
@@ -230,7 +248,10 @@ class SourceGenerator(object):
 
     def _translate_node(self, node):
         name = node.name
-        field_text = _prettify_list(node.attrs)
+        if node.attrs == "inherit":
+            field_text = node.parent + "._fields"
+        else:
+            field_text = _prettify_list(node.attrs)
         # node.parent is None or a string...
         parent = node.parent or "object"
         return dedent("""
@@ -273,4 +294,3 @@ def generate(source_dir, output_dir, update=False):  # coverage: not missing
 
 if __name__ == '__main__':
     generate("py2c/ast", "py2c/ast", True)
-

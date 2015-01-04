@@ -8,7 +8,7 @@
 
 from textwrap import dedent
 
-from py2c.ast import ast_gen
+from py2c.tree import ast_gen
 
 from py2c.tests import Test
 from nose.tools import assert_equal, assert_in, assert_raises
@@ -81,6 +81,11 @@ class TestParser(Test):
                 "an empty node, with parent",
                 "foo(AST): []",
                 [ast_gen.Node('foo', 'AST', [])]
+            ),
+            (
+                "a node that inherits, with parent",
+                "foo(AST): inherit",
+                [ast_gen.Node('foo', 'AST', 'inherit')]
             ),
             (
                 "a simple node, without parent",
@@ -173,7 +178,12 @@ class TestParser(Test):
                 "no data-type",
                 "foo: [bar, baz]",
                 ["unexpected", "','"]
-            )
+            ),
+            (
+                "a node that inherits, without parent",
+                "foo: inherit",
+                ['inherit', 'needs', 'parent']
+            ),
         ], described=True, prefix="error reporting for ")
 
 
@@ -207,6 +217,14 @@ class TestSourceGenerator(Test):
                 """
                 class FooBar(AST):
                     _fields = []
+                """
+            ),
+            (
+                "inheriting from parent",
+                [ast_gen.Node('FooBar', 'AST', 'inherit')],
+                """
+                class FooBar(AST):
+                    _fields = AST._fields
                 """
             ),
             (

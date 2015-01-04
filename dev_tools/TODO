@@ -37,7 +37,9 @@ AST and AST Generator:
  - Remove dependency on ply of ast_gen.py (for parsing files). @contrib @moderate
    This is really a might-do as since ast_gen.py has been moved into the
    package, this dependency is not a problem in any way.
+ ✔ Allow inheritence of fields in AST definitions. @done (04-January-2015 10:57AM)
  - Make RecursiveASTVisitor tests more comprehensive. @contrib @easy
+ - Move to a "flow" tree for simplifying analysis.
 
 Managers:
  ✔ Implement BaseManager @done (12-December-2014 05:03PM)
