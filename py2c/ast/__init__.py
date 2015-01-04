@@ -6,7 +6,11 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.utils import get_article, is_valid_dotted_identifier
+import collections
+
+from py2c.utils import (
+    get_article, verify_attribute, is_valid_dotted_identifier
+)
 
 
 #------------------------------------------------------------------------------
@@ -105,11 +109,12 @@ NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE = range(1, 5)
 class AST(object):
     """The base class of all nodes defined in the declarations
     """
-    # Basic node has no fields
+
     _fields = []
 
     def __init__(self, *args, **kwargs):
         super(AST, self).__init__()
+        verify_attribute(self, "_fields", collections.Iterable)
         num_fields = len(self._fields)
 
         if args:
@@ -255,7 +260,9 @@ class AST(object):
 # RecursiveASTVisitor
 #------------------------------------------------------------------------------
 class RecursiveASTVisitor(object):
-    """An AST visitor based on Python's own ast.NodeVisitor
+    """An visitor that recursively visits every branch and leaf of a AST.
+
+    Based off ``ast.NodeVisitor``
     """
 
     # Serves as a stub when a function needs to return None
@@ -302,7 +309,7 @@ class RecursiveASTVisitor(object):
                     continue
                 elif value is self.NONE_SENTINEL:
                     value = None
-                elif hasattr(value, "__iter__"):
+                elif isinstance(value, collections.Iterable):
                     new_list.extend(value)
                     continue
             new_list.append(value)

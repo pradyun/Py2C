@@ -35,6 +35,8 @@ Testing:
 AST and AST Generator:
  ✔ Implement. @done (12-December-2014 05:03PM)
  - Remove dependency on ply of ast_gen.py (for parsing files). @contrib @moderate
+   This is really a might-do as since ast_gen.py has been moved into the
+   package, this dependency is not a problem in any way.
  - Make RecursiveASTVisitor tests more comprehensive. @contrib @easy
 
 Managers:
