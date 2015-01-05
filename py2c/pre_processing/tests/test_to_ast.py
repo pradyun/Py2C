@@ -6,15 +6,15 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+import ast
 import random
 import textwrap
 
-from nose.tools import assert_equal, assert_raises, assert_in
-
-import ast
-from py2c.tree import python
+import py2c.tree.python as py_tree
 from py2c.pre_processing.to_ast import PythonToAST, TranslationError
+
 from py2c.tests import Test
+from nose.tools import assert_equal, assert_raises, assert_in
 
 
 # XXX: Depends on implementation detail
@@ -93,7 +93,7 @@ class CodeTest(Test):
             result = result[0]
 
         # Remove Expr node if it is the parent node.
-        if isinstance(result, python.Expr):
+        if isinstance(result, py_tree.Expr):
             result = result.value
 
         assert_equal(expected, result)
@@ -127,7 +127,7 @@ class TestLiterals(CodeTest):
 
     def test_int(self):
         yield from self.yield_tests(self.check_code_translation, [
-            (s, python.Int(eval(s))) for s in (
+            (s, py_tree.Int(eval(s))) for s in (
                 # Binary
                 "0b100110111",
                 # Decimal
@@ -146,7 +146,7 @@ class TestLiterals(CodeTest):
 
     def test_float(self):
         yield from self.yield_tests(self.check_code_translation, [
-            (s, python.Float(eval(s))) for s in (
+            (s, py_tree.Float(eval(s))) for s in (
                 "3.14",
                 "10.",
                 ".001",
@@ -158,7 +158,7 @@ class TestLiterals(CodeTest):
 
     def test_complex(self):
         yield from self.yield_tests(self.check_code_translation, [
-            (s, python.Complex(eval(s))) for s in (
+            (s, py_tree.Complex(eval(s))) for s in (
                 "10j",
                 ".001j",
                 "3.14e-10j",
@@ -170,7 +170,7 @@ class TestLiterals(CodeTest):
 
     def test_str(self):
         yield from self.yield_tests(self.check_code_translation, [
-            (s, python.Str(eval(s))) for s in (
+            (s, py_tree.Str(eval(s))) for s in (
                 '"abc"',
                 '"abc"',
                 "'''abc'''",
@@ -181,7 +181,7 @@ class TestLiterals(CodeTest):
 
     def test_nameconstant(self):
         yield from self.yield_tests(self.check_code_translation, [
-            (s, python.NameConstant(eval(s))) for s in (
+            (s, py_tree.NameConstant(eval(s))) for s in (
                 "None",
                 "True",
                 "False",
@@ -195,72 +195,72 @@ class TestSimpleStatement(CodeTest):
 
     def test_assert(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("assert False", python.Assert(
-                python.NameConstant(False), None
+            ("assert False", py_tree.Assert(
+                py_tree.NameConstant(False), None
             )),
-            ("assert False, msg", python.Assert(
-                python.NameConstant(False),
-                python.Name("msg", python.Load()),
+            ("assert False, msg", py_tree.Assert(
+                py_tree.NameConstant(False),
+                py_tree.Name("msg", py_tree.Load()),
             )),
         ])
 
     def test_assign(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("a = b", python.Assign(
-                targets=[python.Name("a", python.Store())],
-                value=python.Name("b", python.Load()),
+            ("a = b", py_tree.Assign(
+                targets=[py_tree.Name("a", py_tree.Store())],
+                value=py_tree.Name("b", py_tree.Load()),
             )),
-            ("a = b = c", python.Assign(
+            ("a = b = c", py_tree.Assign(
                 targets=[
-                    python.Name("a", python.Store()),
-                    python.Name("b", python.Store()),
+                    py_tree.Name("a", py_tree.Store()),
+                    py_tree.Name("b", py_tree.Store()),
                 ],
-                value=python.Name("c", python.Load()),
+                value=py_tree.Name("c", py_tree.Load()),
             )),
         ])
 
     def test_delete(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("del a", python.Delete(targets=[
-                python.Name("a", python.Del()),
+            ("del a", py_tree.Delete(targets=[
+                py_tree.Name("a", py_tree.Del()),
             ])),
-            ("del a, b", python.Delete(targets=[
-                python.Name("a", python.Del()),
-                python.Name("b", python.Del()),
+            ("del a, b", py_tree.Delete(targets=[
+                py_tree.Name("a", py_tree.Del()),
+                py_tree.Name("b", py_tree.Del()),
             ])),
-            ("del (a, b)", python.Delete(targets=[
-                python.Tuple([
-                                 python.Name("a", python.Del()),
-                                 python.Name("b", python.Del()),
-                             ], python.Del()),
+            ("del (a, b)", py_tree.Delete(targets=[
+                py_tree.Tuple([
+                                 py_tree.Name("a", py_tree.Del()),
+                                 py_tree.Name("b", py_tree.Del()),
+                             ], py_tree.Del()),
             ])),
-            ("del (a\n, b)", python.Delete(targets=[
-                python.Tuple([
-                                 python.Name("a", python.Del()),
-                                 python.Name("b", python.Del())
-                             ], python.Del()),
+            ("del (a\n, b)", py_tree.Delete(targets=[
+                py_tree.Tuple([
+                                 py_tree.Name("a", py_tree.Del()),
+                                 py_tree.Name("b", py_tree.Del())
+                             ], py_tree.Del()),
             ])),
-            ("del (a\n, b), c", python.Delete(targets=[
-                python.Tuple([
-                                 python.Name("a", python.Del()),
-                                 python.Name("b", python.Del())
-                             ], python.Del()),
-                python.Name("c", python.Del()),
+            ("del (a\n, b), c", py_tree.Delete(targets=[
+                py_tree.Tuple([
+                                 py_tree.Name("a", py_tree.Del()),
+                                 py_tree.Name("b", py_tree.Del())
+                             ], py_tree.Del()),
+                py_tree.Name("c", py_tree.Del()),
             ])),
         ])
 
     def test_raise(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("raise", python.Raise(
+            ("raise", py_tree.Raise(
                 None, None
             )),
-            ("raise err", python.Raise(
-                python.Name("err", python.Load()),
+            ("raise err", py_tree.Raise(
+                py_tree.Name("err", py_tree.Load()),
                 None
             )),
-            ("raise err_1 from err_2", python.Raise(
-                python.Name("err_1", python.Load()),
-                python.Name("err_2", python.Load()),
+            ("raise err_1 from err_2", py_tree.Raise(
+                py_tree.Name("err_1", py_tree.Load()),
+                py_tree.Name("err_2", py_tree.Load()),
             )),
         ])
 
@@ -268,41 +268,41 @@ class TestSimpleStatement(CodeTest):
         yield from self.yield_tests(self.check_code_translation, [
             (  # Single import
                "import apple",
-               python.Import([
-                   python.alias("apple", None),
+               py_tree.Import([
+                   py_tree.alias("apple", None),
                ])
             ),
             (  # Single subpackage import
                "import apple.ball",
-               python.Import([
-                   python.alias("apple.ball", None),
+               py_tree.Import([
+                   py_tree.alias("apple.ball", None),
                ])
             ),
             (  # Single alias import
                "import apple as ball",
-               python.Import([
-                   python.alias("apple", "ball"),
+               py_tree.Import([
+                   py_tree.alias("apple", "ball"),
                ])
             ),
             (  # Multiple imports, 1 alias, 1 simple
                "import apple as ball, cat",
-               python.Import([
-                   python.alias("apple", "ball"),
-                   python.alias("cat", None),
+               py_tree.Import([
+                   py_tree.alias("apple", "ball"),
+                   py_tree.alias("cat", None),
                ])
             ),
             (  # Multiple alias imports
                "import apple as ball, cat as dog",
-               python.Import([
-                   python.alias("apple", "ball"),
-                   python.alias("cat", "dog"),
+               py_tree.Import([
+                   py_tree.alias("apple", "ball"),
+                   py_tree.alias("cat", "dog"),
                ])
             ),
             (  # Multiple alias imports from subpackage
                "import apple.ball as ball, cat as dog",
-               python.Import([
-                   python.alias("apple.ball", "ball"),
-                   python.alias("cat", "dog"),
+               py_tree.Import([
+                   py_tree.alias("apple.ball", "ball"),
+                   py_tree.alias("cat", "dog"),
                ])
             ),
         ])
@@ -311,18 +311,18 @@ class TestSimpleStatement(CodeTest):
         yield from self.yield_tests(self.check_code_translation, [
             (
                 "from apple import *",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple", [
-                        python.alias("*", None)
+                        py_tree.alias("*", None)
                     ],
                     0
                 )
             ),
             (
                 "from apple.ball import *",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple.ball", [
-                        python.alias("*", None)
+                        py_tree.alias("*", None)
                     ],
                     0
                 )
@@ -333,18 +333,18 @@ class TestSimpleStatement(CodeTest):
         yield from self.yield_tests(self.check_code_translation, [
             (
                 "from apple import ball",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple", [
-                        python.alias("ball", None)
+                        py_tree.alias("ball", None)
                     ],
                     0
                 )
             ),
             (
                 "from apple import ball as cat",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple", [
-                        python.alias("ball", "cat")
+                        py_tree.alias("ball", "cat")
                     ],
                     0
                 )
@@ -355,43 +355,43 @@ class TestSimpleStatement(CodeTest):
         yield from self.yield_tests(self.check_code_translation, [
             (
                 "from apple.ball import (\n    cat, \n    dog,)",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple.ball",
                     [
-                        python.alias("cat", None),
-                        python.alias("dog", None),
+                        py_tree.alias("cat", None),
+                        py_tree.alias("dog", None),
                     ],
                     0
                 )
             ),
             (
                 "from apple.ball import cat as dog",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple.ball",
                     [
-                        python.alias("cat", "dog")
+                        py_tree.alias("cat", "dog")
                     ],
                     0
                 )
             ),
             (
                 "from apple.ball import cat as dog, egg",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple.ball",
                     [
-                        python.alias("cat", "dog"),
-                        python.alias("egg", None),
+                        py_tree.alias("cat", "dog"),
+                        py_tree.alias("egg", None),
                     ],
                     0
                 )
             ),
             (
                 "from apple.ball import (\n    cat as dog, \n    egg as frog)",
-                python.ImportFrom(
+                py_tree.ImportFrom(
                     "apple.ball",
                     [
-                        python.alias("cat", "dog"),
-                        python.alias("egg", "frog"),
+                        py_tree.alias("cat", "dog"),
+                        py_tree.alias("egg", "frog"),
                     ],
                     0
                 )
@@ -410,9 +410,9 @@ class TestCompoundStatement(CodeTest):
                 if True:
                     pass
                 """,
-                python.If(
-                    python.NameConstant(True),
-                    [python.Pass()],
+                py_tree.If(
+                    py_tree.NameConstant(True),
+                    [py_tree.Pass()],
                     []
                 )
             ),
@@ -425,21 +425,21 @@ class TestCompoundStatement(CodeTest):
                 else:
                     third
                 """,
-                python.If(
-                    python.Name(
-                        "first_cond", python.Load()
+                py_tree.If(
+                    py_tree.Name(
+                        "first_cond", py_tree.Load()
                     ),
-                    [python.Expr(
-                        python.Name("first", python.Load())
+                    [py_tree.Expr(
+                        py_tree.Name("first", py_tree.Load())
                     )],
                     [
-                        python.If(
-                            python.Name("second_cond", python.Load()),
-                            [python.Expr(
-                                python.Name("second", python.Load())
+                        py_tree.If(
+                            py_tree.Name("second_cond", py_tree.Load()),
+                            [py_tree.Expr(
+                                py_tree.Name("second", py_tree.Load())
                             )],
-                            [python.Expr(
-                                python.Name("third", python.Load())
+                            [py_tree.Expr(
+                                py_tree.Name("third", py_tree.Load())
                             )]
                         )
                     ]
@@ -461,15 +461,15 @@ class TestCompoundStatement(CodeTest):
                 finally:
                     pass
                 """,
-                python.Try(
-                    [python.Pass()],
-                    [python.ExceptHandler(
-                        python.Name("SomeException", python.Load()),
+                py_tree.Try(
+                    [py_tree.Pass()],
+                    [py_tree.ExceptHandler(
+                        py_tree.Name("SomeException", py_tree.Load()),
                         "error",
-                        [python.Pass()]
+                        [py_tree.Pass()]
                     )],
-                    [python.Pass()],
-                    [python.Pass()]
+                    [py_tree.Pass()],
+                    [py_tree.Pass()]
                 )
             )
         ])
@@ -481,12 +481,12 @@ class TestCompoundStatement(CodeTest):
                 with some_context as some_name:
                     pass
                 """,
-                python.With(
-                    [python.withitem(
-                        python.Name("some_context", python.Load()),
-                        python.Name("some_name", python.Store()),
+                py_tree.With(
+                    [py_tree.withitem(
+                        py_tree.Name("some_context", py_tree.Load()),
+                        py_tree.Name("some_name", py_tree.Store()),
                     )],
-                    [python.Pass()]
+                    [py_tree.Pass()]
                 )
             )
         ])
@@ -501,25 +501,25 @@ class TestsCompoundStatementPart(CodeTest):
 
     def test_while(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("while True:\n pass", python.Pass()),
-            ("while True:\n break", python.Break()),
-            ("while True:\n continue", python.Continue()),
+            ("while True:\n pass", py_tree.Pass()),
+            ("while True:\n break", py_tree.Break()),
+            ("while True:\n continue", py_tree.Continue()),
         ])
 
     def test_for(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("for val in iter:\n pass", python.Pass()),
-            ("for val in iter:\n break", python.Break()),
-            ("for val in iter:\n continue", python.Continue()),
+            ("for val in iter:\n pass", py_tree.Pass()),
+            ("for val in iter:\n break", py_tree.Break()),
+            ("for val in iter:\n continue", py_tree.Continue()),
         ])
 
     def test_function_parts(self):
         yield from self.yield_tests(self.check_code_translation, [
-            ("def foo():\n pass", python.Pass()),
-            ("def foo():\n global a", python.Global(['a'])),
-            ("def foo():\n global a, b", python.Global(['a', "b"])),
-            ("def foo():\n nonlocal a", python.Nonlocal(['a'])),
-            ("def foo():\n nonlocal a, b", python.Nonlocal(['a', "b"])),
+            ("def foo():\n pass", py_tree.Pass()),
+            ("def foo():\n global a", py_tree.Global(['a'])),
+            ("def foo():\n global a, b", py_tree.Global(['a', "b"])),
+            ("def foo():\n nonlocal a", py_tree.Nonlocal(['a'])),
+            ("def foo():\n nonlocal a, b", py_tree.Nonlocal(['a', "b"])),
         ])
 
 
