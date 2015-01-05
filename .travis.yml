@@ -22,5 +22,5 @@ script:
 
 after_success:
   - pip install wheel
-  - pip install coveralls
-  - coveralls --rcfile=dev_tools/.coveragerc
+  - pip install python-coveralls
+  - coveralls --config_file=dev_tools/.coveragerc
