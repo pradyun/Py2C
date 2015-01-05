@@ -21,5 +21,6 @@ script:
   - python dev_tools/run_tests.py py2c
 
 after_success:
+  - pip install wheel
   - pip install coveralls
   - coveralls --rcfile=dev_tools/.coveragerc
