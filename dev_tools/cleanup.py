@@ -9,9 +9,9 @@
 
 import os
 import sys
-import fnmatch
 import shutil
-from os.path import join, realpath
+import fnmatch
+from os.path import join, realpath, relpath
 
 PRINT_OUTPUT = True
 REMOVE_GENERATED_AST = len(sys.argv) > 1 and sys.argv[1].lower() == "all"
@@ -60,13 +60,13 @@ def main():
 
         for name in dirs:
             if should_remove_folder(root, name):
-                log("Removing Folder:", join(root, name))
+                log("Deleting Folder:", relpath(join(root, name), BASE_DIR))
                 shutil.rmtree(join(root, name))
 
         for name in files:
             if should_remove_file(root, name):
                 fname = join(root, name)
-                log("Removing File:", fname)
+                log("Deleting File..:", relpath(fname, BASE_DIR))
                 os.remove(fname)
 
 
