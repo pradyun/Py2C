@@ -10,17 +10,19 @@ python:
   - 3.4
 
 install:
-  - python setup.py develop
-  - rm ./*ply*
+  - pip install .
 
   # Install test-dependencies
   - pip install -U ply nose coverage
 
+  # Coz world looks better from this folder!
+  - cd dev_tools
+
 script:
   # Run the tests
-  - python dev_tools/run_tests.py py2c
+  - python run_tests.py py2c
 
 after_success:
   - pip install wheel
   - pip install python-coveralls
-  - coveralls --config_file=dev_tools/.coveragerc
+  - coveralls --config_file=.coveragerc

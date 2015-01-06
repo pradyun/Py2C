@@ -13,7 +13,7 @@ def reset():
     VARIABLE_HINT_COUNT = {}
 
 
-def new_var(hint="tmp"):
+def new_var(hint="tmp"):  # coverage: no missing
     """Generate a unique name and return it.
     """
     VARIABLE_HINT_COUNT[hint] = VARIABLE_HINT_COUNT.get(hint, 0) + 1
