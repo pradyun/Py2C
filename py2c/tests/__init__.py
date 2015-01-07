@@ -15,7 +15,6 @@ import traceback
 from nose.tools import nottest, assert_in, assert_not_in
 
 
-
 #------------------------------------------------------------------------------
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
 #------------------------------------------------------------------------------
@@ -66,7 +65,23 @@ class Test(object, metaclass=_TestMetaClass):
 def runmodule(capture=True):
     """A shorthand for running tests in test modules
     """
+    import os
     import nose
+    try:
+        import spec
+    except ImportError:
+        pass
+    else:
+        import spec.plugin
+
+        def noseMethodDescription(test):
+            return (
+                (hasattr(test.test, "description") and test.test.description) or
+                test.method.__doc__ or
+                spec.plugin.underscored2spec(test.method.__name__)
+            )
+        # XXX: Monkey patch for nicer output!
+        spec.plugin.noseMethodDescription = noseMethodDescription
 
     env = {
         "NOSE_WITH_HTML_REPORT": "True",
@@ -76,4 +91,5 @@ def runmodule(capture=True):
     }
     if not capture:
         env["NOSE_NOCAPTURE"] = "1"
+    env.update(os.environ)
     return nose.runmodule(env=env)
