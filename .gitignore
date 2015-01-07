@@ -19,6 +19,7 @@ dev_tools/*/
 
 # Sublime Text related files.
 *.sublime*
+*.YAML-sublime-project
 .fuse_hidden*
 
 # Auto-generated, include according to files in the directory.
