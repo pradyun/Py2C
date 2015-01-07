@@ -8,23 +8,39 @@
 #------------------------------------------------------------------------------
 
 import sys
+import glob
 import shlex
+import contextlib
 import subprocess
 from subprocess import DEVNULL
 
 # Output
 COLOR_CODES = {
-    "error": 31,
-    "success": 32,
-    "report": 33
+    "error": [1, 31],
+    "success": [32],
+    "info": [33],
+    "important_info": [1, 33]
 }
 
 # Debugging
+RUN = True
 DEBUG = False
 
 # Dependencies
-BUILD_DEPENDENCIES = []
-TEST_DEPENDENCIES = ["ply", "nose", "coverage"]
+TEST_DEPENDENCIES = ["ply", "nose", "coverage", "spec"]
+
+WHEEL_BASED_DISTRIBUTION = {
+    "type": "wheel",
+    "dependencies": ["wheel"],
+    "build_command": "bdist_wheel",
+    "file_glob": "*.whl",
+}
+SOURCE_BASED_DISTRIBUTION = {
+    "type": "source",
+    "dependencies": [],
+    "build_command": "sdist",
+    "file_glob": "*.tar.gz",
+}
 
 
 #------------------------------------------------------------------------------
@@ -32,7 +48,7 @@ TEST_DEPENDENCIES = ["ply", "nose", "coverage"]
 #------------------------------------------------------------------------------
 def log(color, *args):
     if color is not None:
-        print("\033[1;", COLOR_CODES[color], "m", sep="", end="")
+        print("\033[", ";".join(map(str, COLOR_CODES[color])), "m", sep="", end="")
     print(*args, sep="", end="")
     if color is not None:
         print("\033[0m", end="")
@@ -41,13 +57,18 @@ def log(color, *args):
     return True  # Allows use as log(xyz) and fail()
 
 
-def run(command, should_show_output=True):
-    if not DEBUG:
+def run(command, should_show_output=False, shell=True):
+    if DEBUG:
+        print(command, end=";")
+        sys.stdout.flush()
+    if RUN:
+        if not shell:
+            command = shlex.split(command)
         if should_show_output:
-            returncode = subprocess.call(shlex.split(command))
+            returncode = subprocess.call(command, shell=shell)
         else:
             returncode = subprocess.call(
-                shlex.split(command), stdout=DEVNULL, stderr=DEVNULL
+                command, stdout=DEVNULL, stderr=DEVNULL, shell=shell
             )
         return not returncode
     return True
@@ -59,8 +80,8 @@ def fail(fail_message=None):
     raise Exception()
 
 
-def run_and_report(msg, error_msg, success_msg, command, should_show_output=True):
-    log("report", msg)
+def run_and_report(msg, error_msg, success_msg, command, should_show_output=False):
+    log("info", msg)
     OK = run(command, should_show_output)
     if not OK:
         log("error", error_msg, "\n")
@@ -76,66 +97,148 @@ def install_dependency(name):
     run_and_report(
         "   " + name + "...",
         "Couldn't install!", "Done!",
-        "pip install -q {}".format(name)
+        "pip install -q {}".format(name), False
+    )
+
+
+def uninstall_dependency(name):
+    run_and_report(
+        "   " + name + "...",
+        "Couldn't uninstall!", "Done!",
+        "pip uninstall -q -y {}".format(name), False
     )
 
 
 #------------------------------------------------------------------------------
 # Abstractions
 #------------------------------------------------------------------------------
+def success_log(*args, important=False):
+    SCP()
+    log("important_info" if important else "info", *args)
+    try:
+        yield
+    except Exception:
+        RCP()
+        log("error", *args)
+        raise
+    else:
+        RCP()
+        log("success", *args)
+
+
 def clean_project():
     run_and_report(
         "Cleaning project...", "Couldn't clean!", "Done!",
-        sys.executable + " dev_tools/cleanup.py all", False
+        "{} dev_tools/cleanup.py all".format(sys.executable), False
     )
+
+
+def _manage_dependencies(func, message, type_, dependencies):
+    log("info", message.format(type_))
+    if not dependencies:
+        log("success", "None needed!")
+    print()
+    sys.stdout.flush()
+    for dependency in dependencies:
+        func(dependency)
 
 
 def install_dependencies(type_, dependencies):
-    if not dependencies:
-        log("report", "No ", type_, " dependencies.\n")
-        return
-    log("report", "Installing ", type_, " dependencies:\n")
-    for dependency in dependencies:
-        install_dependency(dependency)
-
-
-def install_package():
-    run_and_report(
-        "Installing package...",
-        "Failed to install!", "Done!",
-        sys.executable + " setup.py install", False
+    _manage_dependencies(
+        install_dependency, "Installing {} dependencies...",
+        type_, dependencies
     )
 
 
-def basic_installation_checks():
+def uninstall_dependencies(type_, dependencies):
+    _manage_dependencies(
+        uninstall_dependency, "Uninstalling {} dependencies...",
+        type_, dependencies
+    )
+
+
+def run_tests():
+    log("important_info", "Running tests...")
+    print()  # For some reason, needed to prevent color-leaks
+    sys.stdout.flush()
+    run("nosetests --exe py2c", True, True)
+
+
+def run_basic_checks():
+    # Basic checks
     run_and_report(
         "Check: Is project installed? ",
         "Couldn't import project!", "Yes!",
-        sys.executable + " -c 'import py2c'", False
+        "{} -c 'import py2c'".format(sys.executable)
     )
-
     run_and_report(
         "Check: Is auto-generated file usable? ",
         "No!", "Yes!",
-        sys.executable + " -c 'import py2c.tree.python'", False
+        "{} -c 'import py2c.tree.python'".format(sys.executable)
     )
 
 
-def test_package():
-    log("report", "Running tests...")
-    print()
-    run("nosetests --exe py2c")
+def build_distribution(distribution):
+    # Build
+    run_and_report(
+        "Building {} distribution...".format(distribution["type"]),
+        "Failed!", "Done!",
+        "{} setup.py {}".format(
+            sys.executable, distribution["build_command"]
+        )
+    )
+
+
+def install_distribution(distribution):
+    # Install
+    run_and_report(
+        "Installing {} distribution...".format(distribution["type"]),
+        "Failed to install!", "Done!",
+        "{0} -m pip install {1}".format(
+            sys.executable, glob.glob("./dist/" + distribution["file_glob"])[0]
+        )
+    )
+
+
+@contextlib.contextmanager
+def dependencies_installed(type_, dependencies):
+    install_dependencies(type_, dependencies)
+    try:
+        yield
+    finally:
+        uninstall_dependencies(type_, dependencies)
+
+
+def build_install_test_package(distribution):
+    log("info", "-"*80 + "\n")
+    log("info", "Checking the {} build\n".format(distribution["type"]))
+    log("info", "-"*80 + "\n")
+    clean_project()
+    # Build
+    with dependencies_installed("build-time ({})".format(distribution["type"]), distribution["dependencies"]):  # noqa
+        build_distribution(distribution)
+    # Install
+    install_distribution(distribution)
+
+    # Testing
+    run_basic_checks()
+    with dependencies_installed("test", TEST_DEPENDENCIES):
+        run_tests()
+
+    run("cd dev_tools", True)
+    # Install
+    run_and_report(
+        "Uninstalling {} distribution...".format(distribution["type"]),
+        "Failed to uninstall!", "Done!",
+        "{} -m pip uninstall -q -y py2c".format(sys.executable)
+    )
+    run("cd ..", True)
 
 
 def main():
-    clean_project()
+    build_install_test_package(WHEEL_BASED_DISTRIBUTION)
+    build_install_test_package(SOURCE_BASED_DISTRIBUTION)
 
-    install_dependencies("build", BUILD_DEPENDENCIES)
-    install_package()
-    basic_installation_checks()
-
-    install_dependencies("test", TEST_DEPENDENCIES)
-    test_package()
 
 if __name__ == '__main__':
     main()
