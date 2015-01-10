@@ -25,6 +25,7 @@ class BaseManager(object, metaclass=abc.ABCMeta):
 
         Arguments:
             options
-                A dictionary object with the relavent options passed with values.
+                A dictionary object with the relavent options passed with
+                values.
         """
         raise NotImplementedError()
