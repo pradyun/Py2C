@@ -34,17 +34,17 @@ Testing:
 
 Tree and Node Generator:
  ✔ Implement. @done (12-December-2014 05:03PM)
- - Remove dependency on ply of node_gen.py (for parsing files). @contrib @moderate
+ ✘ [PACKAGING] Remove dependency on ply of node_gen.py (for parsing files). @cancelled (10-January-2015 04:26PM)
    This is really a might-do as since node_gen.py has been moved into the
    package, this dependency is not a problem in any way.
  ✔ Allow inheritence of fields in Node definitions. @done (04-January-2015 10:57AM)
- - Make RecursiveASTVisitor tests more comprehensive. @contrib @easy
+ - [TESTS] Make RecursiveASTVisitor tests more comprehensive. @contrib @easy
+ - [TESTS] Make RecursiveASTTransformer tests more comprehensive. @contrib @easy
 
 Managers:
  ✔ Implement BaseManager @done (12-December-2014 05:03PM)
  - Implement PreProcessingManager
  - Implement AnalysisManager
- - Implement ModifiersManager
  - Implement CodeGenerationManager
  - Implement TranslationManager
 
@@ -53,19 +53,12 @@ Configuration:
  - Integrate into all components.
 
 Pre-processing:
- ✘ Implement a code to custom Python AST Tree converter. @cancelled (04-January-2015 11:54AM)
- - Move to a "flow" tree for simplifying analysis.
- - Change tests to only check the specific changes. @contrib @easy
-   The tests should not check every single combination, just a unique bunch of
-   them, to cover the cases where we make changes.
+ ✔ Implement a code to Python AST converter. @done (10-January-2015 04:24PM)
+ - [TESTS] Make tests more comprehensive.
+ - Implement a Python AST to FlowTree converter.
 
+Nobody touch this section. Let me handle this on my own...
 Analysis:
- Nobody touch these things... PLease let Pradyun handle this on his own...
  ✔ Do some research into the subject. @done (14-12-28 10:10)
  - Figure out the appropriate model/structure for the analysis to done by. @started (01-January-2015 05:00PM)
- - Implement.
- - Integrate. (Implement AnalysisManager)
-
-Modifiers:
- ✔ Implement BaseModifier. @done (12-December-2014 05:03PM)
- Add more to-do in this section after py2c.analysis is implemented.
+ - Implement and Integrate. (-> "Implement AnalysisManager")
