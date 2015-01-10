@@ -6,7 +6,11 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.tree import Node, NEEDED, ONE_OR_MORE, RecursiveTreeVisitor
+from py2c.tree import (
+    iter_fields, Node,
+    NEEDED, ONE_OR_MORE,
+    RecursiveTreeVisitor, RecursiveTreeTransformer
+)
 
 from py2c.tests import Test
 from nose.tools import assert_equal
@@ -43,7 +47,7 @@ class ParentNodeWithChildrenList(Node):
     ]
 
 
-class MyVisitor(RecursiveTreeVisitor):
+class MySimpleVisitor(RecursiveTreeVisitor):
 
     def __init__(self):
         super().__init__()
@@ -52,11 +56,9 @@ class MyVisitor(RecursiveTreeVisitor):
     def generic_visit(self, node):
         self.visited.append(node.__class__.__name__)
         super().generic_visit(node)
-        return node
 
     def visit_BasicNodeCopy(self, node):
         self.visited.append("Works!!")
-        return node
 
 
 #------------------------------------------------------------------------------
@@ -67,9 +69,9 @@ class TestRecursiveASTVisitor(Test):
     """
 
     def check_visit(self, node, expected_visited):
-        visitor = MyVisitor()
+        visitor = MySimpleVisitor()
         retval = visitor.visit(node)
-        assert_equal(node, retval)
+        assert_equal(retval, None)
         assert_equal(visitor.visited, expected_visited)
 
     def test_visit_and_generic_visit(self):
@@ -104,6 +106,14 @@ class TestRecursiveASTVisitor(Test):
                 ["ParentNodeWithChildrenList", "ParentNode", "BasicNode", "Works!!"]
             ),
         ], described=True, prefix="visit ")
+
+
+#------------------------------------------------------------------------------
+# Tests
+#------------------------------------------------------------------------------
+class TestRecursiveASTTransformer(Test):
+    """py2c.tree.RecursiveTreeTransformer
+    """
 
 if __name__ == '__main__':
     from py2c.tests import runmodule

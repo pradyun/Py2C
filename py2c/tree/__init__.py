@@ -6,6 +6,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+import abc
 import collections
 
 from py2c.utils import (
@@ -259,10 +260,8 @@ class Node(object):
 #------------------------------------------------------------------------------
 # RecursiveTreeVisitor
 #------------------------------------------------------------------------------
-class RecursiveTreeVisitor(object):
-    """An visitor that recursively visits every branch and leaf of a Node.
-
-    Based off ``ast.NodeVisitor``
+class BaseTreeVisitor(object, metaclass=abc.ABCMeta):
+    """ABC of TreeVisitors
     """
 
     # Serves as a stub when a function needs to return None
@@ -270,6 +269,7 @@ class RecursiveTreeVisitor(object):
 
     # We allow passing arguments to allow end-user use the same infrastructure
     # for a similar but different Node system.
+    # (For example, this is compatible with ``ast``)
     def __init__(self, root_class=Node, iter_fields=iter_fields):
         super().__init__()
         self.root_class = root_class
@@ -282,25 +282,68 @@ class RecursiveTreeVisitor(object):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
 
-    def visit_children(self, node):  # coverage: not missing
+    def children_visit(self, node):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def generic_visit(self, node):
+        pass
+
+
+class RecursiveTreeVisitor(BaseTreeVisitor):
+    """Visits the base nodes before parent nodes.
+    """
+
+    def children_visit(self, node):
+        for field, value in self.iter_fields(node):
+            value = getattr(node, field, None)
+
+            if isinstance(value, list):
+                self._visit_list(value)
+            elif isinstance(value, self.root_class):
+                self.visit(value)
+
+    def _visit_list(self, original_list):  # coverage: not missing
+        for value in original_list:
+            if isinstance(value, self.root_class):
+                self.visit(value)
+
+    def generic_visit(self, node):
+        self.children_visit(node)
+
+
+class RecursiveTreeTransformer(BaseTreeVisitor):
+    """A BaseTreeVisitor that allows modification of Nodes, in-place.
+
+    RecursiveTreeTransformer walks the Tree and uses the return value of the
+    visitor methods to replace or remove the Nodes.
+
+    If the return value of the visitor method is:
+      1. ``None``: The node will be removed from its location
+      2. ``self.NONE_SENTINEL``: The node will be replaced with ``None``
+    Otherwise the node is replaced with the return value.
+    The return value may be the original node in which case no replacement
+    takes place.
+
+    Based off ``ast.NodeTransformer``
+    """
+
+    def children_visit(self, node):
         """Visit all children of node.
         """
         for field, old_value in self.iter_fields(node):
-            old_value = getattr(node, field, None)
             if isinstance(old_value, list):
                 self._visit_list(old_value)
             elif isinstance(old_value, self.root_class):
                 new_node = self.visit(old_value)
                 if new_node is None:
                     delattr(node, field)
-                else:
-                    if new_node is self.NONE_SENTINEL:
-                        new_node = None
-                    setattr(node, field, new_node)
-                    # print(node)
+                elif new_node is self.NONE_SENTINEL:
+                    new_node = None
+                setattr(node, field, new_node)
 
-    def _visit_list(self, original_list):  # coverage: not missing
-        # Moved out of 'visit_children' for readablity
+    # Moved out of 'children_visit' for readablity
+    def _visit_list(self, original_list):
         new_list = []
         for value in original_list:
             if isinstance(value, self.root_class):
@@ -316,4 +359,4 @@ class RecursiveTreeVisitor(object):
         original_list[:] = new_list
 
     def generic_visit(self, node):
-        return self.visit_children(node)
+        self.children_visit(node)
