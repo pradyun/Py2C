@@ -8,7 +8,7 @@
 
 from nose.tools import assert_raises
 
-from py2c.managers.base_manager import BaseManager
+from py2c.base_manager import BaseManager
 from py2c.tests import Test
 
 

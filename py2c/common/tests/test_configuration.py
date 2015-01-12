@@ -6,7 +6,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.configuration import (
+from py2c.common.configuration import (
     Configuration,
     NoSuchOptionError, InvalidOptionError
 )
