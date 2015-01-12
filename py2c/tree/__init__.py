@@ -74,7 +74,10 @@ class identifier(str, metaclass=_IdentifierMetaClass):
 #------------------------------------------------------------------------------
 class _SingletonMetaClass(type):
     def __subclasscheck__(self, obj):
-        return issubclass(obj, (bool, None.__class__)) or super().__subclasscheck__(obj)
+        return (
+            issubclass(obj, (bool, None.__class__)) or
+            super().__subclasscheck__(obj)
+        )
 
     def __instancecheck__(cls, obj):
         return any(obj is elem for elem in cls._valid_values)
@@ -267,9 +270,8 @@ class BaseTreeVisitor(object, metaclass=abc.ABCMeta):
     # Serves as a stub when a function needs to return None
     NONE_SENTINEL = object()
 
-    # We allow passing arguments to allow end-user use the same infrastructure
-    # for a similar but different Node system.
-    # (For example, this is compatible with ``ast``)
+    # Arguments allow reuse with similar but different Node systems.
+    # (For example, these visitors are compatible with ``ast``)
     def __init__(self, root_class=Node, iter_fields=iter_fields):
         super().__init__()
         self.root_class = root_class
