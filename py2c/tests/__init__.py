@@ -18,6 +18,27 @@ from nose.tools import nottest, assert_in, assert_not_in
 #------------------------------------------------------------------------------
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
 #------------------------------------------------------------------------------
+# XXX: Really bad, modify spec to show nice-output.
+try:
+    import spec.plugin
+except ImportError:
+    pass
+else:
+    if not hasattr(spec.plugin, "_py2c_monkey_patched"):
+        def noseMethodDescription(test):
+            return (
+                (hasattr(test.test, "description") and test.test.description) or
+                test.method.__doc__ or
+                spec.plugin.underscored2spec(test.method.__name__)
+            )
+        # XXX: Monkey patch for nicer output!
+        spec.plugin.noseMethodDescription = noseMethodDescription
+        spec.plugin._py2c_monkey_patched = True
+
+
+#------------------------------------------------------------------------------
+# Meta-class for all Test classes.
+#------------------------------------------------------------------------------
 class _TestMetaClass(type):
     """A metaclass for all tests for convenience in working with code.
     This metaclass:
@@ -67,21 +88,6 @@ def runmodule(capture=True):
     """
     import os
     import nose
-    try:
-        import spec
-    except ImportError:
-        pass
-    else:
-        import spec.plugin
-
-        def noseMethodDescription(test):
-            return (
-                (hasattr(test.test, "description") and test.test.description) or
-                test.method.__doc__ or
-                spec.plugin.underscored2spec(test.method.__name__)
-            )
-        # XXX: Monkey patch for nicer output!
-        spec.plugin.noseMethodDescription = noseMethodDescription
 
     env = {
         "NOSE_WITH_HTML_REPORT": "True",
