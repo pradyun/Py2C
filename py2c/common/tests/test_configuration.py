@@ -1,4 +1,4 @@
-"""Tests for the Configuration holder
+"""Tests for the Configuration object
 """
 
 #------------------------------------------------------------------------------
