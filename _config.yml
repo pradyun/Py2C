@@ -3,7 +3,7 @@ title: Py2C
 tagline: 'A Python to C++ translator'
 description: 'A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write.'
 
-url: http://pradyun.github.io/Py2C
+base_url: http://pradyun.github.io/Py2C
 
 author:
   name: Pradyun Gedam
@@ -12,10 +12,6 @@ author:
 github:
   repo: https://github.com/pradyun/Py2C
 version: pre-alpha
-
-
-# Custom vars
-baseurl: /
 
 # Permalinks
 permalink: pretty
