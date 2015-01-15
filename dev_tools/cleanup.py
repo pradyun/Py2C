@@ -66,7 +66,7 @@ def main():
         for name in files:
             if should_remove_file(root, name):
                 fname = join(root, name)
-                log("Deleting File..:", relpath(fname, BASE_DIR))
+                log("Deleting File  :", relpath(fname, BASE_DIR))
                 os.remove(fname)
 
 

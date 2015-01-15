@@ -11,6 +11,7 @@ dist/
 
 # Subdirectories in dev_tools
 dev_tools/*/
+dev_tools/Py2C.yaml
 
 # PLY
 *parser.out
@@ -19,7 +20,6 @@ dev_tools/*/
 
 # Sublime Text related files.
 *.sublime*
-*.YAML-sublime-project
 .fuse_hidden*
 
 # Auto-generated, include according to files in the directory.
