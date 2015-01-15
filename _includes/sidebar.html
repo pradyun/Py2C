@@ -1,34 +1,34 @@
-<div class="sidebar">
-  <div class="container">
-    <div class="sidebar-about">
-      <h1>
-        <a href="{{ site.baseurl }}">
-          {{ site.title }}
-        </a>
-      </h1>
-      <p class="tagline">{{ site.tagline }}</p>
-    </div>
-
-    <nav class="sidebar-nav">
-
-      {% comment %}
-        The code below dynamically generates a sidebar nav of pages with
-        `layout: page` in the front-matter. See readme for usage.
-      {% endcomment %}
-
-      {% assign pages_list = site.pages %}
-      {% for node in pages_list %}
-        {% if node.title != null and node.title != site.title %}
-          {% if node.layout == "page" %}
-            <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ node.url }}">{{ node.title }}</a>
-          {% endif %}
+<div id="sidebar-wrapper">
+    <ul class="sidebar-nav">
+        <li class="sidebar-brand">
+            <a href="{{ site.base_url }}">
+              {{ site.title }}
+            </a>
+        </li>
+        {% assign pages_list = site.pages %}
+        {% for node in pages_list %}
+        {% if node.title != null and node.layout == "page" and node.no_show_sidebar == null %}
+        <li>
+            <a {% if page.url == node.url %}class="active" {% endif %}href="{{ node.url }}">
+                {{ node.title }}
+            </a>
+        </li>
         {% endif %}
-      {% endfor %}
+        {% endfor %}
 
-      <a class="sidebar-nav-item" href="{{ site.github.repo }}">GitHub project</a>
+        <li>
+            <a href="{{ site.github.repo }}">
+                <!-- Github logo -->
+                GitHub
+            </a>
+        </li>
 
-    </nav>
 
-    <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
-  </div>
+        <li>
+            <a class="copyright">
+            &copy; {{ site.time | date: '%Y' }}. All rights Reserved.
+            </a>
+        </li>
+
+    </ul>
 </div>

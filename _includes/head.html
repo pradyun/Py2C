@@ -1,25 +1,27 @@
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
 
-  <!-- Enable responsiveness on mobile devices-->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title>
-    {% if page.title == "Home" %}
-      {{ site.title }} &middot; {{ site.tagline }}
-    {% else %}
-      {{ page.title }} &middot; {{ site.title }}
-    {% endif %}
-  </title>
+    <title>
+        {% if page.title == "Home" %}
+            {{ site.title }} &middot; {{ site.tagline }}
+        {% else %}
+            {{ page.title }} &middot; {{ site.title }}
+        {% endif %}
+    </title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="{{ site.base_url }}/public/css/poole.css">
-  <link rel="stylesheet" href="{{ site.base_url }}/public/css/syntax.css">
-  <link rel="stylesheet" href="{{ site.base_url }}/public/css/hyde.css">
-  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ site.base_url }}/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ site.base_url }}/css/sidebar.css">
 
-  <!-- RSS -->
-  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+    <!-- jQuery -->
+    <script src="{{ site.base_url }}/js/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{ site.base_url }}/js/bootstrap.min.js"></script>
+    <!-- Sidebar Toggle Script -->
+    <script src="{{ site.base_url }}/js/sidebar.js"></script>
 </head>

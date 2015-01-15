@@ -1,15 +1,25 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<html lang="en-us">
 
-  {% include head.html %}
+{% include head.html %}
 
-  <body class="theme-base-08">
+<body>
 
-    {% include sidebar.html %}
+    <div id="wrapper">
+        {% include sidebar.html %}
 
-    <div class="content container">
-      {{ content }}
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        {{ content }}
+                        <a class="btn btn-default" id="sidebar-toggle">Toggle Sidebar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</body>
 
-  </body>
 </html>

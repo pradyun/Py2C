@@ -1,0 +1,106 @@
+---
+---
+$sidebar-width: 250px;
+$sidebar-background: #AA3939;
+$sidebar-title-color: #FFFFFF;
+$sidebar-item-color: rgba(255, 255, 255, 0.5);
+$white: #fff;
+$white_20: rgba(255,255,255,0.2);
+
+// Sidebar
+#wrapper {
+    padding-left: 0;
+    transition: all 0.5s ease;
+    height: 100%;
+    &.toggled {
+        padding-left: $sidebar-width;
+        #sidebar-wrapper {
+            width: $sidebar-width;
+        }
+        #page-content-wrapper {
+            position: absolute;
+            margin-right: -$sidebar-width;
+        }
+    }
+}
+#sidebar-wrapper {
+    z-index: 1000;
+    position: fixed;
+    left: $sidebar-width;
+    width: 0;
+    height: 100%;
+    margin-left: -$sidebar-width;
+    overflow-y: auto;
+    background: $sidebar-background;
+    transition: all 0.5s ease;
+}
+#page-content-wrapper {
+    width: 100%;
+    position: absolute;
+    padding: 15px;
+}
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: $sidebar-width;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    li {
+        text-indent: 20px;
+        line-height: 40px;
+        a {
+            display: block;
+            text-decoration: none;
+            color: $sidebar-item-color;
+            &:hover {
+                text-decoration: none;
+                color: $white;
+                background: $white_20;
+            }
+            &:active, &:focus {
+                text-decoration: none;
+            }
+            &.copyright {
+                color: $white_20;
+                &:hover {
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+    > .sidebar-brand {
+        height: 65px;
+        font-size: 36px;
+        line-height: 72px;
+        a {
+            color: $white;
+            &:hover {
+                background: none;
+            }
+        }
+    }
+}
+// On small screens, collapse sidebar by default.
+@media(min-width:768px) {
+    #wrapper {
+        padding-left: $sidebar-width;
+        &.toggled {
+            padding-left: 0;
+            #sidebar-wrapper {
+                width: 0;
+            }
+            #page-content-wrapper {
+                position: relative;
+                margin-right: 0;
+            }
+        }
+    }
+    #sidebar-wrapper {
+        width: $sidebar-width;
+    }
+    #page-content-wrapper {
+        padding: 20px;
+        position: relative;
+    }
+}
