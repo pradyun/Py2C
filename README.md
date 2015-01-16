@@ -10,7 +10,7 @@
 
 ## Py2C
 
-[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page]
+[![Maintainance Status][stillmaintained-badge]][stillmaintained-page] [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page]
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
@@ -37,7 +37,7 @@ int main() {
 }
 ```
 
-If it is needed, a special header file is include'd in the generated file. For example, the above example would compile to something like:
+If it is needed, a special header file is included in the generated file. For example, the above example would compile to something like:
 
 ```cpp
 #include "py2c.h"
@@ -54,3 +54,5 @@ If all goes as planned, Py2C will also be extendable to accommodate for API chan
   [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg?branch=develop
   [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
   [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg
+  [stillmaintained-page]: https://stillmaintained.com/pradyun/Py2C
+  [stillmaintained-badge]: http://stillmaintained.com/pradyun/Py2C.png
