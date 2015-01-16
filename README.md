@@ -10,7 +10,7 @@
 
 ## Py2C
 
-[![Maintainance Status][stillmaintained-badge]][stillmaintained-page] [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page][![Gitter][gitter-image]][gitter-link]
+[![Maintainance Status][stillmaintained-badge]][stillmaintained-page] [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-link]
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
