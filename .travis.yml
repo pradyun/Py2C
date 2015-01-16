@@ -4,6 +4,16 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+# Travis extras...
+notifications:
+  webhooks:
+    urls:
+      # Build results on gitter.im
+      - secure: "OT9FPGHYd9523CMz4GiAx9iBBxovFONvgizAEWm3pyi9/6953+TGK//R++SOlRuLIpcXUS8IqMg0DTO9AlPSKwk5B4MQvc9ipZT/AhMTmZczXLgPq2ANtXkSOUmcZsMDQy6bPyJwMjeSBDF0KpzKSA02oYhOZmXt06Px01ZH/dE="
+    on_success: change  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: false     # default: false
+
 language: python
 python:
   - 3.3
