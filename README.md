@@ -10,7 +10,7 @@
 
 ## Py2C
 
-[![Maintainance Status][stillmaintained-badge]][stillmaintained-page] [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-link]
+[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][status-badge]
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
@@ -51,10 +51,9 @@ int main() {
 If all goes as planned, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc).
 
   [travis-page]: https://travis-ci.org/pradyun/Py2C
-  [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg?branch=develop
+  [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg
   [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
-  [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg
-  [stillmaintained-page]: https://stillmaintained.com/pradyun/Py2C
-  [stillmaintained-badge]: http://stillmaintained.com/pradyun/Py2C.png
-  [gitter-image]: https://badges.gitter.im/Join%20Chat.svg
-  [gitter-link]: https://gitter.im/pradyun/Py2C?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+  [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg?style=flat
+  [status-badge]: https://img.shields.io/badge/project-planning-brightgreen.svg?style=flat
+  [gitter-image]: https://img.shields.io/badge/Gitter-Chat_Room-1DCD73.svg?style=flat
+  [gitter-page]: https://gitter.im/pradyun/Py2C
