@@ -14,7 +14,8 @@ if sys.version_info[:2] < (3, 3):
 try:
     from setuptools import setup, find_packages
 except ImportError:
-    print("Please install 'setuptools' to run this script.")
+    # Include Py2C to tell the user that it is us writing that message.
+    print("[Py2C] Please install 'setuptools'..")
     sys.exit(1)
 
 #------------------------------------------------------------------------------
@@ -33,17 +34,9 @@ class build_py(_build_py):
     """
 
     def initialize_options(self):
+        import py2c.tree.node_gen as node_gen
         path_to_definitions = realpath(join(dirname(__file__), "py2c", "tree"))
-        # Add py2c to sys.path
-        sys.path.append(realpath(dirname(__file__)))
-        try:
-            import py2c.tree.node_gen as node_gen
-        except Exception as err:
-            print("ERROR: ", err)
-            sys.exit(1)
-        finally:
-            sys.path.pop()
-        node_gen.generate(path_to_definitions, path_to_definitions)
+        node_gen.generate(path_to_definitions)
 
         super().initialize_options()
 
