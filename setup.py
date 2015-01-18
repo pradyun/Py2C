@@ -18,6 +18,8 @@ except ImportError:
     print("[Py2C] Please install 'setuptools'..")
     sys.exit(1)
 
+# setup.py metadata
+from metadata_setup import get_metadata
 #------------------------------------------------------------------------------
 # Generating the AST
 #------------------------------------------------------------------------------
@@ -41,43 +43,24 @@ class build_py(_build_py):
         super().initialize_options()
 
 
-#------------------------------------------------------------------------------
-# Metadata
-#------------------------------------------------------------------------------
-description = (
-    "A translator to translate implicitly statically typed Python code into "
-    "(hopefully) human-readable C++ code."
-)
-
-with open("README.md") as f:
-    long_description = f.read()
-
-classifiers = [
-    "Development Status :: 1 - Planning",
-    "Programming Language :: C++",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.3",
-    "Programming Language :: Python :: 3.4",
-    "Topic :: Software Development :: Code Generators",
-    "Topic :: Software Development :: Compilers",
-]
-
+metadata = get_metadata()
 #------------------------------------------------------------------------------
 # The main setup call
 #------------------------------------------------------------------------------
 setup(
-    # Package data
-    name="py2c",
-    version="0.1.0-dev",
+    # Metadata
+    name=metadata["name"],
+    author=metadata["author"],
+    author_email=metadata["author_email"],
+    description=metadata["description"],
+    long_description=metadata["long_description"],
+    url=metadata["url"],
+    version=metadata["version"],
+    classifiers=metadata["classifiers"],
+
+    # Packaging related stuff
     packages=find_packages(),
     setup_requires=["ply==3.4"],
-    # Metadata
-    description=description,
-    long_description=long_description,
-    author="Pradyun S. Gedam",
-    author_email="pradyunsg@gmail.com",
-    url="https://github.com/pradyun/Py2C",
-    classifiers=classifiers,
     cmdclass={
         'build_py': build_py,
     },

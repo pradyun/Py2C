@@ -257,10 +257,13 @@ class SourceGenerator(object):
         """).strip().format(name, parent, field_text)
 
 
-# API for dual_ast
-def generate(source_dir, output_dir, update=False):  # coverage: not missing
+# API
+def generate(source_dir, output_dir=None, update=False):  # coverage: not missing
     """Generate sources for the Nodes definition files in ``source_dir``
     """
+    if output_dir is None:
+        output_dir = source_dir
+
     files_to_convert = [
         fname for fname in os.listdir(os.path.realpath(source_dir))
         if fname.endswith(".tree")

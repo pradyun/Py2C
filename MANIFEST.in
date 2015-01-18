@@ -1,2 +1,5 @@
 include README.md
+include setup.cfg
+include metadata_setup.py
+
 include py2c/tree/*.tree
