@@ -6,11 +6,9 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from py2c.tree import (
-    iter_fields, Node,
-    NEEDED, ONE_OR_MORE,
-    RecursiveTreeVisitor, RecursiveTreeTransformer
-)
+from py2c.tree import Node, NEEDED, ONE_OR_MORE
+from py2c.tree.visitors import RecursiveTreeVisitor, RecursiveTreeTransformer
+
 
 from py2c.tests import Test
 from nose.tools import assert_equal
@@ -114,6 +112,7 @@ class TestRecursiveASTVisitor(Test):
 class TestRecursiveASTTransformer(Test):
     """py2c.tree.RecursiveTreeTransformer
     """
+
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
