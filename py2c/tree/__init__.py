@@ -53,20 +53,19 @@ def iter_fields(node):
 #------------------------------------------------------------------------------
 class _IdentifierMetaClass(type):
     def __instancecheck__(self, obj):
-        return isinstance(obj, str) and is_valid_dotted_identifier(obj)
+        return isinstance(obj, str) and obj.isidentifier()
 
     def __subclasscheck__(self, obj):
         return issubclass(obj, str)
 
 
 class identifier(str, metaclass=_IdentifierMetaClass):
-    def __new__(self, s):
-        if is_valid_dotted_identifier(s):
-            return s
-        else:
-            raise WrongAttributeValueError(
-                "Invalid value for identifier: {}".format(s)
-            )
+    def __new__(self, obj):
+        if isinstance(obj, str) and obj.isidentifier():
+            return obj
+        raise WrongAttributeValueError(
+            "Invalid value for identifier: {}".format(obj)
+        )
 
 
 #------------------------------------------------------------------------------

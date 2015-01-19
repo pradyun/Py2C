@@ -93,11 +93,11 @@ class TestIdentifier(DataTypeTestBase):
             ("VALID_NAME", True),
             ("Valid_1_name", True),
             (identifier("valid_name"), True),
-            ("valid.name", True),
             ("_valid_name_", True),
-            ("_valid._attr_", True),
             ("虎", True),
-            ("Invalid name", False)
+            ("Invalid name", False),
+            ("invalid.attr", False),
+            ("in_valid._attr_", False),
         ])
 
     def test_issubclass(self):
