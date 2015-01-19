@@ -23,9 +23,7 @@ class TestParser(Test):
     """node_gen.Parser
     """
 
-    #--------------------------------------------------------------------------
     # Comments
-    #--------------------------------------------------------------------------
     def check_removal_of_comments(self, test_string, expected):
         assert_equal(remove_comments(test_string), expected)
 
@@ -137,6 +135,28 @@ class TestParser(Test):
                     ),
                     Node(
                         "obj", "base2",
+                        []
+                    ),
+                ]
+            ),
+            (
+                "a node, without bothering about the indentation",
+                """
+                base1: [int field1]
+                    base2(base1): [int field2]
+                    obj(Node): []
+                """,
+                [
+                    Node(
+                        "base1", None,
+                        [("field1", "int", "NEEDED")]
+                    ),
+                    Node(
+                        "base2", "base1",
+                        [("field2", "int", "NEEDED")]
+                    ),
+                    Node(
+                        "obj", "Node",
                         []
                     ),
                 ]

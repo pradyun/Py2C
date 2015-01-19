@@ -129,19 +129,24 @@ Attribute(expr): [expr value, identifier attr, expr_context ctx]
 Subscript(expr): [expr value, slice slice, expr_context ctx]
 Starred(expr): [expr value, expr_context ctx]
 Name(expr): [identifier id, expr_context ctx]
-List(expr): [expr* elts, expr_context ctx]
-Tuple(expr): [expr* elts, expr_context ctx]
-Ellipsis(expr): []
-NameConstant(expr): [singleton value]
 
-# Literals with type-protection
+# Literals
 literal(expr): []
-Str(literal): [str s]
-Bytes(literal): [bytes s]
-num(literal): []
-Int(num): [int n]
-Float(num): [float n]
-Complex(num): [complex n]
+
+    List(literal): [expr* elts, expr_context ctx]
+    Tuple(literal): [expr* elts, expr_context ctx]
+
+    Str(literal): [str s]
+    Bytes(literal): [bytes s]
+
+    num(literal): []
+        Int(num): [int n]
+        Float(num): [float n]
+        Complex(num): [complex n]
+
+    Bool(literal): [bool value]
+    NoneType(literal): []
+    Ellipsis(literal): []
 
 #------------------------------------------------------------------------------
 # Expression context
