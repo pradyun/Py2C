@@ -10,7 +10,7 @@
 # This file's syntax is based off ASDL definitions, modified for ease of
 # parsing, readability (kinda) and ease of editting IMNSHO.
 #
-# Already known types: str, int, identifier, bool, bytes, int, float, complex
+# Already known types: str, int, bool, bytes, float, complex, identifier (valid python identifier name)
 #==============================================================================
 
 #------------------------------------------------------------------------------

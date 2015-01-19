@@ -50,6 +50,3 @@ def _normalize(options):
             retval["long_description"] = fdesc.read()
 
     return retval
-
-if __name__ == "__main__":
-    print(get_matadata_from_config())

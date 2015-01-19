@@ -1,4 +1,4 @@
-"""Package containing Tree/Node definitions for use in translation
+"""The internal representation of the Python code-flow.
 """
 
 #------------------------------------------------------------------------------
@@ -11,6 +11,17 @@ import collections
 from py2c.utils import (
     get_article, verify_attribute, is_valid_dotted_identifier
 )
+
+__all__ = [
+    # Exceptions
+    "TreeError", "WrongTypeError", "FieldError", "WrongAttributeValueError",
+    # Custom classes
+    "identifier", "singleton",
+    # Modifers
+    "NEEDED", "OPTIONAL", "ZERO_OR_MORE", "ONE_OR_MORE",
+    # The big fish
+    "Node"
+]
 
 
 #------------------------------------------------------------------------------

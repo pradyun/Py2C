@@ -1,4 +1,4 @@
-"""Translates Python code into an AST containing type and control-flow information.
+"""Translates Python code into an Python's built-in AST
 """
 
 #------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ class SourceToASTTranslationError(PreProcessingError):
 # Translator
 #------------------------------------------------------------------------------
 class SourceToAST(BaseWorker):
-    """Translates Python code into Flow Tree
+    """Translates Python code into AST
     """
 
     def work(self, code):
