@@ -72,7 +72,7 @@ def _prettify_list(li):
         return "\n".join(lines)
 
 
-Node = collections.namedtuple("Node", "name parent attrs")
+Definition = collections.namedtuple("Definition", "name parent attrs")
 
 
 #------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ class Parser(object):
             msg = "Inheriting nodes need parents to inherit from. See definition of {!r}"
             raise ParserError(msg.format(name))
 
-        p[0] = Node(name, parent, attrs)
+        p[0] = Definition(name, parent, attrs)
 
     def p_parent_class_opt(self, p):
         """parent_class_opt : '(' NAME ')'

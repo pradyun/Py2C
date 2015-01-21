@@ -175,7 +175,16 @@ class Node(object):
         """
         missing = []
         for name, _, modifier in self._fields:
-            if not hasattr(self, name):
+            if hasattr(self, name):
+                if modifier in (ZERO_OR_MORE, ONE_OR_MORE):
+                    self.__dict__[name] = tuple(getattr(self, name))
+                    items = getattr(self, name)
+                else:
+                    items = [getattr(self, name)]
+
+                for item in filter(lambda x: isinstance(x, Node), items):
+                    item.finalize()
+            else:
                 if modifier in (NEEDED, ONE_OR_MORE):
                     missing.append(name)
                 elif modifier == OPTIONAL:
@@ -188,13 +197,6 @@ class Node(object):
                             self.__class__.__name__, name
                         )
                     )
-            else:
-                if modifier in (ZERO_OR_MORE, ONE_OR_MORE):
-                    self.__dict__[name] = tuple(getattr(self, name))
-                    for item in getattr(self, name):
-                        getattr(item, "finalize", lambda: None)()
-                else:
-                    getattr(getattr(self, name), "finalize", lambda: None)()
 
         if missing:
             raise AttributeError(

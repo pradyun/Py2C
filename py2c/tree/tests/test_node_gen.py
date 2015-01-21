@@ -9,7 +9,7 @@
 from textwrap import dedent
 
 from py2c.tree.node_gen import (
-    Parser, Node, SourceGenerator, remove_comments, ParserError
+    Parser, Definition, SourceGenerator, remove_comments, ParserError
 )
 
 from py2c.tests import Test
@@ -72,22 +72,22 @@ class TestParser(Test):
             (
                 "an empty node, without parent",
                 "foo: []",
-                [Node('foo', None, [])]
+                [Definition('foo', None, [])]
             ),
             (
                 "an empty node, with parent",
                 "foo(AST): []",
-                [Node('foo', 'AST', [])]
+                [Definition('foo', 'AST', [])]
             ),
             (
                 "a node that inherits, with parent",
                 "foo(AST): inherit",
-                [Node('foo', 'AST', 'inherit')]
+                [Definition('foo', 'AST', 'inherit')]
             ),
             (
                 "a simple node, without parent",
                 "foo: [int bar]",
-                [Node(
+                [Definition(
                     'foo',
                     None,
                     [('bar', 'int', 'NEEDED')],
@@ -96,7 +96,7 @@ class TestParser(Test):
             (
                 "a simple node, with parent",
                 "foo(AST): [int bar]",
-                [Node(
+                [Definition(
                     'foo',
                     'AST',
                     [('bar', 'int', 'NEEDED')],
@@ -106,7 +106,7 @@ class TestParser(Test):
                 "a node with all modifiers",
                 "FooBar: [int foo, int+ bar, int* baz, int? spam]",
                 [
-                    Node(
+                    Definition(
                         "FooBar", None,
                         [
                             ('foo', 'int', 'NEEDED'),
@@ -125,15 +125,15 @@ class TestParser(Test):
                 obj(base2): []
                 """,
                 [
-                    Node(
+                    Definition(
                         "base1", None,
                         [("field1", "int", "NEEDED")]
                     ),
-                    Node(
+                    Definition(
                         "base2", "base1",
                         [("field2", "int", "NEEDED")]
                     ),
-                    Node(
+                    Definition(
                         "obj", "base2",
                         []
                     ),
@@ -144,19 +144,19 @@ class TestParser(Test):
                 """
                 base1: [int field1]
                     base2(base1): [int field2]
-                    obj(Node): []
+                    obj(Definition): []
                 """,
                 [
-                    Node(
+                    Definition(
                         "base1", None,
                         [("field1", "int", "NEEDED")]
                     ),
-                    Node(
+                    Definition(
                         "base2", "base1",
                         [("field2", "int", "NEEDED")]
                     ),
-                    Node(
-                        "obj", "Node",
+                    Definition(
+                        "obj", "Definition",
                         []
                     ),
                 ]
@@ -224,7 +224,7 @@ class TestSourceGenerator(Test):
         yield from self.yield_tests(self.check_generated_source, [
             (
                 "without fields, without parent",
-                [Node('FooBar', None, [])],
+                [Definition('FooBar', None, [])],
                 """
                 class FooBar(object):
                     _fields = []
@@ -232,7 +232,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "without fields, with parent",
-                [Node('FooBar', 'AST', [])],
+                [Definition('FooBar', 'AST', [])],
                 """
                 class FooBar(AST):
                     _fields = []
@@ -240,7 +240,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "inheriting fields from parent",
-                [Node('FooBar', 'AST', 'inherit')],
+                [Definition('FooBar', 'AST', 'inherit')],
                 """
                 class FooBar(AST):
                     _fields = AST._fields
@@ -248,7 +248,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, without parent",
-                [Node(
+                [Definition(
                     'FooBar',
                     None,
                     [('bar', 'int', 'NEEDED')],
@@ -262,7 +262,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, with parent",
-                [Node(
+                [Definition(
                     'FooBar',
                     'AST',
                     [('bar', 'int', 'NEEDED')],
@@ -276,7 +276,7 @@ class TestSourceGenerator(Test):
             ),
             (
                 "with fields, with parent, with all modifiers",
-                [Node(
+                [Definition(
                     'FooBar',
                     'AST',
                     [
@@ -299,17 +299,17 @@ class TestSourceGenerator(Test):
             (
                 "with multiple fields",
                 [
-                    Node(
+                    Definition(
                         'base1',
                         None,
                         [('field1', 'int', 'NEEDED')],
                     ),
-                    Node(
+                    Definition(
                         'base2',
                         'base1',
                         [('field2', 'int', 'NEEDED')],
                     ),
-                    Node(
+                    Definition(
                         'obj',
                         'base2',
                         [],
