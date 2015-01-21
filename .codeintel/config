@@ -1,0 +1,8 @@
+{
+    "Python": {
+        "python": '/home/pradyun/.venvwrap/venvs/py2c/bin/python',
+        "pythonExtraPaths": [
+            '/home/pradyun/.venvwrap/venvs/py2c/lib/python3.4/site-packages'
+        ]
+    }
+}
