@@ -7,10 +7,10 @@ It also contains the integration tests for Py2C.
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-from functools import partial
 import inspect
 import warnings
 import traceback
+from functools import partial
 
 from nose.tools import nottest, assert_in, assert_not_in
 
@@ -35,6 +35,8 @@ else:
         # XXX: Monkey patch for nicer output!
         spec.plugin.noseMethodDescription = noseMethodDescription
         spec.plugin._py2c_monkey_patched = True
+
+        del noseMethodDescription
 
 
 #------------------------------------------------------------------------------
@@ -61,7 +63,7 @@ class _TestMetaClass(type):
 
 
 class Test(object, metaclass=_TestMetaClass):
-    """A base class for all tests for py2c
+    """Base class for all tests for py2c
     """
 
     @nottest
@@ -71,7 +73,7 @@ class Test(object, metaclass=_TestMetaClass):
                 func = partial(test_method, *test_args[1:])
                 func.description = prefix + test_args[0]
             else:
-                func = partial(test_method, *test_args)
+                func = partial(test_method, *test_args[:])
             yield func
 
     def assert_message_contains(self, error, required_phrases):
