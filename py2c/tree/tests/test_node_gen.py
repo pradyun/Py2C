@@ -201,7 +201,7 @@ class TestParser(Test):
             (
                 "a node that inherits, without parent",
                 "foo: inherit",
-                ['inherit', 'needs', 'parent']
+                ['inherit', 'need', 'parent', 'foo']
             ),
         ], described=True, prefix="error reporting for ")
 

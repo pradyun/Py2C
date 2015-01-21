@@ -160,7 +160,7 @@ class Parser(object):
                     ", ".join(duplicated_fields)
                 ))
         elif parent is None:
-            msg = "Inheriting nodes need parents to inherit from!! See {}"
+            msg = "Inheriting nodes need parents to inherit from. See definition of {!r}"
             raise ParserError(msg.format(name))
 
         p[0] = Node(name, parent, attrs)
