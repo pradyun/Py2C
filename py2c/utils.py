@@ -6,6 +6,8 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
+__all__ = ["verify_attribute", "get_article", "is_valid_dotted_identifier"]
+
 
 def verify_attribute(obj, name, clazz):
     """Verify that 'obj' has an attribute 'name' which isinstance of 'clazz'.

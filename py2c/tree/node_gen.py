@@ -18,6 +18,8 @@ from textwrap import dedent
 import ply.lex
 import ply.yacc
 
+__all__ = ["PREFIX", "remove_comments", "ParserError", "Parser", ""]
+
 PREFIX = dedent("""
     #------------------------------------------------------------------------------
     # Py2C - A Python to C++ compiler

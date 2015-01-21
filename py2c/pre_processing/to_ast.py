@@ -11,6 +11,8 @@ import ast
 from py2c.base_worker import BaseWorker
 from py2c.pre_processing import PreProcessingError
 
+__all__ = ["SourceToASTTranslationError", "SourceToAST"]
+
 
 #------------------------------------------------------------------------------
 # Exceptions

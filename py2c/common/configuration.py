@@ -8,6 +8,11 @@
 
 from py2c.utils import is_valid_dotted_identifier
 
+__all__ = [
+    "OptionError", "InvalidOptionError", "NoSuchOptionError",
+    "Configuration"
+]
+
 
 #------------------------------------------------------------------------------
 # Exceptions

@@ -8,6 +8,8 @@
 
 import abc
 
+__all__ = ["BaseWorker"]
+
 
 class BaseWorker(object, metaclass=abc.ABCMeta):
     """Base class of all workers

@@ -10,6 +10,8 @@ import abc
 
 from py2c.utils import verify_attribute
 
+__all__ = ["BaseManager"]
+
 
 class BaseManager(object, metaclass=abc.ABCMeta):
     """Base class of all managers

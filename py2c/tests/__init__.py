@@ -14,6 +14,7 @@ import traceback
 
 from nose.tools import nottest, assert_in, assert_not_in
 
+__all__ = ["Test", "runmodule"]
 
 #------------------------------------------------------------------------------
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
