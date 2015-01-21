@@ -1,4 +1,4 @@
-"""Translates Python code into an Python's built-in AST
+"""Translates Python code into Python's built-in AST.
 """
 
 #------------------------------------------------------------------------------

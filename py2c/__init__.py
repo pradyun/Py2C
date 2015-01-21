@@ -1,5 +1,4 @@
-"""A Python to C++ compiler that compiles statically typed Python code into \
-readable C++ code.
+"""A Python to C++ compiler that compiles statically typed Python code into readable C++ code.
 """
 
 #------------------------------------------------------------------------------

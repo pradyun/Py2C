@@ -1,6 +1,6 @@
-"""Node file generator
+"""Autogenerate Python files based on a `.tree` definition file.
 
-This file generates the Python files from the DSL we made, for the nodes that
+This module generates the Python files from the DSL we made, for the nodes that
 we use during the translation. This way of describing nodes, allows DRY-ness of
 source code.
 """
