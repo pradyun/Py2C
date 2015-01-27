@@ -33,7 +33,7 @@ class TestYieldTests(Test):
             assert_equal(test(), "barbaz")
 
     def test_argument_ordering(self):
-        li = [(0, 3), [0, 4], set([0, 5])]
+        li = [(0, 3), [0, 4]]
         for test, args in zip(self.yield_tests(check_order, li), li):
             assert_equal(list(test()), list(args))
 
