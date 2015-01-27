@@ -1,14 +1,9 @@
-﻿-----
-
-> WARNING: `git rebase -i` and `git push --force` may be run on this branch at any point of time because I'm mad and evil!
-
------
-
-> This project is still in the planning/pre-alpha stages and is **not working**.
-
------
-
-## Py2C
+﻿ -----
+> As of 26 January 2015, the project is on hold, until [PEP-484][pep-484] is finalized...
+ -----
+> The project is **not** functional yet. It's just in pre-alpha/planning stage...
+ -----
+# Py2C
 
 [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-on-hold-badge]
 
@@ -49,6 +44,8 @@ int main() {
 ```
 
 If all goes as planned, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc).
+
+  [pep-484]: https://www.python.org/dev/peps/pep-0484
 
   <!-- Badges -->
   [travis-page]: https://travis-ci.org/pradyun/Py2C
