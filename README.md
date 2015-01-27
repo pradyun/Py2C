@@ -10,7 +10,7 @@
 
 ## Py2C
 
-[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][pre-alpha-badge]
+[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-on-hold-badge]
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
@@ -50,14 +50,19 @@ int main() {
 
 If all goes as planned, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc).
 
+  <!-- Badges -->
   [travis-page]: https://travis-ci.org/pradyun/Py2C
   [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg
   [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
   [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg?style=flat
-  [pre-alpha-badge]: https://img.shields.io/badge/project-pre--alpha-red.svg?style=flat
-  [alpha-badge]: https://img.shields.io/badge/project-alpha-lightgrey.svg?style=flat
-  [beta-badge]: https://img.shields.io/badge/project-beta-orange.svg?style=flat
-  [rc-badge]: https://img.shields.io/badge/project-release--candidate-yellow.svg?style=flat
-  [maintained-badge]: https://img.shields.io/badge/project-maintained-brightgreen.svg?style=flat
   [gitter-image]: https://img.shields.io/badge/Gitter-Chat_Room-1DCD73.svg?style=flat
   [gitter-page]: https://gitter.im/pradyun/Py2C
+
+  <!-- Project Status Badge -->
+  [project-on-hold-badge]: https://img.shields.io/badge/project-on--hold-lightgrey.svg?style=flat
+  [project-pre-alpha-badge]: https://img.shields.io/badge/project-pre--alpha-ff5d37.svg?style=flat
+  [project-alpha-badge]: https://img.shields.io/badge/project-alpha-orange.svg?style=flat
+  [project-beta-badge]: https://img.shields.io/badge/project-beta-yellow.svg?style=flat
+  [project-rc-badge]: https://img.shields.io/badge/project-release--candidate-green.svg?style=flat
+  [project-stable-badge]: https://img.shields.io/badge/project-stable-brightgreen.svg?style=flat
+  [project-discontinued-badge]: https://img.shields.io/badge/project-discontinued-DD4444.svg?style=flat
