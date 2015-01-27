@@ -10,18 +10,19 @@ the tests are run in a consistent environment.
 # Copyright (C) 2014 Pradyun S. Gedam
 #------------------------------------------------------------------------------
 
-import sys
-from os.path import join, realpath, dirname
-
 # Local modules
 import cleanup
-cleanup.REMOVE_GENERATED_AST = False
-cleanup.PRINT_OUTPUT = False
-cleanup.main()
+
+# Standard library
+import sys
+from os.path import join, realpath, dirname
 
 # Third Party modules
 import nose
 import coverage
+
+cleanup.REMOVE_GENERATED_AST = False
+cleanup.main()
 
 base_dir = realpath(dirname(__file__))
 root_dir = join(dirname(base_dir), "py2c")
