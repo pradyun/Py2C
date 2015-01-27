@@ -1,8 +1,13 @@
 ﻿ -----
+
 > As of 26 January 2015, the project is on hold, until [PEP-484][pep-484] is finalized...
+
  -----
+
 > The project is **not** functional yet. It's just in pre-alpha/planning stage...
+
  -----
+
 # Py2C
 
 [![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-on-hold-badge]
@@ -47,7 +52,6 @@ If all goes as planned, Py2C will also be extendable to accommodate for API chan
 
   [pep-484]: https://www.python.org/dev/peps/pep-0484
 
-  <!-- Badges -->
   [travis-page]: https://travis-ci.org/pradyun/Py2C
   [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg
   [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
@@ -55,7 +59,6 @@ If all goes as planned, Py2C will also be extendable to accommodate for API chan
   [gitter-image]: https://img.shields.io/badge/Gitter-Chat_Room-1DCD73.svg?style=flat
   [gitter-page]: https://gitter.im/pradyun/Py2C
 
-  <!-- Project Status Badge -->
   [project-on-hold-badge]: https://img.shields.io/badge/project-on--hold-lightgrey.svg?style=flat
   [project-pre-alpha-badge]: https://img.shields.io/badge/project-pre--alpha-ff5d37.svg?style=flat
   [project-alpha-badge]: https://img.shields.io/badge/project-alpha-orange.svg?style=flat
