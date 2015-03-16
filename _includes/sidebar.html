@@ -5,30 +5,26 @@
               {{ site.title }}
             </a>
         </li>
-        {% assign pages_list = site.pages %}
-        {% for node in pages_list %}
-        {% if node.title != null and node.layout == "page" and node.no_show_sidebar == null %}
+        {% assign pages_list = site.pages -%}
+        {%- for node in pages_list -%}
+        {% if node.title != null and node.layout == "page" and node.no_show_sidebar == null -%}
         <li>
-            <a {% if page.url == node.url %}class="active" {% endif %}href="{{ node.url }}">
+            <a {% if page.url == node.url %}class="active" {% endif %}href="{{ sire.base_url }}{{ node.url }}">
                 {{ node.title }}
             </a>
         </li>
-        {% endif %}
-        {% endfor %}
-
+        {% endif -%}
+        {%- endfor %}
         <li>
             <a href="{{ site.github.repo }}">
                 <!-- Github logo -->
                 GitHub
             </a>
         </li>
-
-
         <li>
             <a class="copyright">
             &copy; {{ site.time | date: '%Y' }}. All rights Reserved.
             </a>
         </li>
-
     </ul>
 </div>
