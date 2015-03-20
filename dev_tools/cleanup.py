@@ -2,31 +2,26 @@
 """Delete all unnecessary files and directories in repository
 """
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import os
 import sys
 import shutil
 import fnmatch
-from os.path import join, realpath, relpath
+import argparse
+from os.path import join, relpath
 
 PRINT_OUTPUT = True
 REMOVE_GENERATED_AST = len(sys.argv) > 1 and sys.argv[1].lower() == "all"
-BASE_DIR = realpath(join(__file__, "..", ".."))
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
     "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
     "*.fuse_hidden*", "*.egg", "*.tar.gz"
 ]
-
-
-def log(*args, **kwargs):
-    if PRINT_OUTPUT:
-        print(*args, **kwargs)
 
 
 def matches_any_pattern(name, patterns):
@@ -43,32 +38,87 @@ def should_remove_folder(root, name):
 
 def should_remove_file(root, name):
     return (
-        matches_any_pattern(name, FILE_PATTERNS) or
-        (
-            REMOVE_GENERATED_AST and
-            root.endswith(os.path.join("py2c", "tree")) and
-            name.endswith(".py") and
-            name not in ["__init__.py", "node_gen.py", "visitors.py"]
-        )
+        matches_any_pattern(name, FILE_PATTERNS)
     )
 
 
-def main():
-    for root, dirs, files in os.walk(BASE_DIR, topdown=False):
+def is_generated_file(root, name):
+    return (
+        REMOVE_GENERATED_AST and
+        root.endswith(os.path.join("py2c", "tree")) and
+        name.endswith(".py") and
+        name not in ["__init__.py", "node_gen.py", "visitors.py"]
+    )
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "directory",
+        help="Directory to be cleaned",
+        nargs="?", default=os.getenv("PWD", os.getcwd())
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        help="Increase verbosity (can be repeated)",
+        action="count", default=2
+    )
+    parser.add_argument(
+        "-q", "--quiet",
+        help="Decrease verbosity (can be repeated)",
+        action="count", default=0
+    )
+    parser.add_argument(
+        "-n", "--dry-run",
+        help="Only print, don't delete anything.",
+        action="store_true"
+    )
+    parser.add_argument(
+        "-a", "--remove-generated", "--all",
+        help="Remove auto-generated AST files too.",
+        action="store_true"
+    )
+    return parser.parse_args()
+
+
+def remove_files(args):
+    if args.verbosity > 0:
+        if args.dry_run:
+            print("(Dry-Run) ", end="")
+        print("Cleaning {}...".format(args.directory))
+
+    for root, dirs, files in os.walk(args.directory, topdown=False):
         if is_in_folder(".git", root):
             continue
 
-        for name in dirs:
-            if should_remove_folder(root, name):
-                log("Deleting Folder:", relpath(join(root, name), BASE_DIR))
-                shutil.rmtree(join(root, name))
+        for dir_name in dirs:
+            if should_remove_folder(root, dir_name):
+                dir_path = join(root, dir_name)
 
-        for name in files:
-            if should_remove_file(root, name):
-                fname = join(root, name)
-                log("Deleting File  :", relpath(fname, BASE_DIR))
-                os.remove(fname)
+                if args.verbosity > 0:
+                    print("Deleting Folder:", relpath(dir_path, args.directory))  # noqa
+                if not args.dry_run:
+                    shutil.rmtree(dir_path)
 
+        for file_name in files:
+            print(root, file_name)
+            if should_remove_file(root, file_name) or (args.remove_generated and is_generated_file(root, file_name)):  # noqa
+                file_path = join(root, file_name)
+
+                if args.verbosity > 1:
+                    print("Deleting File  :", relpath(file_path, args.directory))  # noqa
+                if not args.dry_run:
+                    os.remove(file_path)
+
+
+def cleanup_args(args):
+    args.verbosity = max(args.verbose - args.quiet, 0)
+
+
+def main():
+    args = parse_args()
+    cleanup_args(args)
+    remove_files(args)
 
 if __name__ == '__main__':
     main()
