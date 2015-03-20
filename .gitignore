@@ -31,3 +31,6 @@ test-report
 
 # Sphinx documentation, when we have it...
 docs/_build/
+
+# Github-pages (Documentation and other stuff)
+gh-pages
