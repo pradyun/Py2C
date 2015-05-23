@@ -83,7 +83,10 @@ class TestBaseManager(Test):
             (
                 "with a non-dictionary options attribute",
                 OptionsNotADictManager, TypeError,
-                ["OptionsNotADictManager", "options", "should be", "instance", dict.__qualname__]  # noqa
+                [
+                    "OptionsNotADictManager", "options", "should be",
+                    "instance", dict.__qualname__
+                ]
             ),
         ], described=True, prefix="initialization of manager ")
 

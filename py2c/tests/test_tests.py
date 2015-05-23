@@ -21,7 +21,7 @@ def check_order(a, b):
 
 # I know that the name's horrible but it's how all tests have been named...
 class TestYieldTests(Test):
-    """py2c.tests.Test.yield_tests
+    """tests.Test.yield_tests
     """
 
     def test_behaviour_with_empty_list(self):
@@ -64,7 +64,7 @@ class TestYieldTests(Test):
 
 
 class TestAssertMessageContains(Test):
-    """py2c.tests.Test.assert_message_contains
+    """tests.Test.assert_message_contains
     """
 
     def test_complete_phrase_with_same_case(self):

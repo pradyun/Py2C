@@ -18,7 +18,7 @@ from nose.tools import assert_equal, assert_raises
 
 
 class TestPythonSourceToPythonAST(Test):
-    """py2c.pre_processing.to_ast.SourceToAST
+    """pre_processing.to_ast.SourceToAST
     """
 
     # Test the conversion of some simple Python source to Python's AST
