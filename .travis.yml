@@ -24,7 +24,7 @@ install:
 
 script:
   # Run the tests
-  - python dev_tools/run_tests.py py2c --dont-report
+  - python dev_tools/run_tests.py py2c
 
 after_success:
   - pip install wheel
