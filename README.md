@@ -1,6 +1,6 @@
 ﻿ -----
 
-> As of 26 January 2015, the project is on hold, until [PEP-484][pep-484] is finalized...
+> WARNING: git rebase -i and git push --force may be run on this branch at any point of time because I'm mad and evil!
 
  -----
 
@@ -10,7 +10,7 @@
 
 # Py2C
 
-[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-on-hold-badge]
+[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-pre-alpha-badge]
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
