@@ -19,7 +19,7 @@ class BasicNode(tree.Node):
     """Basic node
     """
     _fields = [
-        ('f1', int, tree.NEEDED),
+        ('f1', int, "NEEDED"),
     ]
 
 
@@ -27,18 +27,18 @@ class BasicNodeCopy(tree.Node):
     """Equivalent but not equal to BasicNode
     """
     _fields = [
-        ('f1', int, tree.NEEDED),
+        ('f1', int, "NEEDED"),
     ]
 
 
-class AllIntModifersNode(tree.Node):
+class AllIntModifiersNode(tree.Node):
     """Node with all modifiers
     """
     _fields = [
-        ('f1', int, tree.NEEDED),
-        ('f2', int, tree.OPTIONAL),
-        ('f3', int, tree.ZERO_OR_MORE),
-        ('f4', int, tree.ONE_OR_MORE),
+        ('f1', int, "NEEDED"),
+        ('f2', int, "OPTIONAL"),
+        ('f3', int, "ZERO_OR_MORE"),
+        ('f4', int, "ONE_OR_MORE"),
     ]
 
 
@@ -46,7 +46,7 @@ class ParentNode(tree.Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', BasicNode, tree.NEEDED),
+        ('child', BasicNode, "NEEDED"),
     ]
 
 
@@ -92,13 +92,13 @@ class TestAST(Test):
             ),
             (
                 "Node with modifers with minimal valid positional arguments",
-                AllIntModifersNode, [1, None, (), (2,)], {}, {
+                AllIntModifiersNode, [1, None, (), (2,)], {}, {
                     "f1": 1, "f2": None, "f3": (), "f4": (2,)
                 }
             ),
             (
                 "Node with modifers with valid positional arguments",
-                AllIntModifersNode, [1, 2, (3, 4, 5), (6, 7, 8)], {}, {
+                AllIntModifiersNode, [1, 2, (3, 4, 5), (6, 7, 8)], {}, {
                     "f1": 1, "f2": 2, "f3": (3, 4, 5), "f4": (6, 7, 8),
                 }
             )
@@ -116,9 +116,28 @@ class TestAST(Test):
         yield from self.yield_tests(self.check_invalid_initialization, [
             (
                 "Node with modifiers with incorrect number of arguments",
-                AllIntModifersNode, [1], {},
-                tree.WrongTypeError, "0 or 4 positional"
-            )
+                AllIntModifiersNode, [1], {},
+                tree.InvalidInitializationError, "0 or 4 positional"
+            ),
+            (
+                "node with missing arguments",
+                AllIntModifiersNode, [1], {},
+                # "!f2" means check that "f2" is not in the error msg...
+                tree.InvalidInitializationError,
+                ["4", "AllIntModifiersNode"]
+            ),
+            (
+                "node with a child with missing arguments",
+                lambda: ParentNode(AllIntModifiersNode(1)), [], {},
+                tree.InvalidInitializationError,
+                ["4", "AllIntModifiersNode"]
+            ),
+            (
+                "node with invalid/unknown modifier",
+                InvalidModifierNode, [], {},
+                tree.InvalidInitializationError,
+                ["f1", "InvalidModifierNode", "invalid modifier"]
+            ),
         ], described=True, prefix="initialization of ")
 
     def check_assignment(self, cls, attr, value, error_cls=None, required_phrases=None):  # noqa
@@ -147,63 +166,63 @@ class TestAST(Test):
         yield from self.yield_tests(self.check_assignment, [
             (
                 "NEEDED with False-ish value",
-                AllIntModifersNode, "f1", 0
+                AllIntModifiersNode, "f1", 0
             ),
             (
                 "NEEDED with True-ish value",
-                AllIntModifersNode, "f1", 1
+                AllIntModifiersNode, "f1", 1
             ),
             (
                 "OPTIONAL with False-ish value",
-                AllIntModifersNode, "f2", 0
+                AllIntModifiersNode, "f2", 0
             ),
             (
                 "OPTIONAL with True-ish value",
-                AllIntModifersNode, "f2", 1
+                AllIntModifiersNode, "f2", 1
             ),
             (
                 "OPTIONAL with None",
-                AllIntModifersNode, "f2", None
+                AllIntModifiersNode, "f2", None
             ),
             (
                 "ZERO_OR_MORE with (tuple) empty",
-                AllIntModifersNode, "f3", ()
+                AllIntModifiersNode, "f3", ()
             ),
             (
                 "ZERO_OR_MORE with (tuple) one element",
-                AllIntModifersNode, "f3", (1,)
+                AllIntModifiersNode, "f3", (1,)
             ),
             (
                 "ZERO_OR_MORE with (tuple) four element",
-                AllIntModifersNode, "f3", (1, 2, 3, 4)
+                AllIntModifiersNode, "f3", (1, 2, 3, 4)
             ),
             (
                 "ZERO_OR_MORE with (list) empty",
-                AllIntModifersNode, "f3", []
+                AllIntModifiersNode, "f3", []
             ),
             (
                 "ZERO_OR_MORE with (list) one element",
-                AllIntModifersNode, "f3", [1]
+                AllIntModifiersNode, "f3", [1]
             ),
             (
                 "ZERO_OR_MORE with (list) four element",
-                AllIntModifersNode, "f3", [1, 2, 3, 4]
+                AllIntModifiersNode, "f3", [1, 2, 3, 4]
             ),
             (
                 "ONE_OR_MORE with (tuple) one element",
-                AllIntModifersNode, "f4", (1,)
+                AllIntModifiersNode, "f4", (1,)
             ),
             (
                 "ONE_OR_MORE with (tuple) four element",
-                AllIntModifersNode, "f4", (1, 2, 3, 4)
+                AllIntModifiersNode, "f4", (1, 2, 3, 4)
             ),
             (
                 "ONE_OR_MORE with (list) one element",
-                AllIntModifersNode, "f4", [1]
+                AllIntModifiersNode, "f4", [1]
             ),
             (
                 "ONE_OR_MORE with (list) four element",
-                AllIntModifersNode, "f4", [1, 2, 3, 4]
+                AllIntModifiersNode, "f4", [1, 2, 3, 4]
             ),
             (
                 "non existent field",
@@ -212,52 +231,52 @@ class TestAST(Test):
             ),
             (
                 "NEEDED with incorrect type",
-                AllIntModifersNode, "f1", "",
+                AllIntModifiersNode, "f1", "",
                 tree.WrongTypeError
             ),
             (
                 "OPTIONAL with incorrect type",
-                AllIntModifersNode, "f2", "",
+                AllIntModifiersNode, "f2", "",
                 tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with incorrect type",
-                AllIntModifersNode, "f3", "",
+                AllIntModifiersNode, "f3", "",
                 tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with tuple containing incorrect type",
-                AllIntModifersNode, "f3", ("",),
+                AllIntModifiersNode, "f3", ("",),
                 tree.WrongTypeError
             ),
             (
                 "ZERO_OR_MORE with list containing incorrect type",
-                AllIntModifersNode, "f3", [""],
+                AllIntModifiersNode, "f3", [""],
                 tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with incorrect type",
-                AllIntModifersNode, "f4", "",
+                AllIntModifiersNode, "f4", "",
                 tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with empty tuple",
-                AllIntModifersNode, "f4", (),
+                AllIntModifiersNode, "f4", (),
                 tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with empty list",
-                AllIntModifersNode, "f4", [],
+                AllIntModifiersNode, "f4", [],
                 tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with tuple containing incorrect type",
-                AllIntModifersNode, "f4", ("",),
+                AllIntModifiersNode, "f4", ("",),
                 tree.WrongTypeError
             ),
             (
                 "ONE_OR_MORE with list containing incorrect type",
-                AllIntModifersNode, "f4", [""],
+                AllIntModifiersNode, "f4", [""],
                 tree.WrongTypeError
             ),
         ], described=True, prefix="assignment to ")
@@ -284,29 +303,13 @@ class TestAST(Test):
         yield from self.yield_tests(self.check_finalize, [
             (
                 "node with all, optional included, valid arguments",
-                AllIntModifersNode(1, 2, [], [3]),
+                AllIntModifiersNode(1, 2, [], [3]),
                 {"f1": 1, "f2": 2, "f3": (), "f4": (3,)}
             ),
             (
                 "node with valid non-optional arguments",
-                AllIntModifersNode(f1=1, f4=[2]),
+                AllIntModifiersNode(f1=1, f4=[2]),
                 {"f1": 1, "f2": None, "f3": (), "f4": (2,)}
-            ),
-            (
-                "node with missing arguments",
-                AllIntModifersNode(),
-                # "!f2" means check that "f2" is not in the error msg...
-                None, ["f1", "f4", "missing", "!f2", "!f3"]
-            ),
-            (
-                "node with a child with missing arguments",
-                ParentNode(BasicNode()),
-                None, ["missing", "f1", "BasicNode", "!ParentNode"]
-            ),
-            (
-                "node with invalid/unknown modifier",
-                InvalidModifierNode(),
-                None, ["f1", "InvalidModifierNode", "unknown modifier"]
             ),
             # XXX: Add a check for child missing attribute in list, tuple...
         ], described=True, prefix="finalization of ")
@@ -329,7 +332,8 @@ class TestAST(Test):
                 BasicNode(1), BasicNode(1), True
             ),
             (
-                "same class nodes with same class children with equal attributes",
+                "same class nodes with same class children "
+                "with equal attributes",
                 ParentNode(BasicNode(1)), ParentNode(BasicNode(1)), True
             ),
             (
@@ -337,7 +341,8 @@ class TestAST(Test):
                 BasicNode(0), BasicNode(1), False
             ),
             (
-                "same class nodes with same class children with non-equal attributes",
+                "same class nodes with same class children "
+                "with non-equal attributes",
                 ParentNode(BasicNode(0)), ParentNode(BasicNode(1)), False
             ),
             (
@@ -365,8 +370,8 @@ class TestAST(Test):
             ),
             (
                 "a multi-field node with no arguments",
-                AllIntModifersNode(),
-                "AllIntModifersNode()"
+                AllIntModifiersNode(),
+                "AllIntModifiersNode()"
             ),
             (
                 "a multi-field node (with tree.Node attributes) with no arguments",  # noqa
@@ -374,19 +379,14 @@ class TestAST(Test):
                 "ParentNode()"
             ),
             (
-                "a node with invalid modifiers",
-                InvalidModifierNode(),
-                "InvalidModifierNode()"
-            ),
-            (
                 "a multi-field node with minimal number of arguments",
-                AllIntModifersNode(f1=1, f2=None),
-                "AllIntModifersNode(f1=1, f2=None)"
+                AllIntModifiersNode(f1=1, f2=None),
+                "AllIntModifiersNode(f1=1, f2=None)"
             ),
             (
                 "a multi-field node with optional arguments provided",
-                AllIntModifersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6)),
-                "AllIntModifersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6))"
+                AllIntModifiersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6)),
+                "AllIntModifiersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6))"
             )
         ], described=True, prefix="check repr of ")
 

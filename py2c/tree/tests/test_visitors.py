@@ -6,7 +6,7 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 # -----------------------------------------------------------------------------
 
-from py2c.tree import Node, NEEDED, ONE_OR_MORE
+from py2c.tree import Node
 from py2c.tree.visitors import RecursiveTreeVisitor, RecursiveTreeTransformer
 
 
@@ -33,7 +33,7 @@ class ParentNode(Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', Node, NEEDED),
+        ('child', Node, 'NEEDED'),
     ]
 
 
@@ -41,7 +41,7 @@ class ParentNodeWithChildrenList(Node):
     """Node with another node as child
     """
     _fields = [
-        ('child', Node, ONE_OR_MORE),
+        ('child', Node, 'ONE_OR_MORE'),
     ]
 
 

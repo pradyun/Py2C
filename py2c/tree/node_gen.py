@@ -1,8 +1,8 @@
 """Autogenerate Python files based on a `.tree` definition file.
 
-This module generates the Python files from the DSL we made, for the nodes that
-we use during the translation. This way of describing nodes, allows DRY-ness of
-source code.
+This module generates the Python files from the custom domain-specific-language
+used to declare the nodes that we use during the translation. This way of
+describing nodes, allows DRY-ness in the same.
 """
 
 # -----------------------------------------------------------------------------
@@ -12,13 +12,14 @@ source code.
 
 import os
 import re
+import traceback
 import collections
 from textwrap import dedent
 
 import ply.lex
 import ply.yacc
 
-__all__ = ["PREFIX", "remove_comments", "ParserError", "Parser", ""]
+__all__ = ["PREFIX", "remove_comments", "ParserError", "Parser"]
 
 PREFIX = dedent("""
     # -----------------------------------------------------------------------------
@@ -34,9 +35,7 @@ PREFIX = dedent("""
     # in py2c/tree directory of the source distribution.
 
     from . import (
-        Node,
-        identifier, singleton,
-        NEEDED, OPTIONAL, ONE_OR_MORE, ZERO_OR_MORE
+        Node, identifier, singleton, fields_decorator
     )
 """).strip()
 
@@ -59,20 +58,21 @@ def remove_comments(text):
 
 
 def _prettify_list(li):
+    indent = " "*4
     if li == []:
         return "[]"
     else:
         lines = ["["]
         for name, type_, modifier in li:
             lines.append(
-                " "*8 + "({!r}, {}, {}),".format(name, type_, modifier)
+                indent*3 + "({!r}, {}, {!r}),".format(name, type_, modifier)
             )
-        lines.append(" "*4 + "]")
+        lines.append(indent*2 + "]")
 
         return "\n".join(lines)
 
 
-Definition = collections.namedtuple("Definition", "name parent attrs")
+Definition = collections.namedtuple("Definition", "name parent fields")
 
 
 # -----------------------------------------------------------------------------
@@ -92,10 +92,10 @@ class Parser(object):
         self.t_NAME = r"\w+"
         self.t_ignore = " \t"
 
-        self._lexer = ply.lex.lex(module=self)
-        self._parser = ply.yacc.yacc(module=self, start="start")
-
-        self.seen_node_names = set()
+        self._lexer = ply.lex.lex(module=self, debug=0)
+        self._parser = ply.yacc.yacc(
+            module=self, start="start", debug=0, write_tables=0
+        )
 
     def t_newline(self, t):
         r"\n"
@@ -104,12 +104,16 @@ class Parser(object):
     def t_error(self, t):
         raise ParserError("Unable to generate tokens from: " + repr(t.value))
 
+    def _reset(self):
+        self.seen_node_names = set()
+
     # -------------------------------------------------------------------------
     # API
     # -------------------------------------------------------------------------
     def parse(self, text):
         """Parses the definition text into a data representation of it.
         """
+        self._reset()
         text = remove_comments(text)
         return self._parser.parse(text, lexer=self._lexer)
 
@@ -136,19 +140,19 @@ class Parser(object):
             p[0] = p[1] + (p[2],)
 
     def p_declaration(self, p):
-        "declaration : NAME parent_class_opt ':' attributes"
-        name, parent, attrs = (p[1], p[2], p[4])
+        "declaration : NAME parent_class_opt colon_fields_opt"
+        name, parent, fields = (p[1], p[2], p[3])
         if name in self.seen_node_names:
             raise ParserError(
                 "Multiple declarations of name {!r}".format(name)
             )
         self.seen_node_names.add(name)
 
-        if attrs != 'inherit':
+        if fields != 'inherit':
             # Check for duplicate fields
             seen_fields = []
             duplicated_fields = []
-            for field_name, _, _ in attrs:
+            for field_name, _, _ in fields:
                 if field_name in seen_fields:
                     duplicated_fields.append(field_name)
                 else:
@@ -162,10 +166,13 @@ class Parser(object):
                     ", ".join(duplicated_fields)
                 ))
         elif parent is None:
-            msg = "Inheriting nodes need parents to inherit from. See definition of {!r}"
+            msg = (
+                "Inheriting nodes need parents to inherit from. "
+                "See definition of {!r}"
+            )
             raise ParserError(msg.format(name))
 
-        p[0] = Definition(name, parent, attrs)
+        p[0] = Definition(name, parent, fields)
 
     def p_parent_class_opt(self, p):
         """parent_class_opt : '(' NAME ')'
@@ -176,27 +183,36 @@ class Parser(object):
         else:
             p[0] = None
 
-    def p_attributes(self, p):
-        """attributes : '[' attr_list ']'
-                      | INHERIT
+    def p_colon_fields_opt(self, p):
+        """colon_fields_opt : ':' fields
+                            | empty
+        """
+        if len(p) > 2:
+            p[0] = p[2]
+        else:
+            p[0] = []
+
+    def p_fields(self, p):
+        """fields : '[' field_list ']'
+                  | INHERIT
         """
         if len(p) == 2:
             p[0] = p[1]
         else:
             p[0] = p[2]
 
-    def p_attr_list(self, p):
-        """attr_list : attr more_attrs_maybe ','
-                     | attr more_attrs_maybe
-                     | empty
+    def p_field_list(self, p):
+        """field_list : field more_fields_maybe ','
+                      | field more_fields_maybe
+                      | empty
         """
         if len(p) > 2:
             p[0] = [p[1]] + p[2]
         else:
             p[0] = []
 
-    def p_more_attrs_maybe(self, p):
-        """more_attrs_maybe : more_attrs_maybe ',' attr
+    def p_more_fields_maybe(self, p):
+        """more_fields_maybe : more_fields_maybe ',' field
                             | empty
         """
         if len(p) > 2:
@@ -204,8 +220,8 @@ class Parser(object):
         else:
             p[0] = []
 
-    def p_attr(self, p):
-        "attr : NAME modifier NAME"
+    def p_field(self, p):
+        "field : NAME modifier NAME"
         p[0] = (p[3], p[1], p[2])
 
     def p_modifier(self, p):
@@ -234,27 +250,35 @@ class SourceGenerator(object):
     def __init__(self):
         super(SourceGenerator, self).__init__()
 
+    # -------------------------------------------------------------------------
+    # API
+    # -------------------------------------------------------------------------
+    def generate_class(self, definition):
+        """Generates source code for a class from a `Definition`.
+        """
+        name = definition.name
+        if definition.fields == "inherit":
+            field_text = definition.parent + "._fields"
+        else:
+            field_text = _prettify_list(definition.fields)
+        # definition.parent is None or a string...
+        parent = definition.parent or "object"
+        return dedent("""
+            class {0}({1}):
+                @fields_decorator
+                def _fields(cls):
+                    return {2}
+        """).strip().format(name, parent, field_text)
+
     def generate_sources(self, data):
-        """Generates source code from the data generated by :py:class:`Parser`
+        """Generates source code from the data generated by `Parser`
         """
         classes = []
         for node in data:
-            classes.append(self._translate_node(node))
-        # Join classes and ensure newline at EOF
-        return "\n\n\n".join(classes) + "\n"
+            classes.append(self.generate_class(node))
 
-    def _translate_node(self, node):
-        name = node.name
-        if node.attrs == "inherit":
-            field_text = node.parent + "._fields"
-        else:
-            field_text = _prettify_list(node.attrs)
-        # node.parent is None or a string...
-        parent = node.parent or "object"
-        return dedent("""
-            class {0}({1}):
-                _fields = {2}
-        """).strip().format(name, parent, field_text)
+        # Join classes and ensure newline at EOF
+        return "\n\n\n".join(classes)
 
 
 # API
@@ -264,6 +288,11 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
     if output_dir is None:
         output_dir = source_dir
 
+    # A convinience function for printing the notifications
+    def report(*args):
+        print("[py2c.tree.node_gen]", *args)
+
+    # Discover files
     files_to_convert = [
         fname for fname in os.listdir(os.path.realpath(source_dir))
         if fname.endswith(".tree")
@@ -282,13 +311,22 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
         with open(infile_name, "rt") as infile:
             text = infile.read()
 
-        sources = src_gen.generate_sources(parser.parse(text))
-
-        print("---- Generated {}".format(outfile_name))
-        with open(outfile_name, "w+t") as outfile:
-            outfile.write(PREFIX)
-            outfile.write("\n\n\n")
-            outfile.write(sources)
+        try:
+            report("Loading '{}'".format(infile_name))
+            sources = src_gen.generate_sources(parser.parse(text))
+        except Exception:
+            report(
+                "Could not auto-generate sources for tree files "
+                "due to the error below."
+            )
+            traceback.print_exc()
+        else:
+            report("Writing '{}'".format(outfile_name))
+            with open(outfile_name, "w+t") as outfile:
+                outfile.write(PREFIX)
+                outfile.write("\n\n\n")
+                outfile.write(sources)
+                outfile.write("\n")
 
 if __name__ == '__main__':
     generate("py2c/tree", "py2c/tree", True)

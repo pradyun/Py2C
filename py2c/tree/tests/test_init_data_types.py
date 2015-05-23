@@ -8,9 +8,8 @@
 
 
 from py2c.tree import (
-    NEEDED, OPTIONAL, ZERO_OR_MORE, ONE_OR_MORE,
     identifier, singleton,
-    TreeError, WrongTypeError, WrongAttributeValueError,
+    NodeError, WrongTypeError, WrongAttributeValueError,
     Node
 )
 
@@ -19,6 +18,7 @@ from nose.tools import (
     assert_raises, assert_equal, assert_is_instance, assert_not_is_instance
 )
 
+
 # -----------------------------------------------------------------------------
 # A bunch of nodes used during testing
 # -----------------------------------------------------------------------------
@@ -26,10 +26,10 @@ class AllIdentifierModifersNode(Node):
     """Node with all modifiers of identifier type
     """
     _fields = [
-        ('f1', identifier, NEEDED),
-        ('f2', identifier, OPTIONAL),
-        ('f3', identifier, ZERO_OR_MORE),
-        ('f4', identifier, ONE_OR_MORE),
+        ('f1', identifier, 'NEEDED'),
+        ('f2', identifier, 'OPTIONAL'),
+        ('f3', identifier, 'ZERO_OR_MORE'),
+        ('f4', identifier, 'ONE_OR_MORE'),
     ]
 
 
@@ -37,10 +37,10 @@ class AllSingletonModifersNode(Node):
     """Node with all modifiers of singleton type
     """
     _fields = [
-        ('f1', singleton, NEEDED),
-        ('f2', singleton, OPTIONAL),
-        ('f3', singleton, ZERO_OR_MORE),
-        ('f4', singleton, ONE_OR_MORE),
+        ('f1', singleton, 'NEEDED'),
+        ('f2', singleton, 'OPTIONAL'),
+        ('f3', singleton, 'ZERO_OR_MORE'),
+        ('f4', singleton, 'ONE_OR_MORE'),
     ]
 
 
@@ -123,7 +123,7 @@ class TestIdentifier(DataTypeTestBase):
         node.f4 = ["bar"]
         try:
             node.finalize()
-        except TreeError:
+        except NodeError:
             raise AssertionError(
                 "Raised Exception for valid values"
             )
@@ -132,7 +132,7 @@ class TestIdentifier(DataTypeTestBase):
         try:
             node = AllIdentifierModifersNode("foo", "bar", (), ("baz",))
             node.finalize()
-        except TreeError:
+        except NodeError:
             raise AssertionError(
                 "Raised exception when values were proper"
             )
@@ -212,14 +212,14 @@ class TestSingleton(DataTypeTestBase):
         node.f4 = [None, True, False]
         try:
             node.finalize()
-        except TreeError:
+        except NodeError:
             self.fail("Raised Exception for valid values")
 
     def test_modifiers_valid_all(self):
         try:
             node = AllSingletonModifersNode(True, None, (), (False,))
             node.finalize()
-        except TreeError:
+        except NodeError:
             self.fail("Raised exception when values were proper")
         else:
             assert_equal(node.f1, True)

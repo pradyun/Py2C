@@ -85,6 +85,9 @@ class Test(object, metaclass=_TestMetaClass):
                 # print(repr(word), "in", repr(msg))
                 assert_in(word, msg)
 
+    def fail(self, message=""):
+        assert False, message
+
 
 def runmodule(capture=True):
     """A shorthand for running tests in test modules

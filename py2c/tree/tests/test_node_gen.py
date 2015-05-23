@@ -19,44 +19,44 @@ from nose.tools import assert_equal, assert_in, assert_raises
 # -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
+def check_remove_comments(test_string, expected):
+    assert_equal(remove_comments(test_string), expected)
+
+
+def test_remove_comments():
+    """node_gen.remove_comments"""
+    yield from Test().yield_tests(check_remove_comments, [
+        (
+            "empty input",
+            "",
+            ""
+        ),
+        (
+            "full line comment without trailing newline",
+            "#test: [a,string]",
+            ""
+        ),
+        (
+            "full line comment with trailing newline",
+            "#test: [a,string]\n",
+            "\n"
+        ),
+        (
+            "inline comment",
+            "foo: [] #test: [a,string]",
+            "foo: [] "
+        ),
+        (
+            "inline comment with a rule on next line",
+            "foo:[] # test\nblah: []",
+            "foo:[] \nblah: []"
+        )
+    ], described=True, prefix="comment removal with ")
+
+
 class TestParser(Test):
     """node_gen.Parser
     """
-
-    # Comments
-    def check_removal_of_comments(self, test_string, expected):
-        assert_equal(remove_comments(test_string), expected)
-
-    def test_comment_handling(self):
-        """Tests Parser's comment handling capability
-        """
-        yield from self.yield_tests(self.check_removal_of_comments, [
-            (
-                "empty input",
-                "",
-                ""
-            ),
-            (
-                "full line comment without trailing newline",
-                "#test: [a,string]",
-                ""
-            ),
-            (
-                "full line comment with trailing newline",
-                "#test: [a,string]\n",
-                "\n"
-            ),
-            (
-                "inline comment",
-                "foo: [] #test: [a,string]",
-                "foo: [] "
-            ),
-            (
-                "inline comment with a rule on next line",
-                "foo:[] # test\nblah: []",
-                "foo:[] \nblah: []"
-            )
-        ], described=True, prefix="comment removal with ")
 
     def check_property_parsing(self, test_string, expected):
         parser = Parser()
@@ -67,7 +67,17 @@ class TestParser(Test):
         """
         yield from self.yield_tests(self.check_property_parsing, [
             (
-                "an empty node, without parent",
+                "an empty node, without parent or fields",
+                "foo",
+                [Definition('foo', None, [])]
+            ),
+            (
+                "an empty node with parent and no fields",
+                "foo(Base)",
+                [Definition('foo', 'Base', [])]
+            ),
+            (
+                "an empty node, without parent, with zero fields",
                 "foo: []",
                 [Definition('foo', None, [])]
             ),
@@ -221,7 +231,9 @@ class TestSourceGenerator(Test):
                 [Definition('FooBar', None, [])],
                 """
                 class FooBar(object):
-                    _fields = []
+                    @fields_decorator
+                    def _fields(cls):
+                        return []
                 """
             ),
             (
@@ -229,7 +241,9 @@ class TestSourceGenerator(Test):
                 [Definition('FooBar', 'AST', [])],
                 """
                 class FooBar(AST):
-                    _fields = []
+                    @fields_decorator
+                    def _fields(cls):
+                        return []
                 """
             ),
             (
@@ -237,7 +251,9 @@ class TestSourceGenerator(Test):
                 [Definition('FooBar', 'AST', 'inherit')],
                 """
                 class FooBar(AST):
-                    _fields = AST._fields
+                    @fields_decorator
+                    def _fields(cls):
+                        return AST._fields
                 """
             ),
             (
@@ -249,9 +265,11 @@ class TestSourceGenerator(Test):
                 )],
                 """
                 class FooBar(object):
-                    _fields = [
-                        ('bar', int, NEEDED),
-                    ]
+                    @fields_decorator
+                    def _fields(cls):
+                        return [
+                            ('bar', int, 'NEEDED'),
+                        ]
                 """
             ),
             (
@@ -263,9 +281,11 @@ class TestSourceGenerator(Test):
                 )],
                 """
                 class FooBar(AST):
-                    _fields = [
-                        ('bar', int, NEEDED),
-                    ]
+                    @fields_decorator
+                    def _fields(cls):
+                        return [
+                            ('bar', int, 'NEEDED'),
+                        ]
                 """
             ),
             (
@@ -282,12 +302,14 @@ class TestSourceGenerator(Test):
                 )],
                 """
                 class FooBar(AST):
-                    _fields = [
-                        ('foo', int, NEEDED),
-                        ('bar', int, ONE_OR_MORE),
-                        ('baz', int, ZERO_OR_MORE),
-                        ('spam', int, OPTIONAL),
-                    ]
+                    @fields_decorator
+                    def _fields(cls):
+                        return [
+                            ('foo', int, 'NEEDED'),
+                            ('bar', int, 'ONE_OR_MORE'),
+                            ('baz', int, 'ZERO_OR_MORE'),
+                            ('spam', int, 'OPTIONAL'),
+                        ]
                 """
             ),
             (
@@ -311,19 +333,25 @@ class TestSourceGenerator(Test):
                 ],
                 """
                 class base1(object):
-                    _fields = [
-                        ('field1', int, NEEDED),
-                    ]
+                    @fields_decorator
+                    def _fields(cls):
+                        return [
+                            ('field1', int, 'NEEDED'),
+                        ]
 
 
                 class base2(base1):
-                    _fields = [
-                        ('field2', int, NEEDED),
-                    ]
+                    @fields_decorator
+                    def _fields(cls):
+                        return [
+                            ('field2', int, 'NEEDED'),
+                        ]
 
 
                 class obj(base2):
-                    _fields = []
+                    @fields_decorator
+                    def _fields(cls):
+                        return []
                 """
             )
         ], described=True, prefix="code generation for node ")
