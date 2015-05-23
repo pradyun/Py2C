@@ -8,14 +8,11 @@
 # -----------------------------------------------------------------------------
 
 import os
-import sys
 import shutil
 import fnmatch
 import argparse
 from os.path import join, relpath
 
-PRINT_OUTPUT = True
-REMOVE_GENERATED_AST = len(sys.argv) > 1 and sys.argv[1].lower() == "all"
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
@@ -44,15 +41,45 @@ def should_remove_file(root, name):
 
 def is_generated_file(root, name):
     return (
-        REMOVE_GENERATED_AST and
         root.endswith(os.path.join("py2c", "tree")) and
         name.endswith(".py") and
         name not in ["__init__.py", "node_gen.py", "visitors.py"]
     )
 
 
-def parse_args():
-    parser = argparse.ArgumentParser()
+def remove_files(directory, remove_generated, verbosity, dry_run):
+    if verbosity > 0:
+        if dry_run:
+            print("(Dry-Run) ", end="")
+        print("Cleaning {}...".format(directory))
+
+    for root, dirs, files in os.walk(directory, topdown=False):
+        if is_in_folder(".git", root):
+            continue
+
+        for dir_name in dirs:
+            if should_remove_folder(root, dir_name):
+                dir_path = join(root, dir_name)
+
+                if verbosity > 0:
+                    print("Deleting Folder:", relpath(dir_path, directory))  # noqa
+                if not dry_run:
+                    shutil.rmtree(dir_path)
+
+        for file_name in files:
+            if should_remove_file(root, file_name) or (remove_generated and is_generated_file(root, file_name)):  # noqa
+                file_path = join(root, file_name)
+
+                if verbosity > 1:
+                    print("Deleting File  :", relpath(file_path, directory))  # noqa
+                if not dry_run:
+                    os.remove(file_path)
+
+
+# -----------------------------------------------------------------------------
+# CLI stuff
+# -----------------------------------------------------------------------------
+def setup_parser(parser):
     parser.add_argument(
         "directory",
         help="Directory to be cleaned",
@@ -78,47 +105,18 @@ def parse_args():
         help="Remove auto-generated AST files too.",
         action="store_true"
     )
-    return parser.parse_args()
 
 
-def remove_files(args):
-    if args.verbosity > 0:
-        if args.dry_run:
-            print("(Dry-Run) ", end="")
-        print("Cleaning {}...".format(args.directory))
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    setup_parser(parser)
+    args = parser.parse_args(argv)
 
-    for root, dirs, files in os.walk(args.directory, topdown=False):
-        if is_in_folder(".git", root):
-            continue
+    verbosity = max(args.verbose - args.quiet, 0)
+    remove_files(
+        args.directory, args.remove_generated, verbosity, args.dry_run
+    )
 
-        for dir_name in dirs:
-            if should_remove_folder(root, dir_name):
-                dir_path = join(root, dir_name)
-
-                if args.verbosity > 0:
-                    print("Deleting Folder:", relpath(dir_path, args.directory))  # noqa
-                if not args.dry_run:
-                    shutil.rmtree(dir_path)
-
-        for file_name in files:
-            print(root, file_name)
-            if should_remove_file(root, file_name) or (args.remove_generated and is_generated_file(root, file_name)):  # noqa
-                file_path = join(root, file_name)
-
-                if args.verbosity > 1:
-                    print("Deleting File  :", relpath(file_path, args.directory))  # noqa
-                if not args.dry_run:
-                    os.remove(file_path)
-
-
-def cleanup_args(args):
-    args.verbosity = max(args.verbose - args.quiet, 0)
-
-
-def main():
-    args = parse_args()
-    cleanup_args(args)
-    remove_files(args)
 
 if __name__ == '__main__':
     main()

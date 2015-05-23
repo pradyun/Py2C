@@ -33,7 +33,7 @@ def _normalize(options):
     retval = {
         key.replace("-", "_"): value for key, value in options.items()
     }
-    pop = lambda key, dic=retval: dic.pop(key, None)
+    pop = lambda key, dic=retval: dic.pop(key, None)  # noqa
 
     # Classifiers
     value = pop("classifiers")

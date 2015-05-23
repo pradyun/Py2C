@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Run tests under a consistent environment...
+"""Run tests.
 
-Whether run from the terminal, in CI or from the editor this file makes sure
-the tests are run in a consistent environment.
+Whether run from the terminal (by developer or CI) or from the editor,
+this file makes sure the tests are run in a similar manner every-time.
 """
 
 # -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
 # -----------------------------------------------------------------------------
-
-# Local modules
-import cleanup
 
 # Standard library
 import sys
@@ -21,32 +18,39 @@ from os.path import join, realpath, dirname
 import nose
 import coverage
 
-cleanup.REMOVE_GENERATED_AST = False
-cleanup.main()
+# NOTE: Haven't added a CLI to this file because mixing the CLI with coverage,
+#       nose and remove_files.py is a complicated not-so-important problem.
+_dev_tools_dir = realpath(dirname(__file__))
 
-base_dir = realpath(dirname(__file__))
-root_dir = join(dirname(base_dir), "py2c")
+COVERAGERC_FILE = join(_dev_tools_dir, ".coveragerc")
+TEST_DIRECTORY = join(dirname(_dev_tools_dir), "py2c")
+GENERATE_REPORT = True
+GENERATE_REPORT_HTML = False
+GENERATE_REPORT_TEXT = True
 
-REPORT = True
-if "--dont-report" in sys.argv:
-    sys.argv.remove("--dont-report")
-    REPORT = False
 
-cov = coverage.coverage(config_file=join(base_dir, ".coveragerc"))
-cov.start()
-success = nose.run(
-    env={
-        "NOSE_INCLUDE_EXE": "True",
-        "NOSE_WITH_HTML_REPORT": "True",
-        "NOSE_WITH_SPECPLUGIN": "True"
-    },
-    defaultTest=root_dir,
-)
-cov.stop()
-cov.save()
+def run_tests():
+    cov = coverage.coverage(config_file=COVERAGERC_FILE)
+    cov.start()
+    success = nose.run(
+        env={
+            "NOSE_INCLUDE_EXE": "True",
+        },
+        defaultTest=TEST_DIRECTORY,
+    )
+    cov.stop()
+    cov.save()
 
-if success and REPORT:
-    cov.html_report()
-    cov.report()
+    if GENERATE_REPORT or success:
+        if GENERATE_REPORT_HTML:
+            cov.html_report()
+        if GENERATE_REPORT_TEXT:
+            cov.report()
+    sys.exit(0 if success else 1)
 
-sys.exit(0 if success else 1)
+
+def main():
+    run_tests()
+
+if __name__ == '__main__':
+    main()
