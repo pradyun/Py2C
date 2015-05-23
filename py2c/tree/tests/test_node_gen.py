@@ -1,10 +1,10 @@
 """Tests for the Generation of the AST nodes from the definitions.
 """
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from textwrap import dedent
 
@@ -16,9 +16,9 @@ from py2c.tests import Test
 from nose.tools import assert_equal, assert_in, assert_raises
 
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Tests
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 class TestParser(Test):
     """node_gen.Parser
     """
@@ -58,9 +58,6 @@ class TestParser(Test):
             )
         ], described=True, prefix="comment removal with ")
 
-    #--------------------------------------------------------------------------
-    # Properties
-    #--------------------------------------------------------------------------
     def check_property_parsing(self, test_string, expected):
         parser = Parser()
         assert_equal(parser.parse(dedent(test_string)), tuple(expected))
@@ -163,9 +160,6 @@ class TestParser(Test):
             )
         ], described=True, prefix="parsing of ")
 
-    #--------------------------------------------------------------------------
-    # Errors
-    #--------------------------------------------------------------------------
     def check_error_reporting(self, test_string, required_words):
         with assert_raises(ParserError) as context:
             Parser().parse(test_string)

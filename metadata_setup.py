@@ -2,10 +2,10 @@
 """Read options from [metadata] section from setup.cfg
 """
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from os.path import dirname, abspath, join
 from configparser import ConfigParser

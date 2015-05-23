@@ -5,10 +5,10 @@ Whether run from the terminal, in CI or from the editor this file makes sure
 the tests are run in a consistent environment.
 """
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Local modules
 import cleanup

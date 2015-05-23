@@ -1,10 +1,10 @@
 """Miscellaneous things done multiple times in the package, moved here. (Implementation detail)
 """
 
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Py2C - A Python to C++ compiler
 # Copyright (C) 2014 Pradyun S. Gedam
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = ["verify_attribute", "get_article", "is_valid_dotted_identifier"]
 
