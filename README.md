@@ -1,6 +1,6 @@
 ﻿ -----
 
-> WARNING: git rebase -i and git push --force may be run on this branch at any point of time because I'm mad and evil!
+> WARNING: `git rebase -i` and `git push --force` may be run on this branch at any point of time because I'm mad and evil!
 
  -----
 
