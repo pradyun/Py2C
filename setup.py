@@ -19,11 +19,11 @@ except ImportError:
     sys.exit(1)
 
 # setup.py metadata
-from metadata_setup import get_metadata
+from metadata_setup import get_metadata  # noqa
 # -----------------------------------------------------------------------------
 # Generating the AST
 # -----------------------------------------------------------------------------
-from os.path import join, dirname, realpath
+from os.path import join, dirname, realpath  # noqa
 
 try:  # If ever setuptools improves on the build_py command.
     from setuptools.command.build_py import build_py as _build_py
