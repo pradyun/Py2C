@@ -35,10 +35,10 @@ class SuperCallingWorker(BaseWorker):
 # Tests
 # -----------------------------------------------------------------------------
 class TestBaseWorker(Test):
-    """Tests for Workers
+    """base_worker.BaseWorker
     """
 
-    def test_initialization_of_a_well_formed_manager(self):
+    def test_does_initialize_a_subclass_with_work_method(self):
         GoodWorker()
 
     def check_bad_initialization(self, manager_class, err, required_phrases):
@@ -47,15 +47,15 @@ class TestBaseWorker(Test):
 
         self.assert_message_contains(context.exception, required_phrases)
 
-    def test_bad_initialization(self):
+    def test_does_not_do_bad_initialization(self):
         yield from self.yield_tests(self.check_bad_initialization, [
             (
                 "without work method",
                 BadWorker, TypeError, ["BadWorker", "work"]
             ),
-        ], described=True, prefix="initialization of manager ")
+        ], described=True, prefix="does not initialize subclass ")
 
-    def test_manager_with_super_calling_run_method(self):
+    def test_blocks_subclass_with_calling_super_work_method(self):
         manager = SuperCallingWorker()
 
         with assert_raises(NotImplementedError):

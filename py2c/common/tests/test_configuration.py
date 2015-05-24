@@ -16,27 +16,27 @@ from py2c.tests import Test, runmodule
 
 
 class TestConfiguration(Test):
-    """Tests for Configuration
+    """common.Configuration
     """
 
     def setUp(self):
         self.config = Configuration()
 
-    def test_set_unregistered_option(self):
+    def test_does_not_set_unregistered_option(self):
         with assert_raises(NoSuchOptionError):
             self.config.set_option("unregistered_unset_option", "Won't set!")
 
-    def test_get_unset_unregistered_option(self):
+    def test_does_not_get_unset_and_unregistered_option(self):
         with assert_raises(NoSuchOptionError):
             self.config.get_option("unregistered_unset_option")
 
-    def test_get_unset_registered_option(self):
+    def test_does_get_unset_registered_option(self):
         self.config.register_option("registered_unset_option")
 
         val = self.config.get_option("registered_unset_option")
         assert_is(val, None)
 
-    def test_get_set_registered_option(self):
+    def test_does_set_and_get_a_registered_option(self):
         obj = object()
 
         self.config.register_option("registered_set_option")
@@ -53,17 +53,21 @@ class TestConfiguration(Test):
         else:
             assert should_work, "Should not have registered..."
 
-    def test_option_registeration(self):
+    def test_z_does_valid_option_registeration(self):
         yield from self.yield_tests(self.check_option_registeration, [
             ("a simple name", "a_simple_name"),
             ("a dotted name", "a.dotted.name"),
-            ("an invalid name starting with dot", ".invalid", False),
-            ("an invalid dotted name starting with dot", ".invalid.name", False),
-            ("an invalid name with spaces", "invalid name", False),
-            ("an invalid a non-string name", 1200, False),
-        ], described=True, prefix="check registeration of ")
+        ], described=True, prefix="does register option with ")
 
-    def test_resetting_of_options(self):
+    def test_z_does_not_do_invalid_option_registeration(self):
+        yield from self.yield_tests(self.check_option_registeration, [
+            ("a name starting with dot", ".invalid", False),
+            ("a dotted name starting with dot", ".invalid.name", False),
+            ("a name with spaces", "invalid name", False),
+            ("a non-string name", 1200, False),
+        ], described=True, prefix="does not register option with ")
+
+    def test_does_reset_options_to_default_value_correctly(self):
         self.config.register_option("option_name", "Yo!")
         # Sanity check
         assert_equal(self.config.get_option("option_name"), "Yo!")

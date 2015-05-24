@@ -24,7 +24,8 @@ def check_remove_comments(test_string, expected):
 
 
 def test_remove_comments():
-    """node_gen.remove_comments"""
+    """tree.node_gen.remove_comments\
+    """  # Don't want a trailing newline in name
     yield from Test().yield_tests(check_remove_comments, [
         (
             "empty input",
@@ -37,52 +38,53 @@ def test_remove_comments():
             ""
         ),
         (
-            "full line comment with trailing newline",
-            "#test: [a,string]\n",
-            "\n"
+            "full line comment with text on next line",
+            "# test: [a,string]\nsome text!",
+            "\nsome text!"
         ),
         (
-            "inline comment",
-            "foo: [] #test: [a,string]",
+            "an inline comment",
+            "foo: [] # test: [a,string]",
             "foo: [] "
         ),
         (
-            "inline comment with a rule on next line",
-            "foo:[] # test\nblah: []",
-            "foo:[] \nblah: []"
+            "an inline comment with a text on next line",
+            "foo:[] # test\nsome text!",
+            "foo:[] \nsome text!"
         )
-    ], described=True, prefix="comment removal with ")
+    ], described=True, prefix="does remove correct sub-string given ")
 
 
 class TestParser(Test):
-    """node_gen.Parser
+    """tree.node_gen.Parser
     """
+    parser = Parser()
 
     def check_property_parsing(self, test_string, expected):
-        parser = Parser()
-        assert_equal(parser.parse(dedent(test_string)), tuple(expected))
+        self.parser._reset()
+        assert_equal(self.parser.parse(dedent(test_string)), tuple(expected))
 
     def test_parsing(self):
         """Tests Parser's parsing of properties
         """
         yield from self.yield_tests(self.check_property_parsing, [
             (
-                "an empty node, without parent or fields",
+                "an node without parent and no fields",
                 "foo",
                 [Definition('foo', None, [])]
             ),
             (
-                "an empty node with parent and no fields",
+                "an node with parent and no fields",
                 "foo(Base)",
                 [Definition('foo', 'Base', [])]
             ),
             (
-                "an empty node, without parent, with zero fields",
+                "an node without parent with zero fields",
                 "foo: []",
                 [Definition('foo', None, [])]
             ),
             (
-                "an empty node, with parent",
+                "an empty node with parent",
                 "foo(AST): []",
                 [Definition('foo', 'AST', [])]
             ),
@@ -125,7 +127,7 @@ class TestParser(Test):
                 ]
             ),
             (
-                "a node with multiple rules",
+                "multiple nodes with inheritance",
                 """
                 base1: [int field1]
                 base2(base1): [int field2]
@@ -168,7 +170,7 @@ class TestParser(Test):
                     ),
                 ]
             )
-        ], described=True, prefix="parsing of ")
+        ], described=True, prefix="does parse correctly ")
 
     def check_error_reporting(self, test_string, required_words):
         with assert_raises(ParserError) as context:
@@ -207,11 +209,11 @@ class TestParser(Test):
                 "foo: inherit",
                 ['inherit', 'need', 'parent', 'foo']
             ),
-        ], described=True, prefix="error reporting for ")
+        ], described=True, prefix="does report error given ")
 
 
 class TestSourceGenerator(Test):
-    """node_gen.SourceGenerator
+    """tree.node_gen.SourceGenerator
     """
 
     def check_generated_source(self, data, expected_output):
@@ -354,7 +356,7 @@ class TestSourceGenerator(Test):
                         return []
                 """
             )
-        ], described=True, prefix="code generation for node ")
+        ], described=True, prefix="does generate correct code for a node ")
 
 
 if __name__ == '__main__':

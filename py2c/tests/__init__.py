@@ -28,9 +28,9 @@ else:
     if not hasattr(spec.plugin, "_py2c_monkey_patched"):
         def noseMethodDescription(test):
             return (
-                (hasattr(test.test, "description") and test.test.description) or
-                test.method.__doc__ or
-                spec.plugin.underscored2spec(test.method.__name__)
+                (hasattr(test.test, "description") and test.test.description)
+                or test.method.__doc__
+                or spec.plugin.underscored2spec(test.method.__name__)
             )
         # XXX: Monkey patch for nicer output!
         spec.plugin.noseMethodDescription = noseMethodDescription
@@ -40,31 +40,30 @@ else:
 
 
 # -----------------------------------------------------------------------------
-# Meta-class for all Test classes.
+# Base-class for all Test classes.
 # -----------------------------------------------------------------------------
-class _TestMetaClass(type):
-    """A metaclass for all tests for convenience in working with code.
-    This metaclass:
+class Test(object):
+    """Base class for all tests for py2c
+
+    This base-class:
       - Makes the 1st line of a test method's docstring it's description.
       - Warns when a subclass has test methods but is not named like a test.
     """
 
-    def __new__(meta, name, bases, dic):
+    def __init__(self):
         has_tests = False
-        for attr, value in dic.items():
+        for attr, value in self.__dict__.items():
             if attr.startswith("test_") and inspect.isfunction(value):
                 has_tests = True
                 if value.__doc__ is not None:
                     value.description = value.__doc__.splitlines()[0]
-        if has_tests and not name.startswith("Test"):
+            elif attr.startswith("Test"):
+                has_tests = True
+                print(attr)
+        if has_tests and not self.__name__.startswith("Test"):
             traceback.print_stack(inspect.currentframe(), 2)
             warnings.warn("Test subclasses' name should start with 'Test'")
-        return super(_TestMetaClass, meta).__new__(meta, name, bases, dic)
-
-
-class Test(object, metaclass=_TestMetaClass):
-    """Base class for all tests for py2c
-    """
+        super().__init__()
 
     @nottest
     def yield_tests(self, test_method, args, described=False, prefix=""):

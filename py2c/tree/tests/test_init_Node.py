@@ -61,8 +61,8 @@ class InvalidModifierNode(tree.Node):
 # -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
-class TestAST(Test):
-    """tree.Node subclasses
+class TestNode(Test):
+    """tree.Node
     """
 
     def check_valid_initialization(self, cls, args, kwargs, expected_dict):
@@ -74,35 +74,33 @@ class TestAST(Test):
             for name, value in expected_dict.items():
                 assert_equal(getattr(node, name), value)
 
-    def test_valid_initialization(self):
-        """Tests tree.Node.__init__'s behaviour on valid initialization
-        """
+    def test_does_initialize_valid_node(self):
         yield from self.yield_tests(self.check_valid_initialization, [
             (
-                "BasicNode without any arguments",
+                "one NEEDED field without any arguments",
                 BasicNode, [], {}, {}
             ),
             (
-                "BasicNode with 1 valid positional argument",
+                "one NEEDED field with 1 valid positional argument",
                 BasicNode, [1], {}, {"f1": 1}
             ),
             (
-                "BasicNode with 1 valid keyword argument",
+                "one NEEDED field with 1 valid keyword argument",
                 BasicNode, [], {"f1": 1}, {"f1": 1}
             ),
             (
-                "Node with modifers with minimal valid positional arguments",
+                "all types of fields with minimal valid positional arguments",
                 AllIntModifiersNode, [1, None, (), (2,)], {}, {
                     "f1": 1, "f2": None, "f3": (), "f4": (2,)
                 }
             ),
             (
-                "Node with modifers with valid positional arguments",
+                "all types of fields with valid positional arguments",
                 AllIntModifiersNode, [1, 2, (3, 4, 5), (6, 7, 8)], {}, {
                     "f1": 1, "f2": 2, "f3": (3, 4, 5), "f4": (6, 7, 8),
                 }
             )
-        ], described=True, prefix="initialization of ")
+        ], described=True, prefix="does initialize a node with ")
 
     def check_invalid_initialization(self, cls, args, kwargs, error, required_phrases):  # noqa
         with assert_raises(error) as context:
@@ -110,35 +108,33 @@ class TestAST(Test):
 
         self.assert_message_contains(context.exception, required_phrases)
 
-    def test_invalid_initialization(self):
-        """Tests tree.Node.__init__'s behaviour on invalid initialization
-        """
+    def test_does_not_initialize_invalid_node(self):
         yield from self.yield_tests(self.check_invalid_initialization, [
             (
-                "Node with modifiers with incorrect number of arguments",
+                "modifiers with incorrect number of arguments",
                 AllIntModifiersNode, [1], {},
                 tree.InvalidInitializationError, "0 or 4 positional"
             ),
             (
-                "node with missing arguments",
+                "missing arguments",
                 AllIntModifiersNode, [1], {},
                 # "!f2" means check that "f2" is not in the error msg...
                 tree.InvalidInitializationError,
                 ["4", "AllIntModifiersNode"]
             ),
             (
-                "node with a child with missing arguments",
+                "a child with missing arguments",
                 lambda: ParentNode(AllIntModifiersNode(1)), [], {},
                 tree.InvalidInitializationError,
                 ["4", "AllIntModifiersNode"]
             ),
             (
-                "node with invalid/unknown modifier",
+                "an invalid/unknown modifier",
                 InvalidModifierNode, [], {},
                 tree.InvalidInitializationError,
                 ["f1", "InvalidModifierNode", "invalid modifier"]
             ),
-        ], described=True, prefix="initialization of ")
+        ], described=True, prefix="does not initialize a node with ")
 
     def check_assignment(self, cls, attr, value, error_cls=None, required_phrases=None):  # noqa
         node = cls()
@@ -160,9 +156,7 @@ class TestAST(Test):
                     "Expected value to be set after assignment"
                 )
 
-    def test_assignment(self):
-        """Tests tree.Node.__setattr__'s behaviour on assignments to fields.
-        """
+    def test_does_assign_with_valid_values(self):
         yield from self.yield_tests(self.check_assignment, [
             (
                 "NEEDED with False-ish value",
@@ -185,45 +179,49 @@ class TestAST(Test):
                 AllIntModifiersNode, "f2", None
             ),
             (
-                "ZERO_OR_MORE with (tuple) empty",
+                "ZERO_OR_MORE with an empty tuple",
                 AllIntModifiersNode, "f3", ()
             ),
             (
-                "ZERO_OR_MORE with (tuple) one element",
+                "ZERO_OR_MORE with a tuple with one element",
                 AllIntModifiersNode, "f3", (1,)
             ),
             (
-                "ZERO_OR_MORE with (tuple) four element",
+                "ZERO_OR_MORE with a tuple with four element",
                 AllIntModifiersNode, "f3", (1, 2, 3, 4)
             ),
             (
-                "ZERO_OR_MORE with (list) empty",
+                "ZERO_OR_MORE with an empty list",
                 AllIntModifiersNode, "f3", []
             ),
             (
-                "ZERO_OR_MORE with (list) one element",
+                "ZERO_OR_MORE with a list with one element",
                 AllIntModifiersNode, "f3", [1]
             ),
             (
-                "ZERO_OR_MORE with (list) four element",
+                "ZERO_OR_MORE with a list with four element",
                 AllIntModifiersNode, "f3", [1, 2, 3, 4]
             ),
             (
-                "ONE_OR_MORE with (tuple) one element",
+                "ONE_OR_MORE with a tuple with one element",
                 AllIntModifiersNode, "f4", (1,)
             ),
             (
-                "ONE_OR_MORE with (tuple) four element",
+                "ONE_OR_MORE with a tuple with four element",
                 AllIntModifiersNode, "f4", (1, 2, 3, 4)
             ),
             (
-                "ONE_OR_MORE with (list) one element",
+                "ONE_OR_MORE with a list with one element",
                 AllIntModifiersNode, "f4", [1]
             ),
             (
-                "ONE_OR_MORE with (list) four element",
+                "ONE_OR_MORE with a list with four element",
                 AllIntModifiersNode, "f4", [1, 2, 3, 4]
             ),
+        ], described=True, prefix="does assign ")
+
+    def test_does_not_assign_with_invalid_values(self):
+        yield from self.yield_tests(self.check_assignment, [
             (
                 "non existent field",
                 BasicNode, "bar", 1,
@@ -279,7 +277,7 @@ class TestAST(Test):
                 AllIntModifiersNode, "f4", [""],
                 tree.WrongTypeError
             ),
-        ], described=True, prefix="assignment to ")
+        ], described=True, prefix="does not assign ")
 
     def check_finalize(self, node, final_attrs=None, required_phrases=None):  # noqa
         try:
@@ -297,22 +295,20 @@ class TestAST(Test):
                 for attr, val in final_attrs.items():
                     assert_equal(getattr(node, attr), val)
 
-    def test_finalize(self):
-        """Tests tree.Node.finalize's behaviour on valid attributes.
-        """
+    def test_does_finalize_node(self):
         yield from self.yield_tests(self.check_finalize, [
             (
-                "node with all, optional included, valid arguments",
+                "valid attributes",
                 AllIntModifiersNode(1, 2, [], [3]),
                 {"f1": 1, "f2": 2, "f3": (), "f4": (3,)}
             ),
             (
-                "node with valid non-optional arguments",
+                "valid attributes (optionals not given)",
                 AllIntModifiersNode(f1=1, f4=[2]),
                 {"f1": 1, "f2": None, "f3": (), "f4": (2,)}
             ),
             # XXX: Add a check for child missing attribute in list, tuple...
-        ], described=True, prefix="finalization of ")
+        ], described=True, prefix="does finalize a node with ")
 
     def check_equality(self, node1, node2, is_equal):
         node1.finalize()
@@ -323,9 +319,7 @@ class TestAST(Test):
         else:
             assert_not_equal(node1, node2)
 
-    def test_equality(self):
-        """Tests tree.Node.__eq__'s behaviour
-        """
+    def test_does_report_node_equality_correctly(self):
         yield from self.yield_tests(self.check_equality, [
             (
                 "same class nodes with equal attributes",
@@ -337,58 +331,56 @@ class TestAST(Test):
                 ParentNode(BasicNode(1)), ParentNode(BasicNode(1)), True
             ),
             (
-                "same class nodes with non-equal attributes",
+                "same class nodes with non-equal attributes (not equal)",
                 BasicNode(0), BasicNode(1), False
             ),
             (
-                "same class nodes with same class children "
-                "with non-equal attributes",
+                "same class nodes with same class children with non-equal "
+                "attributes (not equal)",
                 ParentNode(BasicNode(0)), ParentNode(BasicNode(1)), False
             ),
             (
-                "different class nodes with same attributes",
+                "different class nodes with same attributes (not equal)",
                 BasicNode(1), BasicNodeCopy(1), False
             ),
-        ], described=True, prefix="equality of ")
+        ], described=True, prefix="does report equality correctly for ")
 
     def check_node_repr(self, node, expected):
         assert_equal(repr(node), expected)
 
-    def test_node_repr(self):
-        """Tests tree.Node's string representation
-        """
+    def test_does_represent_node_correctly(self):
         yield from self.yield_tests(self.check_node_repr, [
             (
-                "a simple, no-field node",
+                "no-field node",
                 BasicNode(),
                 "BasicNode()"
             ),
             (
-                "another simple, no-field node",
+                "no-field node with a different name",
                 BasicNodeCopy(),
                 "BasicNodeCopy()"
             ),
             (
-                "a multi-field node with no arguments",
+                "multi-field node with no arguments",
                 AllIntModifiersNode(),
                 "AllIntModifiersNode()"
             ),
             (
-                "a multi-field node (with tree.Node attributes) with no arguments",  # noqa
+                "multi-field node with Node fields but no arguments",
                 ParentNode(),
                 "ParentNode()"
             ),
             (
-                "a multi-field node with minimal number of arguments",
+                "multi-field node with minimal number of arguments",
                 AllIntModifiersNode(f1=1, f2=None),
                 "AllIntModifiersNode(f1=1, f2=None)"
             ),
             (
-                "a multi-field node with optional arguments provided",
+                "multi-field node with optional arguments provided",
                 AllIntModifiersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6)),
                 "AllIntModifiersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6))"
             )
-        ], described=True, prefix="check repr of ")
+        ], described=True, prefix="does give correct representation of a ")
 
 
 if __name__ == '__main__':

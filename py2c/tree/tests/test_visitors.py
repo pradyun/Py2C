@@ -56,14 +56,14 @@ class MySimpleVisitor(RecursiveTreeVisitor):
         super().generic_visit(node)
 
     def visit_BasicNodeCopy(self, node):
-        self.visited.append("Works!!")
+        self.visited.append("")
 
 
 # -----------------------------------------------------------------------------
 # Tests
 # -----------------------------------------------------------------------------
 class TestRecursiveASTVisitor(Test):
-    """tree.RecursiveTreeVisitor
+    """tree.visitors.RecursiveTreeVisitor
     """
 
     def check_visit(self, node, expected_visited):
@@ -75,35 +75,40 @@ class TestRecursiveASTVisitor(Test):
     def test_visit_and_generic_visit(self):
         yield from self.yield_tests(self.check_visit, [
             (
-                "simple node without children",
+                "a node without children",
                 BasicNode(), ["BasicNode"]
             ),
             (
-                "simple node, overidden method",
-                BasicNodeCopy(), ["Works!!"]
+                "a node without children (calls overidden method)",
+                BasicNodeCopy(), [""]
             ),
             (
-                "parent node, overidden method",
+                "a node with children",
                 ParentNode(BasicNode()), ["ParentNode", "BasicNode"]
             ),
             (
-                "parent of parent node, overidden method",
+                "a node with children (calls overidden method)",
+                ParentNode(BasicNodeCopy()), ["ParentNode", ""]
+            ),
+            (
+                "a node with grand children",
                 ParentNode(ParentNode(BasicNode())),
                 ["ParentNode", "ParentNode", "BasicNode"]
             ),
             (
-                "parent of parent node, overidden method",
-                ParentNode(BasicNodeCopy()),
-                ["ParentNode", "Works!!"]
+                "a node with grand children (calls overidden method)",
+                ParentNode(ParentNode(BasicNodeCopy())),
+                ["ParentNode", "ParentNode", ""]
             ),
             (
-                "parent of parent node, overidden method",
+                "a node with list of children with grand children "
+                "(calls overidden method)",
                 ParentNodeWithChildrenList(
                     [ParentNode(BasicNode()), BasicNodeCopy()]
                 ),
-                ["ParentNodeWithChildrenList", "ParentNode", "BasicNode", "Works!!"]
+                ["ParentNodeWithChildrenList", "ParentNode", "BasicNode", ""]
             ),
-        ], described=True, prefix="visit ")
+        ], described=True, prefix="does visit in correct order ")
 
 
 # -----------------------------------------------------------------------------
