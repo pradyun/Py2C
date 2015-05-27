@@ -1,4 +1,4 @@
-"""Package handling pre-processing of the source code.
+"""Package handling static analysis of the FlowTree.
 """
 
 # -----------------------------------------------------------------------------
@@ -7,7 +7,6 @@
 # -----------------------------------------------------------------------------
 
 
-class PreProcessingError(Exception):
-    """An error raised when there is any problem during pre-processing of the \
-    source-code.
+class ProcessingError(Exception):
+    """An error raised when there is any problem during processing of the code.
     """

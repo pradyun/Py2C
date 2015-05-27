@@ -9,42 +9,41 @@
 import ast
 import textwrap
 
-from py2c.pre_processing.to_ast import (
-    SourceToAST, SourceToASTTranslationError
-)
+from py2c.processing.to_ast import SourceToAST
 
 from py2c.tests import Test
 from nose.tools import assert_equal, assert_raises
 
 
 class TestPythonSourceToPythonAST(Test):
-    """pre_processing.to_ast.SourceToAST
+    """processing.to_ast.SourceToAST
     """
 
-    # Test the conversion of some simple Python source to Python's AST
     def check_conversion(self, code, node, error=None):
+        """Test the conversion of Python source to Python's AST
+        """
         code = textwrap.dedent(code)
 
         convertor = SourceToAST()
 
         if node is None:
             if error is None:
-                raise AssertionError("Only one of node and error should be non-zero.")
+                self.fail("Only one of node and error should be non-zero.")
             with assert_raises(error):
                 convertor.work(code)
         else:
             if error is not None:
-                raise AssertionError("Only one of node and error should be non-zero.")
+                self.fail("Only one of node and error should be non-zero.")
             assert_equal(ast.dump(convertor.work(code)), ast.dump(node))
 
     # Could make more extenstive, I guess don't need to
-    def test_conversion(self):
+    def test_does_source_to_AST_conversion_correctly(self):
         yield from self.yield_tests(self.check_conversion, [
             [
-                "simple statement conversion",
+                "a simple statement",
                 "pass", ast.Module(body=[ast.Pass()])
             ]
-        ], described=True, prefix="check conversion of ")
+        ], described=True, prefix="does convert correctly ")
 
 
 if __name__ == '__main__':

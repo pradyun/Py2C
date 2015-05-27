@@ -1,4 +1,4 @@
-"""Implements base class of all Analysers
+"""Type inference using constraints.
 """
 
 # -----------------------------------------------------------------------------
@@ -6,19 +6,14 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 # -----------------------------------------------------------------------------
 
-import abc
 from py2c.base_worker import BaseWorker
+from py2c.tree.visitors import RecursiveNodeVisitor
 
-__all__ = ["BaseAnalyser"]
 
-
-class BaseAnalyser(BaseWorker):
-    """ABC of all analysers
+class TypeAnalyser(BaseWorker, RecursiveNodeVisitor):
+    """Analyses the FlowTree for finding type constraints on level 1 variables.
     """
 
     def work(self, node):
-        return self.analyse(node)
-
-    @abc.abstractmethod
-    def analyse(self, node):
-        raise NotImplementedError()
+        # Infer constraints on the variables, based on the AST
+        self.visit(node)

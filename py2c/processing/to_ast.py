@@ -9,7 +9,7 @@
 import ast
 
 from py2c.base_worker import BaseWorker
-from py2c.pre_processing import PreProcessingError
+from py2c.processing import ProcessingError
 
 __all__ = ["SourceToASTTranslationError", "SourceToAST"]
 
@@ -17,7 +17,7 @@ __all__ = ["SourceToASTTranslationError", "SourceToAST"]
 # -----------------------------------------------------------------------------
 # Exceptions
 # -----------------------------------------------------------------------------
-class SourceToASTTranslationError(PreProcessingError):
+class SourceToASTTranslationError(ProcessingError):
     """Raised when fatal error(s) occur in the Translation of source-code to AST.
     """
 
@@ -35,6 +35,7 @@ class SourceToAST(BaseWorker):
     def work(self, code):
         """Translate the passed code into a valid Python AST, if the code is valid.
         """
+        self.logger.debug("Converting code to AST")
         try:
             node = ast.parse(code)
         except Exception as e:
