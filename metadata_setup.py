@@ -33,10 +33,9 @@ def _normalize(options):
     retval = {
         key.replace("-", "_"): value for key, value in options.items()
     }
-    pop = lambda key, dic=retval: dic.pop(key, None)  # noqa
 
     # Classifiers
-    value = pop("classifiers")
+    value = retval.pop("classifiers", None)
     if value and isinstance(value, str):
         classifiers = value.splitlines()
         while "" in classifiers:
@@ -44,7 +43,7 @@ def _normalize(options):
         retval["classifiers"] = classifiers
 
     # Long description from file
-    description_file = pop("long_description_file")
+    description_file = retval.pop("long_description_file", None)
     if description_file:
         with open(description_file) as fdesc:
             retval["long_description"] = fdesc.read()

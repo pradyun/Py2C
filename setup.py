@@ -48,20 +48,11 @@ metadata = get_metadata()
 # The main setup call
 # -----------------------------------------------------------------------------
 setup(
-    # Metadata
-    name=metadata["name"],
-    author=metadata["author"],
-    author_email=metadata["author_email"],
-    description=metadata["description"],
-    long_description=metadata["long_description"],
-    url=metadata["url"],
-    version=metadata["version"],
-    classifiers=metadata["classifiers"],
-
     # Packaging related stuff
     packages=find_packages(),
     setup_requires=["ply==3.4"],
     cmdclass={
         'build_py': build_py,
     },
+    **metadata
 )
