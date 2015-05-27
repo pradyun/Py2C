@@ -6,19 +6,23 @@
 # Copyright (C) 2014 Pradyun S. Gedam
 # -----------------------------------------------------------------------------
 
+import logging
+
 from py2c.base_worker import BaseWorker
 
-from py2c.tests import Test
-from nose.tools import assert_raises
+from py2c.tests import Test, mock
+from nose.tools import assert_raises, assert_true, assert_is_instance
 
 
 # -----------------------------------------------------------------------------
 # Helper classes
 # -----------------------------------------------------------------------------
 class GoodWorker(BaseWorker):
+    """A worker so nice, he even logs whenever he's told to work.
+    """
 
     def work(self):
-        pass
+        self.logger.debug("I'm working!")
 
 
 class BadWorker(BaseWorker):
@@ -56,10 +60,21 @@ class TestBaseWorker(Test):
         ], described=True, prefix="does not initialize subclass ")
 
     def test_blocks_subclass_with_calling_super_work_method(self):
-        manager = SuperCallingWorker()
+        worker = SuperCallingWorker()
 
         with assert_raises(NotImplementedError):
-            manager.work()
+            worker.work()
+
+    def test_does_give_a_logger_instance_to_base_classes(self):
+        worker = GoodWorker()
+
+        assert_true(hasattr(worker, 'logger'))
+        assert_is_instance(worker.logger, logging.Logger)
+
+        worker.logger = mock.Mock()
+        worker.work()
+
+        assert_true(worker.logger.debug.called)
 
 
 if __name__ == '__main__':

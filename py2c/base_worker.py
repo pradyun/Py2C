@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 
 import abc
+import logging
 
 __all__ = ["BaseWorker"]
 
@@ -14,6 +15,22 @@ __all__ = ["BaseWorker"]
 class BaseWorker(object, metaclass=abc.ABCMeta):
     """Base class of all workers
     """
+
+    def __init__(self):
+        super().__init__()
+        self.logger = logging.getLogger(self.__class__.__qualname__)
+        self._setup_logger()
+
+    def _setup_logger(self):
+        formatter = logging.Formatter(
+            "{levelname} {asctime} {filename}:{lineno} '{message}'",  # noqa
+            "%d-%m-%Y@%H:%M:%S",
+            "{"
+        )
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+
+        self.logger.addHandler(handler)
 
     @abc.abstractmethod  # coverage: no partial
     def work(self, *args, **kwargs):
