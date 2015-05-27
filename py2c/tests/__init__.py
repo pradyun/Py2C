@@ -12,9 +12,10 @@ import warnings
 import traceback
 from functools import partial
 
+from unittest import mock
 from nose.tools import nottest, assert_in, assert_not_in
 
-__all__ = ["Test", "runmodule"]
+__all__ = ["Test", "mock", "runmodule"]
 
 # -----------------------------------------------------------------------------
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
