@@ -1,41 +1,18 @@
 {
-	"build_systems":
-	[
-		{
-			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
-			"name": "Python (Venv)",
-			"selector": "source.python",
-			// Because I source virtualenvwrapper only in ~/.bash/bashrc.sh if interactive or $SETUP_ENV is not "".
-			"shell_cmd": "export SETUP_ENV=true; source ~/.bash/bashrc.sh && workon py2c && python3 -u ${file}"
-		}
-	],
 	"folders":
 	[
 		{
 			"folder_exclude_patterns":
 			[
-				"build"
+				"build",
+				"gh-pages"
 			],
-			"follow_symlinks": true,
-			"path": "../"
-		},
-		{
-			"follow_symlinks": true,
-			"name": "Py2C - Github Pages",
-			"path": "../gh-pages"
-		},
-		{
-			"follow_symlinks": true,
-			"path": "../../shedskin"
+			"path": ".."
 		}
 	],
 	"settings":
 	{
 		"line_endings": "unix",
-		// Anaconda stuff
-		"python_interpreter": "/home/pradyun/.venvwrap/venvs/py2c/bin/python",
-		"test_root": "/home/pradyun/code/projects/Py2C",
-		"test_command": "python dev_tools/run_tests.py --dont-report",
-		"test_virtualenv": "/home/pradyun/.venvwrap/venvs/py2c"
+		"python_interpreter": "/home/pradyun/.venvwrap/venvs/py2c/bin/python"
 	}
 }

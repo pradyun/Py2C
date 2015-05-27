@@ -27,7 +27,7 @@ A description of how the specific manager manages it's "staff" is given wherever
 Now that you know a bit about how everything happens on the super-high level, let's talk about what we were here for...
 
 ## What's the story behind the Translation?
-> Before I get to it, please note that I wrote this full section as a story of how stuff works at a company called "Py2C"... A company that specializes in source-to-source translation.
+> Before I get to it, please note that I wrote this full section as a story of how stuff works at a company called "Py2C"... A company that specializes in source-to-source translation. :P
 
 ------
 

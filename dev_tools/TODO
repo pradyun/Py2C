@@ -19,8 +19,8 @@ General:
    the debugging should be easier.
  ✔ Move over to git-flow ready scheme, by re-doing the history of the project. @done (31-December-2014 04:05PM)
    I've rebased madly and moved commits from one branch to another which isn't
-   something I should've done... But then, no-one had cloned the repository for
-   some time now... So, it's OK, I think.
+   something I should've done... But then, no-one other than me had cloned the
+   repository... So, it's all good I guess.
 
 Packaging:
  ✔ Make packaging `pip` compatible. @easy @done (31-December-2014 04:20PM)

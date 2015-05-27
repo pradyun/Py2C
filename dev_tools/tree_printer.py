@@ -77,7 +77,7 @@ def _dump_node(node, indentor):
     write(indentor, "{}.{}(".format(module, node.__class__.__name__))
 
     # Should the node be printed inline
-    in_line = isinstance(node, (py_tree.Name, py_tree.NameConstant, ast.Name, ast.NameConstant))
+    in_line = isinstance(node, (py_tree.Name, ast.Name, ast.NameConstant))
     length = len(node._fields)
     for i, (name, value) in enumerate(iter_fields(node)):
         with indentor:
