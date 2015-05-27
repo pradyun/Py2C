@@ -1,10 +1,3 @@
-# Travis extras...
-notifications:
-  webhooks:
-    urls:
-      # Build results on gitter.im
-      - secure: "OT9FPGHYd9523CMz4GiAx9iBBxovFONvgizAEWm3pyi9/6953+TGK//R++SOlRuLIpcXUS8IqMg0DTO9AlPSKwk5B4MQvc9ipZT/AhMTmZczXLgPq2ANtXkSOUmcZsMDQy6bPyJwMjeSBDF0KpzKSA02oYhOZmXt06Px01ZH/dE="
-
 language: python
 python:
   - 3.3
@@ -24,3 +17,12 @@ after_success:
   - pip install wheel
   - pip install coveralls
   - coveralls --config_file=.coveragerc
+
+
+# Extras
+notifications:
+  webhooks:
+    urls:
+      # Build results on gitter.im
+      - secure: "OT9FPGHYd9523CMz4GiAx9iBBxovFONvgizAEWm3pyi9/6953+TGK//R++SOlRuLIpcXUS8IqMg0DTO9AlPSKwk5B4MQvc9ipZT/AhMTmZczXLgPq2ANtXkSOUmcZsMDQy6bPyJwMjeSBDF0KpzKSA02oYhOZmXt06Px01ZH/dE="
+
