@@ -1,4 +1,4 @@
-"""Tests for the RecursiveTreeVisitor.
+"""Tests for the visitors in ``tree.visitors``.
 """
 
 # -----------------------------------------------------------------------------
@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 
 from py2c.tree import Node
-from py2c.tree.visitors import RecursiveTreeVisitor, RecursiveTreeTransformer
+from py2c.tree.visitors import RecursiveNodeVisitor, RecursiveNodeTransformer
 
 
 from py2c.tests import Test
@@ -45,7 +45,7 @@ class ParentNodeWithChildrenList(Node):
     ]
 
 
-class MySimpleVisitor(RecursiveTreeVisitor):
+class MySimpleVisitor(RecursiveNodeVisitor):
 
     def __init__(self):
         super().__init__()
@@ -63,7 +63,7 @@ class MySimpleVisitor(RecursiveTreeVisitor):
 # Tests
 # -----------------------------------------------------------------------------
 class TestRecursiveASTVisitor(Test):
-    """tree.visitors.RecursiveTreeVisitor
+    """tree.visitors.RecursiveNodeVisitor
     """
 
     def check_visit(self, node, expected_visited):
@@ -111,11 +111,8 @@ class TestRecursiveASTVisitor(Test):
         ], described=True, prefix="does visit in correct order ")
 
 
-# -----------------------------------------------------------------------------
-# Tests
-# -----------------------------------------------------------------------------
 class TestRecursiveASTTransformer(Test):
-    """tree.RecursiveTreeTransformer
+    """tree.visitors.RecursiveNodeTransformer
     """
 
 

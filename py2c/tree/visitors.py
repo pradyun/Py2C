@@ -1,4 +1,4 @@
-"""BaseTreeVisitor and it's concrete subclasses
+"""BaseNodeVisitor and it's concrete subclasses
 """
 
 # -----------------------------------------------------------------------------
@@ -12,8 +12,8 @@ import collections
 from py2c.tree import Node, iter_fields
 
 
-class BaseTreeVisitor(object, metaclass=abc.ABCMeta):
-    """ABC of TreeVisitors
+class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
+    """ABC of NodeVisitors
     """
 
     # Serves as a stub when a function needs to return None
@@ -33,19 +33,18 @@ class BaseTreeVisitor(object, metaclass=abc.ABCMeta):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
 
-    def children_visit(self, node):
+    def _visit_children(self, node):
         raise NotImplementedError()
 
-    @abc.abstractmethod
     def generic_visit(self, node):
-        pass
+        self._visit_children(node)
 
 
-class RecursiveTreeVisitor(BaseTreeVisitor):
+class RecursiveNodeVisitor(BaseNodeVisitor):
     """Visits the base nodes before parent nodes.
     """
 
-    def children_visit(self, node):
+    def _visit_children(self, node):
         for field, value in self.iter_fields(node):
             value = getattr(node, field, None)
 
@@ -59,14 +58,11 @@ class RecursiveTreeVisitor(BaseTreeVisitor):
             if isinstance(value, self.root_class):
                 self.visit(value)
 
-    def generic_visit(self, node):
-        self.children_visit(node)
 
+class RecursiveNodeTransformer(BaseNodeVisitor):
+    """A BaseNodeVisitor that allows modification of Nodes, in-place.
 
-class RecursiveTreeTransformer(BaseTreeVisitor):
-    """A BaseTreeVisitor that allows modification of Nodes, in-place.
-
-    RecursiveTreeTransformer walks the Tree and uses the return value of the
+    RecursiveNodeTransformer walks the Node and uses the return value of the
     visitor methods to replace or remove the Nodes.
 
     If the return value of the visitor method is:
@@ -79,7 +75,7 @@ class RecursiveTreeTransformer(BaseTreeVisitor):
     Based off ``ast.NodeTransformer``
     """
 
-    def children_visit(self, node):
+    def _visit_children(self, node):
         """Visit all children of node.
         """
         for field, old_value in self.iter_fields(node):
@@ -93,7 +89,7 @@ class RecursiveTreeTransformer(BaseTreeVisitor):
                     new_node = None
                 setattr(node, field, new_node)
 
-    # Moved out of 'children_visit' for readablity
+    # Moved out of '_visit_children' for readablity
     def _visit_list(self, original_list):
         new_list = []
         for value in original_list:
@@ -108,6 +104,3 @@ class RecursiveTreeTransformer(BaseTreeVisitor):
                     continue
             new_list.append(value)
         original_list[:] = new_list
-
-    def generic_visit(self, node):
-        self.children_visit(node)

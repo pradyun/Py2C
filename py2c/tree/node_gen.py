@@ -315,11 +315,9 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
             report("Loading '{}'".format(infile_name))
             sources = src_gen.generate_sources(parser.parse(text))
         except Exception:
-            report(
-                "Could not auto-generate sources for tree files "
-                "due to the error below."
+            raise Exception(
+                "Could not auto-generate sources for '{}'".format(infile_name)
             )
-            traceback.print_exc()
         else:
             report("Writing '{}'".format(outfile_name))
             with open(outfile_name, "w+t") as outfile:
