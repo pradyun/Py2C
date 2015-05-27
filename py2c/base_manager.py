@@ -1,11 +1,6 @@
 """An Abstract Base Class for Managers
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import abc
 
 from py2c.utils import verify_attribute

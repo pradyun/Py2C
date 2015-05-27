@@ -2,11 +2,6 @@
 """Build the distribution and check that it passes the tests.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import sys
 import glob
 import shlex

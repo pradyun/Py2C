@@ -1,11 +1,6 @@
 """Tests for the ABC of Worker
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import logging
 
 from py2c.base_worker import BaseWorker

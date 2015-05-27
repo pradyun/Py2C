@@ -5,11 +5,6 @@ used to declare the nodes that we use during the translation. This way of
 describing nodes, allows DRY-ness in the same.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import os
 import re
 import traceback

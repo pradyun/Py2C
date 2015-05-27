@@ -1,11 +1,6 @@
 """The internal representation of the Python code-flow.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import collections
 
 from py2c.utils import (

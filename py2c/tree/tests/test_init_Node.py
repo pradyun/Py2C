@@ -1,11 +1,6 @@
 """Tests for the Node in py2c.tree
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from nose.tools import assert_raises, assert_equal, assert_not_equal
 
 from py2c import tree

@@ -2,11 +2,6 @@
 """Delete all unnecessary files and directories in repository
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import os
 import shutil
 import fnmatch

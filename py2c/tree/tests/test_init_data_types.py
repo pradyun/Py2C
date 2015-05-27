@@ -1,12 +1,6 @@
 """Tests supporting data-types in py2c.tree
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
-
 from py2c.tree import (
     identifier, singleton,
     NodeError, WrongTypeError, WrongAttributeValueError,

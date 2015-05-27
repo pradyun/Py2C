@@ -1,11 +1,6 @@
 #!/bin/bash -e
 
 # -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
 # A script that generates the source distribution in a clean venv and tests it.
 # Requires:
 #   - virtualenvwrapper to be installed and source'd beforehand.

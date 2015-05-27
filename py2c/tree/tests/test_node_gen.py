@@ -1,11 +1,6 @@
 """Tests for the Generation of the AST nodes from the definitions.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from textwrap import dedent
 
 from py2c.tree.node_gen import (

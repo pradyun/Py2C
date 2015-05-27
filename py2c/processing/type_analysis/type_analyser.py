@@ -1,11 +1,6 @@
 """Type inference using constraints.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from py2c.base_worker import BaseWorker
 from py2c.tree.visitors import RecursiveNodeVisitor
 

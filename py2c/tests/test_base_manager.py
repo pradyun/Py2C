@@ -1,11 +1,6 @@
 """Tests for the ABC of Manager
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from nose.tools import assert_raises
 
 from py2c.base_manager import BaseManager

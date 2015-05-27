@@ -1,11 +1,6 @@
 """Tests some basic functionality provided by the py2c.tests.Test
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from nose.tools import assert_equal, assert_raises
 
 from py2c.tests import Test

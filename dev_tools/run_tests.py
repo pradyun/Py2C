@@ -5,11 +5,6 @@ Whether run from the terminal (by developer or CI) or from the editor,
 this file makes sure the tests are run in a similar manner every-time.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 # Standard library
 import sys
 from os.path import join, realpath, dirname

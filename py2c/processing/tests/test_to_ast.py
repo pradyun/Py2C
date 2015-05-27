@@ -1,11 +1,6 @@
 """Tests for the Python -> AST translator
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import ast
 import textwrap
 

@@ -1,11 +1,6 @@
 """Translates Python code into Python's built-in AST.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 import ast
 
 from py2c.base_worker import BaseWorker

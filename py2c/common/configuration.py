@@ -1,11 +1,6 @@
 """Configuration handler for the program
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from py2c.utils import is_valid_dotted_identifier
 
 __all__ = [

@@ -1,11 +1,6 @@
 """Tests for the visitors in ``tree.visitors``.
 """
 
-# -----------------------------------------------------------------------------
-# Py2C - A Python to C++ compiler
-# Copyright (C) 2014 Pradyun S. Gedam
-# -----------------------------------------------------------------------------
-
 from py2c.tree import Node
 from py2c.tree.visitors import RecursiveNodeVisitor, RecursiveNodeTransformer
 
