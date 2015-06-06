@@ -52,12 +52,12 @@ If all goes as planned, Py2C will also be extendable to accommodate for API chan
 
   [pep-484]: https://www.python.org/dev/peps/pep-0484
 
-  [travis-page]: https://travis-ci.org/pradyun/Py2C
-  [travis-badge]: https://travis-ci.org/pradyun/Py2C.svg
-  [coveralls-page]: https://coveralls.io/r/pradyun/Py2C?branch=develop
-  [coveralls-badge]: https://img.shields.io/coveralls/pradyun/Py2C.svg?style=flat
+  [travis-page]: https://travis-ci.org/pradyunsg/Py2C
+  [travis-badge]: https://travis-ci.org/pradyunsg/Py2C.svg
+  [coveralls-page]: https://coveralls.io/r/pradyunsg/Py2C?branch=develop
+  [coveralls-badge]: https://img.shields.io/coveralls/pradyunsg/Py2C.svg?style=flat
   [gitter-image]: https://img.shields.io/badge/Gitter-Chat_Room-1DCD73.svg?style=flat
-  [gitter-page]: https://gitter.im/pradyun/Py2C
+  [gitter-page]: https://gitter.im/pradyunsg/Py2C
 
   [project-on-hold-badge]: https://img.shields.io/badge/project-on--hold-lightgrey.svg?style=flat
   [project-pre-alpha-badge]: https://img.shields.io/badge/project-pre--alpha-ff5d37.svg?style=flat
