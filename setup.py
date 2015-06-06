@@ -4,18 +4,18 @@
 import sys
 
 if sys.version_info[:2] < (3, 3):
-    print("Cannot run on Python versions before Python 3.3")
+    print("[Py2C] Cannot run on Python versions before Python 3.3")
     sys.exit(1)
 
 try:
     from setuptools import setup, find_packages
 except ImportError:
-    # Include Py2C to tell the user that it is us writing that message.
     print("[Py2C] Please install 'setuptools'..")
     sys.exit(1)
 
 # setup.py metadata
-from metadata_setup import get_metadata  # noqa
+from setup_metadata import get_metadata  # noqa
+
 # -----------------------------------------------------------------------------
 # Generating the AST
 # -----------------------------------------------------------------------------
