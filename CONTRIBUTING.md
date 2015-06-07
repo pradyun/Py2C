@@ -1,10 +1,13 @@
 # Contributing
-To contribute to Py2C, just feel free to fork the repository and base your work off the `develop` branch.
+## Issues
+Found a critcal bug or some typo, feel free to create a PR or an issue for it.
 
-Just 2 things:
+Just 3 things:
 
- 1. Write tests for whatever you write. "*Code without tests is broken by design.*" Without tests, no code/PR shall be accepted.
+ 1. Without supporting tests, no non-trivial PR shall be accepted.
+    *"Code without tests is broken by design."* - Jacob
  2. Stick to [PEP-8][pep-8].
+ 3. Base your work off the `develop` branch.
 
  [pep-8]: http://python.org/dev/peps/pep-0008/
 
