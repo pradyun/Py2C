@@ -15,7 +15,7 @@ __all__ = ["Test", "mock", "runmodule"]
 # -----------------------------------------------------------------------------
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
 # -----------------------------------------------------------------------------
-# XXX: Really bad, modify spec to show nice-output.
+# MARK:: Bad, monkey patches spec to show nice-output,
 try:
     import spec.plugin
 except ImportError:
@@ -28,7 +28,6 @@ else:
                 or test.method.__doc__
                 or spec.plugin.underscored2spec(test.method.__name__)
             )
-        # XXX: Monkey patch for nicer output!
         spec.plugin.noseMethodDescription = noseMethodDescription
         spec.plugin._py2c_monkey_patched = True
 

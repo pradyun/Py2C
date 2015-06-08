@@ -13,8 +13,8 @@ from os.path import join, realpath, dirname
 import nose
 import coverage
 
-# NOTE: Haven't added a CLI to this file because mixing the CLI with coverage,
-#       nose and remove_files.py is a complicated not-so-important problem.
+# NOTE:: Haven't added a CLI to this file because mixing the CLI with coverage,
+#        nose and remove_files.py is a complicated not-so-important problem.
 _dev_tools_dir = realpath(dirname(__file__))
 
 COVERAGERC_FILE = join(_dev_tools_dir, ".coveragerc")

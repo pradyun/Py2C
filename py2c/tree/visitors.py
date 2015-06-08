@@ -15,7 +15,8 @@ class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
     NONE_SENTINEL = object()
 
     # Arguments allow reuse with similar but different Node systems.
-    # (For example, these visitors are compatible with ``ast``)
+    # For example, these visitors are compatible with ``ast``, even though they
+    # don't need to be.
     def __init__(self, root_class=Node, iter_fields=iter_fields):
         super().__init__()
         self.root_class = root_class

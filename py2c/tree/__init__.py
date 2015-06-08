@@ -80,7 +80,7 @@ class identifier(str, metaclass=_IdentifierMetaClass):
 
 # -----------------------------------------------------------------------------
 # Allow for delayed attribute loading in generated attribute's fields, by
-# creating class level property-s
+# creating class level properties
 # -----------------------------------------------------------------------------
 class class_property(property):
     def __get__(self, cls, owner):
@@ -103,7 +103,7 @@ def _invalid_arg_count_err_msg(node):
     else:
         msg += "no"
     msg += " " + str(num_fields) + " positional argument"
-    if num_fields != 1:  # XXX: Refactor out.
+    if num_fields != 1:  # TODO:: Refactor out.
         msg += "s"
     return msg
 
@@ -121,7 +121,7 @@ def _invalid_modifiers_err_msg(node, invalid_modifiers):
             "{} -> '{}'".format(name, modifier)
             for name, modifier in invalid_modifiers
         ),
-        "s" if len(invalid_modifiers) != 1 else ""  # XXX: Refactor out.
+        "s" if len(invalid_modifiers) != 1 else ""  # TODO:: Refactor out.
     )
 
 
@@ -139,7 +139,7 @@ def _invalid_field_value_type_err_msg(node, name, type_, value):
     )
 
 
-def _invalid_iterable_field_value(node, name, min_len, type_, index=None, elem=None):  # noqa
+def _invalid_iterable_field_value_err_msg(node, name, min_len, type_, index=None, elem=None):  # noqa
     msg = (
         "{}.{} should be an sequence containing {} or more items of type {}"
     ).format(
@@ -157,7 +157,7 @@ def _invalid_iterable_field_value(node, name, min_len, type_, index=None, elem=N
 class Node(object):
     """The base class of all nodes defined in the declarations
     """
-    _special_names = ['']
+    _special_names = []
 
     def __init__(self, *args, **kwargs):
         super(Node, self).__init__()
@@ -280,13 +280,13 @@ class Node(object):
             WrongTypeError if not a valid list.
         """
         if not isinstance(value, (list, tuple)) or len(value) < min_len:
-            raise WrongTypeError(_invalid_iterable_field_value(
+            raise WrongTypeError(_invalid_iterable_field_value_err_msg(
                 self, name, min_len, type_
             ))
 
         for index, elem in enumerate(value):
             if not isinstance(elem, type_):
-                raise WrongTypeError(_invalid_iterable_field_value(
+                raise WrongTypeError(_invalid_iterable_field_value_err_msg(
                     self, name, min_len, type_, index, elem
                 ))
 

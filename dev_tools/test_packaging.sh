@@ -23,8 +23,9 @@ fi
 echo -e "\e[1;32mDone\e[0m"
 popd > /dev/null
 
-# NOTE: Set nose config options here.
+# Set nose config options here.
 NOSE_WITH_SPECPLUGIN=1
+
 # Delegate to a python script...
 python3 ./dev_tools/check_packaging.py
 
