@@ -23,6 +23,8 @@ exclude_lines =
     if False:
     if __name__ == .__main__.:
 
+    assert False
+
 partial_branches =
     # Changed pragma
     coverage: no partial
