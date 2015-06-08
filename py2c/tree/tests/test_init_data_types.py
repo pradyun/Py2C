@@ -26,40 +26,17 @@ class AllIdentifierModifersNode(Node):
 
 
 # -----------------------------------------------------------------------------
-# Common test functionality
+# Data-Type specific tests
 # -----------------------------------------------------------------------------
-class DataTypeTestBase(Test):
-    """Base class for tests for custom properties of the Node specification.
+class TestIdentifier(Test):
+    """tree.identifier
     """
+
+    class_ = identifier
 
     def check_valid_initialization(self, arg):
         obj = self.class_(arg)
         assert_equal(obj, arg)
-
-    def check_invalid_initialization(self, arg):
-        with assert_raises(WrongAttributeValueError):
-            self.class_(arg)
-
-    def check_instance(self, value, is_):
-        if is_:
-            assert_is_instance(value, self.class_)
-        else:
-            assert_not_is_instance(value, self.class_)
-
-    def check_subclass(self, value, is_):
-        if is_:
-            assert issubclass(value, self.class_)
-        else:
-            assert not issubclass(value, self.class_)
-
-
-# -----------------------------------------------------------------------------
-# Data-Type specific tests
-# -----------------------------------------------------------------------------
-class TestIdentifier(DataTypeTestBase):
-    """tree.identifier
-    """
-    class_ = identifier
 
     def test_does_initialize_with_valid_value(self):
         yield from self.yield_tests(self.check_valid_initialization, [
@@ -68,11 +45,21 @@ class TestIdentifier(DataTypeTestBase):
             ["short name", "a"],
         ], described=True, prefix="does initialize a ")
 
+    def check_invalid_initialization(self, arg):
+        with assert_raises(WrongAttributeValueError):
+            self.class_(arg)
+
     def test_does_not_initialize_with_invalid_value(self):
         yield from self.yield_tests(self.check_invalid_initialization, [
             ["with spaces", "invalid name"],
             ["with hyphen", "invalid-name"],
         ], described=True, prefix="does not initialize an invalid name ")
+
+    def check_instance(self, value, is_):
+        if is_:
+            assert_is_instance(value, self.class_)
+        else:
+            assert_not_is_instance(value, self.class_)
 
     def test_is_an_instance(self):
         yield from self.yield_tests(self.check_instance, [
@@ -91,6 +78,12 @@ class TestIdentifier(DataTypeTestBase):
             ("an invalid name with dots", "invalid.attr", False),
         ], described=True, prefix="is an identifier instance ")
 
+    def check_subclass(self, value, is_):
+        if is_:
+            assert issubclass(value, self.class_)
+        else:
+            assert not issubclass(value, self.class_)
+
     def test_is_a_subclass(self):
         class SubClass(identifier):
             pass
@@ -108,6 +101,29 @@ class TestIdentifier(DataTypeTestBase):
         assert_equal(repr(identifier("a_name")), "'a_name'")
         assert_equal(repr(identifier("some_name")), "'some_name'")
         assert_equal(repr(identifier("camelCase")), "'camelCase'")
+
+
+# -----------------------------------------------------------------------------
+# fields_decorator
+# -----------------------------------------------------------------------------
+class TestFieldDecorator(Test):
+    """tree.fields_decorator
+    """
+
+    def test_does_behave_correctly(self):
+        # MARK:: Should this be broken down into multiple functions?
+
+        class Caller(object):
+            called = False
+
+            @fields_decorator
+            def func(cls):
+                assert cls == Caller
+                cls.called = True
+                return 1
+
+        assert Caller().func == 1
+        assert Caller.called
 
 
 if __name__ == '__main__':

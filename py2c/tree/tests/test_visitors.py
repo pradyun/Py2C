@@ -40,7 +40,7 @@ class ParentNodeWithChildrenList(Node):
     ]
 
 
-class MySimpleVisitor(RecursiveNodeVisitor):
+class SimpleVisitor(RecursiveNodeVisitor):
 
     def __init__(self):
         super().__init__()
@@ -62,7 +62,7 @@ class TestRecursiveASTVisitor(Test):
     """
 
     def check_visit(self, node, expected_visited):
-        visitor = MySimpleVisitor()
+        visitor = SimpleVisitor()
         retval = visitor.visit(node)
         assert_equal(retval, None)
         assert_equal(visitor.visited, expected_visited)

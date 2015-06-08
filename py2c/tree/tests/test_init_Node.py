@@ -10,12 +10,30 @@ from py2c.tests import Test
 # -----------------------------------------------------------------------------
 # A bunch of nodes used during testing
 # -----------------------------------------------------------------------------
+class NodeWithoutFieldsAttribute(tree.Node):
+    """A base node that doesn't define the fields attribute
+    """
+
+
+class EmptyNode(tree.Node):
+    """An empty node with no fields
+    """
+    _fields = []
+
+
 class BasicNode(tree.Node):
     """Basic node
     """
     _fields = [
         ('f1', int, "NEEDED"),
     ]
+
+
+class InheritingNodeWithoutFieldsAttribute(BasicNode):
+    """A node that inherits from BasicNode but doesn't declare fields.
+
+    (It should inherit the fields from parent)
+    """
 
 
 class BasicNodeCopy(tree.Node):
@@ -37,7 +55,7 @@ class AllIntModifiersNode(tree.Node):
     ]
 
 
-class ParentNode(tree.Node):
+class NodeWithANodeField(tree.Node):
     """Node with another node as child
     """
     _fields = [
@@ -72,6 +90,10 @@ class TestNode(Test):
     def test_does_initialize_valid_node(self):
         yield from self.yield_tests(self.check_valid_initialization, [
             (
+                "zero fields without any arguments",
+                EmptyNode, [], {}, {}
+            ),
+            (
                 "one NEEDED field without any arguments",
                 BasicNode, [], {}, {}
             ),
@@ -94,7 +116,20 @@ class TestNode(Test):
                 AllIntModifiersNode, [1, 2, (3, 4, 5), (6, 7, 8)], {}, {
                     "f1": 1, "f2": 2, "f3": (3, 4, 5), "f4": (6, 7, 8),
                 }
-            )
+            ),
+            (
+                "one inherited NEEDED field without any arguments",
+                InheritingNodeWithoutFieldsAttribute, [], {}, {}
+            ),
+            (
+                "one inherited NEEDED field with 1 valid positional argument",
+                InheritingNodeWithoutFieldsAttribute, [1], {}, {"f1": 1}
+            ),
+            (
+                "one inherited NEEDED field with 1 valid keyword argument",
+                InheritingNodeWithoutFieldsAttribute, [], {"f1": 1}, {"f1": 1}
+            ),
+
         ], described=True, prefix="does initialize a node with ")
 
     def check_invalid_initialization(self, cls, args, kwargs, error, required_phrases):  # noqa
@@ -106,28 +141,46 @@ class TestNode(Test):
     def test_does_not_initialize_invalid_node(self):
         yield from self.yield_tests(self.check_invalid_initialization, [
             (
+                "no fields attribute defined",
+                NodeWithoutFieldsAttribute, [], {},
+                tree.InvalidInitializationError,
+                ["iterable", "_fields"]
+            ),
+            (
+                "zero fields with some argument",
+                EmptyNode, [1], {},
+                tree.InvalidInitializationError,
+                ["no", "arguments"]
+            ),
+            (
+                "one field with extra arguments",
+                BasicNode, [1, 2], {},
+                tree.InvalidInitializationError,
+                ["0 or 1", "argument", "!arguments"]
+            ),
+            (
                 "modifiers with incorrect number of arguments",
                 AllIntModifiersNode, [1], {},
-                tree.InvalidInitializationError, "0 or 4 positional"
+                tree.InvalidInitializationError,
+                ["0 or 4", "arguments"]
             ),
             (
                 "missing arguments",
                 AllIntModifiersNode, [1], {},
-                # "!f2" means check that "f2" is not in the error msg...
                 tree.InvalidInitializationError,
-                ["4", "AllIntModifiersNode"]
+                ["AllIntModifiersNode", "0 or 4", "arguments"]
             ),
             (
                 "a child with missing arguments",
-                lambda: ParentNode(AllIntModifiersNode(1)), [], {},
+                lambda: NodeWithANodeField(AllIntModifiersNode(1)), [], {},
                 tree.InvalidInitializationError,
-                ["4", "AllIntModifiersNode"]
+                ["AllIntModifiersNode", "0 or 4", "arguments"]
             ),
             (
                 "an invalid/unknown modifier",
                 InvalidModifierNode, [], {},
                 tree.InvalidInitializationError,
-                ["f1", "InvalidModifierNode", "invalid modifier"]
+                ["InvalidModifierNode", "f1", "invalid modifier"]
             ),
         ], described=True, prefix="does not initialize a node with ")
 
@@ -302,8 +355,21 @@ class TestNode(Test):
                 AllIntModifiersNode(f1=1, f4=[2]),
                 {"f1": 1, "f2": None, "f3": (), "f4": (2,)}
             ),
-            # XXX: Add a check for child missing attribute in list, tuple...
         ], described=True, prefix="does finalize a node with ")
+
+    def test_does_not_finalize_node(self):
+        yield from self.yield_tests(self.check_finalize, [
+            (
+                "no parameters",
+                AllIntModifiersNode(),
+                None, ["missing", "f1", "f4", "!f2", "!f3"]
+            ),
+            (
+                "a child without parameters",
+                NodeWithANodeField(BasicNode()),
+                None, ["missing", "f1"]
+            )
+        ], described=True, prefix="does not finalize a node with ")
 
     def check_equality(self, node1, node2, is_equal):
         node1.finalize()
@@ -323,22 +389,30 @@ class TestNode(Test):
             (
                 "same class nodes with same class children "
                 "with equal attributes",
-                ParentNode(BasicNode(1)), ParentNode(BasicNode(1)), True
+                NodeWithANodeField(BasicNode(1)),
+                NodeWithANodeField(BasicNode(1)),
+                True
             ),
+        ], described=True, prefix="does report equality correctly for ")
+
+    def test_does_report_node_inequality_correctly(self):
+        yield from self.yield_tests(self.check_equality, [
             (
-                "same class nodes with non-equal attributes (not equal)",
+                "same class nodes with non-equal attributes",
                 BasicNode(0), BasicNode(1), False
             ),
             (
                 "same class nodes with same class children with non-equal "
-                "attributes (not equal)",
-                ParentNode(BasicNode(0)), ParentNode(BasicNode(1)), False
+                "attributes",
+                NodeWithANodeField(BasicNode(0)),
+                NodeWithANodeField(BasicNode(1)),
+                False
             ),
             (
-                "different class nodes with same attributes (not equal)",
+                "different class nodes with same attributes",
                 BasicNode(1), BasicNodeCopy(1), False
             ),
-        ], described=True, prefix="does report equality correctly for ")
+        ], described=True, prefix="does report in-equality correctly for ")
 
     def check_node_repr(self, node, expected):
         assert_equal(repr(node), expected)
@@ -362,8 +436,8 @@ class TestNode(Test):
             ),
             (
                 "multi-field node with Node fields but no arguments",
-                ParentNode(),
-                "ParentNode()"
+                NodeWithANodeField(),
+                "NodeWithANodeField()"
             ),
             (
                 "multi-field node with minimal number of arguments",

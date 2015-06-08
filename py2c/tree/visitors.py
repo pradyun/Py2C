@@ -29,7 +29,7 @@ class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
         visitor = getattr(self, method, self.generic_visit)
         return visitor(node)
 
-    def _visit_children(self, node):
+    def _visit_children(self, node):  # coverage: not missing
         raise NotImplementedError()
 
     def generic_visit(self, node):
@@ -46,16 +46,17 @@ class RecursiveNodeVisitor(BaseNodeVisitor):
 
             if isinstance(value, list):
                 self._visit_list(value)
-            elif isinstance(value, self.root_class):
+            elif isinstance(value, self.root_class):  # coverage: no partial
                 self.visit(value)
 
-    def _visit_list(self, original_list):  # coverage: not missing
+    def _visit_list(self, original_list):
         for value in original_list:
-            if isinstance(value, self.root_class):
+            if isinstance(value, self.root_class):  # coverage: no partial
                 self.visit(value)
 
 
-class RecursiveNodeTransformer(BaseNodeVisitor):
+# TODO:: Write tests once it is clear how exactly this is to be used.
+class RecursiveNodeTransformer(BaseNodeVisitor):  # coverage: not missing
     """A BaseNodeVisitor that allows modification of Nodes, in-place.
 
     RecursiveNodeTransformer walks the Node and uses the return value of the

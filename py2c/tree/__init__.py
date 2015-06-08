@@ -195,7 +195,7 @@ class Node(object):
 
     def __setattr__(self, name, value):
         # Special names don't pass through the field-related filters
-        if name in self._special_names:
+        if name in self._special_names:  # coverage: not missing
             super().__setattr__(name, value)
 
         for field in self._fields:
@@ -231,7 +231,7 @@ class Node(object):
                 elif modifier in ('NEEDED', 'OPTIONAL'):
                     items = [getattr(self, name)]
                 else:
-                    raise NodeError("Something unexpected happened!")
+                    assert False, "Should not have reached this branch!!"
 
                 for item in filter(lambda x: isinstance(x, Node), items):
                     item.finalize()
@@ -243,7 +243,7 @@ class Node(object):
             elif modifier == 'ZERO_OR_MORE':
                 self.__dict__[name] = ()
             else:
-                raise NodeError("Something unexpected happened!")
+                assert False, "Should not have reached this branch!!"
 
         if missing:
             raise AttributeError(_missing_fields_err_msg(self, missing))
@@ -296,4 +296,6 @@ class Node(object):
     # Make sure sub-classes don't use this.
     @property
     def _fields(self):
-        raise NotImplementedError()
+        raise InvalidInitializationError(
+            "Node sub-classes need to define an iterable _fields attribute."
+        )
