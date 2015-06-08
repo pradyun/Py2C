@@ -4,7 +4,7 @@
 import ast
 import textwrap
 
-from py2c.processing.to_ast import SourceToAST
+from py2c.processing.to_ast import SourceToAST, SourceToASTTranslationError
 
 from py2c.tests import Test
 from nose.tools import assert_equal, assert_raises
@@ -39,6 +39,14 @@ class TestPythonSourceToPythonAST(Test):
                 "pass", ast.Module(body=[ast.Pass()])
             ]
         ], described=True, prefix="does convert correctly ")
+
+    def test_does_not_convert_invalid_code(self):
+        yield from self.yield_tests(self.check_conversion, [
+            [
+                "invalid code",
+                "$", None, SourceToASTTranslationError
+            ]
+        ], described=True, prefix="does not convert ")
 
 
 if __name__ == '__main__':
