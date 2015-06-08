@@ -1,12 +1,9 @@
-﻿ -----
+﻿-----
 
-> WARNING: `git rebase -i` and `git push --force` may be run on this branch at any point of time because I'm mad and evil!
+> **WARNING**
+> `git rebase -i` and `git push --force` may be run on this branch at any point of time because I'm mad and evil!
 
- -----
-
-> The project is **not** functional yet. It's just in pre-alpha/planning stage...
-
- -----
+-----
 
 # Py2C
 
@@ -14,11 +11,13 @@
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
 
+> The project is **not** functional yet. It's just in pre-alpha/planning stage...
+
 This project is currently focused on statically typed programs and optimizing them. This means the current scope of the project is limited. On some future date, this project may also support all of Python's dynamic nature, subject to whether such a change is helpful and feasible for the project.
 
 The idea is that even in highly dynamic languages (like Python) variables often end up holding (references to) values have only one "type". This is a major area for improving performance as statically typed languages (like C++) often are better with, well, typed variables. So if these one-type variables can be in a faster language, why not have them there?
 
-But for those gains, you'll have to leave the comforts of Python and write C++ code. And here's where Py2C is supposed to come in! You can just tweak the existing Python code a bit and pass it through Py2C and it automagically outputs C++ code that does that same thing as the Python code, just a whole lot faster!
+But for those gains, you'll have to leave the comforts of Python and write C++ code. And here's where Py2C is supposed to come in! You can just tweak the existing Python code a bit and pass it through Py2C and it automagically outputs C++ code that does that same thing as the Python code, just a whole lot faster! Yay!
 
 Here's Py2C in action (rather Py2C's planned action) on "Hello World!":
 
@@ -48,14 +47,16 @@ int main() {
 }
 ```
 
-If all goes as planned, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc).
+If all goes as planned, on one fine day, Py2C will also be extendable to accommodate for API changes across the languages, for third party packages (like NumPy, Qt etc)
 
   [pep-484]: https://www.python.org/dev/peps/pep-0484
 
   [travis-page]: https://travis-ci.org/pradyunsg/Py2C
-  [travis-badge]: https://travis-ci.org/pradyunsg/Py2C.svg
+  [travis-badge]: https://img.shields.io/travis/pradyunsg/Py2C/develop.svg?style=flat
+
   [coveralls-page]: https://coveralls.io/r/pradyunsg/Py2C?branch=develop
-  [coveralls-badge]: https://img.shields.io/coveralls/pradyunsg/Py2C.svg?style=flat
+  [coveralls-badge]: https://img.shields.io/coveralls/pradyunsg/Py2C/develop.svg?style=flat
+  
   [gitter-image]: https://img.shields.io/badge/Gitter-Chat_Room-1DCD73.svg?style=flat
   [gitter-page]: https://gitter.im/pradyunsg/Py2C
 
