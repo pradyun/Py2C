@@ -248,9 +248,7 @@ class TestSourceGenerator(Test):
                 [Definition('FooBar', 'AST', 'inherit')],
                 """
                 class FooBar(AST):
-                    @fields_decorator
-                    def _fields(cls):
-                        return AST._fields
+                    pass
                 """
             ),
             (
