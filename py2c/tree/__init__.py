@@ -11,7 +11,7 @@ __all__ = [
     # Exceptions
     "NodeError", "WrongTypeError", "FieldError", "WrongAttributeValueError",
     # Custom classes
-    "identifier", "singleton",
+    "identifier",
     # A field access related helper
     "fields_decorator",
     # The big fish
@@ -76,39 +76,6 @@ class identifier(str, metaclass=_IdentifierMetaClass):
         raise WrongAttributeValueError(
             "Invalid value for identifier: {}".format(obj)
         )
-
-
-# -----------------------------------------------------------------------------
-# Singleton object
-# -----------------------------------------------------------------------------
-class _SingletonMetaClass(type):
-    def __subclasscheck__(self, obj):
-        return (
-            issubclass(obj, (bool, None.__class__)) or
-            super().__subclasscheck__(obj)
-        )
-
-    def __instancecheck__(cls, obj):
-        return any(obj is elem for elem in cls._valid_values)
-
-
-class singleton(object, metaclass=_SingletonMetaClass):
-    """Names pointing to constant values
-    """
-
-    _valid_values = (True, False, None)
-
-    def __new__(cls, value):
-        if any(value is elem for elem in cls._valid_values):
-            return value
-        else:
-            msg = (
-                "Expected 'True', 'False' or 'None'. "
-                "Got {0!r} of type {0.__class__.__qualname__} instead."
-            )
-            raise WrongAttributeValueError(
-                msg.format(value.__class__.__qualname__)
-            )
 
 
 # -----------------------------------------------------------------------------

@@ -29,9 +29,7 @@ PREFIX = dedent("""
     # Instead of modifying this file, modify the relevant "*.tree" file
     # in py2c/tree directory of the source distribution.
 
-    from . import (
-        Node, identifier, singleton, fields_decorator
-    )
+    from . import Node, identifier, fields_decorator  # noqa
 """).strip()
 
 

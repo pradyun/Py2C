@@ -2,9 +2,7 @@
 """
 
 from py2c.tree import (
-    identifier, singleton,
-    NodeError, WrongTypeError, WrongAttributeValueError,
-    Node
+    identifier, WrongAttributeValueError, Node, fields_decorator
 )
 
 from py2c.tests import Test
@@ -24,17 +22,6 @@ class AllIdentifierModifersNode(Node):
         ('f2', identifier, 'OPTIONAL'),
         ('f3', identifier, 'ZERO_OR_MORE'),
         ('f4', identifier, 'ONE_OR_MORE'),
-    ]
-
-
-class AllSingletonModifersNode(Node):
-    """Node with all modifiers of singleton type
-    """
-    _fields = [
-        ('f1', singleton, 'NEEDED'),
-        ('f2', singleton, 'OPTIONAL'),
-        ('f3', singleton, 'ZERO_OR_MORE'),
-        ('f4', singleton, 'ONE_OR_MORE'),
     ]
 
 
@@ -121,55 +108,6 @@ class TestIdentifier(DataTypeTestBase):
         assert_equal(repr(identifier("a_name")), "'a_name'")
         assert_equal(repr(identifier("some_name")), "'some_name'")
         assert_equal(repr(identifier("camelCase")), "'camelCase'")
-
-
-class TestSingleton(DataTypeTestBase):
-    """tree.singleton
-    """
-    class_ = singleton
-
-    def test_does_initialize_with_valid_value(self):
-        yield from self.yield_tests(self.check_valid_initialization, [
-            ["True", True],
-            ["False", False],
-            ["None", None],
-        ], described=True, prefix="is a singleton ")
-
-    def test_does_not_initialize_with_invalid_value(self):
-        yield from self.yield_tests(self.check_invalid_initialization, [
-            ['str', ""],
-            ['int', 0],
-            ['list', []],
-            ['tuple', ()],
-        ], described=True, prefix="is not a singleton ")
-
-    def test_is_an_instance(self):
-        yield from self.yield_tests(self.check_instance, [
-            ("True", True, True),
-            ("False", False, True),
-            ("None", None, True),
-            ("string (not)", "str", False),
-            ("int (not)", 0, False),
-            ("float (not)", 0.0, False),
-            ("empty list (not)", [], False),
-            ("empty tuple (not)", (), False),
-            ("object() (not)", object(), False),
-        ], described=True, prefix="is a singleton instance ")
-
-    def test_is_a_subclass(self):
-        class SubClass(singleton):
-            pass
-
-        yield from self.yield_tests(self.check_subclass, [
-            ("an inheriting sub-class", SubClass, True),
-            ("bool", bool, True),
-            ("int (not)", int, False),
-        ], described=True, prefix="is a singleton subclass ")
-
-    def test_has_representation_that_is_consistent_with_real_singleton(self):
-        assert_equal(repr(singleton(True)), "True")
-        assert_equal(repr(singleton(False)), "False")
-        assert_equal(repr(singleton(None)), "None")
 
 
 if __name__ == '__main__':
