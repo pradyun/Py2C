@@ -27,7 +27,7 @@ popd > /dev/null
 NOSE_WITH_SPECPLUGIN=1
 
 # Delegate to a python script...
-python3 ./dev_tools/check_packaging.py
+python3 ./dev-tools/check_packaging.py
 
 echo -e -n "\e[1;33mDeleting temporary virtualenv...\e[0m"
 deactivate > /dev/null

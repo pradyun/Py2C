@@ -124,7 +124,7 @@ def success_log(*args, important=False):
 def clean_project():
     run_and_report(
         "Cleaning project...", "Couldn't clean!", "Done!",
-        "{} dev_tools/cleanup.py all".format(sys.executable), False
+        "{} dev-tools/cleanup.py all".format(sys.executable), False
     )
 
 
@@ -220,7 +220,7 @@ def build_install_test_package(distribution):
     with dependencies_installed("test", TEST_DEPENDENCIES):
         run_tests()
 
-    run("cd dev_tools", True)
+    run("cd dev-tools", True)
     # Install
     run_and_report(
         "Uninstalling {} distribution...".format(distribution["type"]),

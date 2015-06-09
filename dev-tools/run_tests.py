@@ -20,8 +20,8 @@ _dev_tools_dir = realpath(dirname(__file__))
 COVERAGERC_FILE = join(_dev_tools_dir, ".coveragerc")
 TEST_DIRECTORY = join(dirname(_dev_tools_dir), "py2c")
 GENERATE_REPORT = True
-GENERATE_REPORT_HTML = False
-GENERATE_REPORT_TEXT = False
+GENERATE_REPORT_HTML = True
+GENERATE_REPORT_TEXT = True
 
 
 def run_tests():

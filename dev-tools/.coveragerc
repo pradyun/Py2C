@@ -9,6 +9,7 @@ source =
 
 omit =
     **/tests/*.py
+    py2c/tree/flow.py
     py2c/tree/python.py
 
 [report]

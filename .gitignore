@@ -9,9 +9,8 @@ dist/
 *.egg-info/
 *.egg
 
-# Subdirectories in dev_tools
-dev_tools/*/
-dev_tools/Py2C.yaml
+# Subdirectories in dev-tools
+dev-tools/*/
 
 # PLY
 *parser.out

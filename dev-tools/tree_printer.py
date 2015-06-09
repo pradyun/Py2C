@@ -108,8 +108,11 @@ def dump_ast(node, indent_with="   "):
 def main():
     import textwrap
     dump_ast(ast.parse(textwrap.dedent("""
-        if a > b:
-            pass
+for x, y in iterable:
+    if something( x ):
+        break
+else:
+    otherwise()
     """)))
 
 if __name__ == '__main__':

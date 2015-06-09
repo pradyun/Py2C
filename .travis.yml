@@ -11,12 +11,12 @@ install:
 
 script:
   # Run the tests
-  - python dev_tools/run_tests.py py2c
+  - python dev-tools/run_tests.py py2c
 
 after_success:
   - pip install wheel
   - pip install python-coveralls
-  - coveralls --config_file=dev_tools/.coveragerc
+  - coveralls --config_file=dev-tools/.coveragerc
 
 
 # Extras
