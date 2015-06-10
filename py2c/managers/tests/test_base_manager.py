@@ -1,10 +1,10 @@
-"""Tests for the ABC of Manager
+"""Unit-tests for :class:`py2c.managers.base_manager.BaseManager`
 """
 
+from py2c.tests import Test
 from nose.tools import assert_raises
 
-from py2c.base_manager import BaseManager
-from py2c.tests import Test
+from py2c.managers.base_manager import BaseManager
 
 
 # -----------------------------------------------------------------------------
