@@ -20,7 +20,10 @@ def verify_attribute(obj, name, clazz):
         )
 
 
-def get_article(type_):
+# You don't need test coverage for something like this. You can't really mess
+# this up, unless you name things with multiple encodings.
+# But then it's probably the keyboard that's broken, not the code.
+def get_article(type_):  # coverage: not missing
     """Get the appropriate article for type 'type_' in an error message.
     """
     if type_.__name__[0].lower() in "aeiou":
