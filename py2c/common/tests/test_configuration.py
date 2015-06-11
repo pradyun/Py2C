@@ -1,4 +1,4 @@
-"""Tests for the Configuration object
+"""Unit-tests for `py2c.common.configuration.Configuration`
 """
 
 from py2c.common.configuration import (

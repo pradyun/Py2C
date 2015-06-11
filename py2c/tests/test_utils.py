@@ -1,4 +1,4 @@
-"""Unit-tests for :mod:`py2c.utils`
+"""Unit-tests for `py2c.utils`
 """
 
 from py2c import utils

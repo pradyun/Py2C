@@ -1,4 +1,4 @@
-"""Tests for the Python -> AST translator
+"""Unit-tests for `py2c.processing.to_ast`
 """
 
 import ast

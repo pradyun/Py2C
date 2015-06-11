@@ -1,4 +1,4 @@
-"""Tests for the visitors in ``tree.visitors``.
+"""Unit-tests for `tree.visitors`
 """
 
 from py2c.tree import Node

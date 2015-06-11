@@ -1,4 +1,4 @@
-"""Tests supporting data-types in py2c.tree
+"""Unit-tests for supporting data-types in `py2c.tree`
 """
 
 from py2c.tree import (

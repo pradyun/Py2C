@@ -1,4 +1,4 @@
-"""Tests for the Generation of the AST nodes from the definitions.
+"""Unit-tests for `py2c.tree.node_gen`
 """
 
 from textwrap import dedent
@@ -19,8 +19,8 @@ def check_remove_comments(test_string, expected):
 
 
 def test_remove_comments():
-    """tree.node_gen.remove_comments\
-    """  # Don't want a trailing newline in name
+    "tree.node_gen.remove_comments"  # Don't want a trailing newline
+
     yield from Test().yield_tests(check_remove_comments, [
         (
             "empty input",
@@ -59,9 +59,7 @@ class TestParser(Test):
         self.parser._reset()
         assert_equal(self.parser.parse(dedent(test_string)), tuple(expected))
 
-    def test_parsing(self):
-        """Tests Parser's parsing of properties
-        """
+    def test_does_parse_correctly(self):
         yield from self.yield_tests(self.check_property_parsing, [
             (
                 "an node without parent and no fields",
@@ -175,9 +173,7 @@ class TestParser(Test):
         for word in required_words:
             assert_in(word, msg)
 
-    def test_error_reporting(self):
-        """Tests Parser's error reports for important information
-        """
+    def test_does_report_errors(self):
         yield from self.yield_tests(self.check_error_reporting, [
             (
                 "multiple attributes with same name",

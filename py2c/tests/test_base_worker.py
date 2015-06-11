@@ -1,4 +1,4 @@
-"""Tests for the ABC of Worker
+"""Unit-tests for `py2c.base_worker.Worker`
 """
 
 import logging
@@ -34,7 +34,7 @@ class SuperCallingWorker(BaseWorker):
 # Tests
 # -----------------------------------------------------------------------------
 class TestBaseWorker(Test):
-    """base_worker.BaseWorker
+    """py2c.base_worker.BaseWorker
     """
 
     def test_does_initialize_a_subclass_with_work_method(self):

@@ -1,5 +1,4 @@
-"""This package contains tests for the basic Py2C modules. \
-It also contains the integration tests for Py2C.
+"""Test-related helpers
 """
 
 import inspect
@@ -12,9 +11,10 @@ from nose.tools import nottest, assert_in, assert_not_in
 
 __all__ = ["Test", "mock", "runmodule"]
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
-# -----------------------------------------------------------------------------
+# =============================================================================
+
 # MARK:: Bad, monkey patches spec to show nice-output,
 try:
     import spec.plugin

@@ -1,4 +1,4 @@
-"""Tests for the Node in py2c.tree
+"""Unit-tests for `py2c.tree.Node`
 """
 
 from nose.tools import assert_raises, assert_equal, assert_not_equal

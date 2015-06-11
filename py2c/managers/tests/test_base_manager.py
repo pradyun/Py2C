@@ -1,4 +1,4 @@
-"""Unit-tests for :class:`py2c.managers.base_manager.BaseManager`
+"""Unit-tests for `py2c.managers.base_manager.BaseManager`
 """
 
 from py2c.tests import Test
