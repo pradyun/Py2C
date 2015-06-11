@@ -3,7 +3,7 @@
 
 import ast
 
-from py2c.base_worker import BaseWorker
+from py2c.abc.worker import Worker
 from py2c.processing import ProcessingError
 
 __all__ = ["SourceToASTTranslationError", "SourceToAST"]
@@ -23,7 +23,7 @@ class SourceToASTTranslationError(ProcessingError):
 # -----------------------------------------------------------------------------
 # Translator
 # -----------------------------------------------------------------------------
-class SourceToAST(BaseWorker):
+class SourceToAST(Worker):
     """Translates Python code into AST
     """
 

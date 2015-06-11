@@ -4,11 +4,11 @@
 import abc
 import logging
 
-__all__ = ["BaseWorker"]
+__all__ = ["Worker"]
 
 
-class BaseWorker(object, metaclass=abc.ABCMeta):
-    """Base class of all workers
+class Worker(object, metaclass=abc.ABCMeta):
+    """ABC for Workers
     """
 
     def __init__(self):

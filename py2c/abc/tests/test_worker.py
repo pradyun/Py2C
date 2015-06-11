@@ -1,9 +1,9 @@
-"""Unit-tests for `py2c.base_worker.Worker`
+"""Unit-tests for `py2c.abc.worker.Worker`
 """
 
 import logging
 
-from py2c.base_worker import BaseWorker
+from py2c.abc.worker import Worker
 
 from py2c.tests import Test, mock
 from nose.tools import assert_raises, assert_true, assert_is_instance
@@ -12,7 +12,7 @@ from nose.tools import assert_raises, assert_true, assert_is_instance
 # -----------------------------------------------------------------------------
 # Helper classes
 # -----------------------------------------------------------------------------
-class GoodWorker(BaseWorker):
+class GoodWorker(Worker):
     """A worker so nice, he even logs whenever he's told to work.
     """
 
@@ -20,11 +20,11 @@ class GoodWorker(BaseWorker):
         self.logger.debug("I'm working!")
 
 
-class BadWorker(BaseWorker):
+class BadWorker(Worker):
     pass
 
 
-class SuperCallingWorker(BaseWorker):
+class SuperCallingWorker(Worker):
 
     def work(self):
         super().work()
@@ -34,7 +34,7 @@ class SuperCallingWorker(BaseWorker):
 # Tests
 # -----------------------------------------------------------------------------
 class TestBaseWorker(Test):
-    """py2c.base_worker.BaseWorker
+    """py2c.abc.worker.Worker
     """
 
     def test_does_initialize_a_subclass_with_work_method(self):

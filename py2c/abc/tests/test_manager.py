@@ -1,43 +1,43 @@
-"""Unit-tests for `py2c.managers.base_manager.BaseManager`
+"""Unit-tests for `py2c.abc.manager.Manager`
 """
 
 from py2c.tests import Test
 from nose.tools import assert_raises
 
-from py2c.managers.base_manager import BaseManager
+from py2c.abc.manager import Manager
 
 
 # -----------------------------------------------------------------------------
 # Helper classes
 # -----------------------------------------------------------------------------
-class GoodManager(BaseManager):
+class GoodManager(Manager):
     options = {}
 
     def run(self, node):
         pass
 
 
-class EmptyManager(BaseManager):
+class EmptyManager(Manager):
     pass
 
 
-class NoRunManager(BaseManager):
+class NoRunManager(Manager):
     options = {}
 
 
-class NoOptionsManager(BaseManager):
+class NoOptionsManager(Manager):
     def run(self, node):
         pass
 
 
-class OptionsNotADictManager(BaseManager):
+class OptionsNotADictManager(Manager):
     options = object()  # Not instance of dict
 
     def run(self, node):
         pass
 
 
-class SuperCallingManager(BaseManager):
+class SuperCallingManager(Manager):
     options = {}
 
     def run(self, node):
@@ -48,7 +48,7 @@ class SuperCallingManager(BaseManager):
 # Tests
 # -----------------------------------------------------------------------------
 class TestBaseManager(Test):
-    """py2c.base_manager.BaseManager
+    """py2c.abc.manager.Manager
     """
 
     def test_does_initialize_a_subclass_with_options_and_run_attributes(self):
