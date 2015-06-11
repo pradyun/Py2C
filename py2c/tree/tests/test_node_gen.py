@@ -19,7 +19,7 @@ def check_remove_comments(test_string, expected):
 
 
 def test_remove_comments():
-    "tree.node_gen.remove_comments"  # Don't want a trailing newline
+    "py2c.tree.node_gen.remove_comments"  # Don't want a trailing newline
 
     yield from Test().yield_tests(check_remove_comments, [
         (
@@ -51,7 +51,7 @@ def test_remove_comments():
 
 
 class TestParser(Test):
-    """tree.node_gen.Parser
+    """py2c.tree.node_gen.Parser
     """
     parser = Parser()
 
@@ -204,7 +204,7 @@ class TestParser(Test):
 
 
 class TestSourceGenerator(Test):
-    """tree.node_gen.SourceGenerator
+    """py2c.tree.node_gen.SourceGenerator
     """
 
     def check_generated_source(self, data, expected_output):

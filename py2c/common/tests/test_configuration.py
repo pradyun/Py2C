@@ -11,7 +11,7 @@ from py2c.tests import Test, runmodule
 
 
 class TestConfiguration(Test):
-    """common.Configuration
+    """py2c.common.Configuration
     """
 
     def setUp(self):

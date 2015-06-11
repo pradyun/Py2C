@@ -75,7 +75,7 @@ class InvalidModifierNode(tree.Node):
 # Tests
 # -----------------------------------------------------------------------------
 class TestNode(Test):
-    """tree.Node
+    """py2c.tree.Node
     """
 
     def check_valid_initialization(self, cls, args, kwargs, expected_dict):

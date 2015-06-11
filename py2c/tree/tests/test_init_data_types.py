@@ -29,7 +29,7 @@ class AllIdentifierModifersNode(Node):
 # Data-Type specific tests
 # -----------------------------------------------------------------------------
 class TestIdentifier(Test):
-    """tree.identifier
+    """py2c.tree.identifier
     """
 
     class_ = identifier
@@ -107,7 +107,7 @@ class TestIdentifier(Test):
 # fields_decorator
 # -----------------------------------------------------------------------------
 class TestFieldDecorator(Test):
-    """tree.fields_decorator
+    """py2c.tree.fields_decorator
     """
 
     def test_does_behave_correctly(self):

@@ -58,7 +58,7 @@ class SimpleVisitor(RecursiveNodeVisitor):
 # Tests
 # -----------------------------------------------------------------------------
 class TestRecursiveASTVisitor(Test):
-    """tree.visitors.RecursiveNodeVisitor
+    """py2c.tree.visitors.RecursiveNodeVisitor
     """
 
     def check_visit(self, node, expected_visited):
@@ -107,7 +107,7 @@ class TestRecursiveASTVisitor(Test):
 
 
 class TestRecursiveASTTransformer(Test):
-    """tree.visitors.RecursiveNodeTransformer
+    """py2c.tree.visitors.RecursiveNodeTransformer
     """
 
 

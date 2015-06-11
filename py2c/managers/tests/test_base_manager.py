@@ -48,7 +48,7 @@ class SuperCallingManager(BaseManager):
 # Tests
 # -----------------------------------------------------------------------------
 class TestBaseManager(Test):
-    """base_manager.BaseManager
+    """py2c.base_manager.BaseManager
     """
 
     def test_does_initialize_a_subclass_with_options_and_run_attributes(self):

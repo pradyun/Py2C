@@ -11,7 +11,7 @@ from nose.tools import assert_equal, assert_raises
 
 
 class TestPythonSourceToPythonAST(Test):
-    """processing.to_ast.SourceToAST
+    """py2c.processing.to_ast.SourceToAST
     """
 
     def check_conversion(self, code, node, error=None):

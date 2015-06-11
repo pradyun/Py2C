@@ -30,7 +30,6 @@ class SourceToAST(BaseWorker):
     def work(self, code):
         """Translate the passed code into a valid Python AST, if the code is valid.
         """
-        self.logger.debug("Converting code to AST")
         try:
             node = ast.parse(code)
         except Exception as e:
