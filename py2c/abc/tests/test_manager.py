@@ -91,6 +91,8 @@ class TestBaseManager(Test):
         with assert_raises(NotImplementedError):
             manager.run(object())
 
+    def test_does_recognize_subclass(self):
+        assert issubclass(GoodManager, Manager), "Did not recognize subclass"
 
 if __name__ == '__main__':
     from py2c.tests import runmodule

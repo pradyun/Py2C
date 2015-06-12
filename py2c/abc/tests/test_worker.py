@@ -71,6 +71,9 @@ class TestBaseWorker(Test):
 
         assert_true(worker.logger.debug.called)
 
+    def test_does_recognize_subclass(self):
+        assert issubclass(GoodWorker, Worker), "Did not recognize subclass"
+
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
