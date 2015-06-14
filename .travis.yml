@@ -4,20 +4,16 @@ python:
   - 3.4
 
 install:
-
   - python setup.py develop
-  # Install test-dependencies
   - pip install -r dev-requirements.txt
 
 script:
-  # Run the tests
   - python dev-tools/run_tests.py py2c
 
 after_success:
   - pip install wheel
   - pip install python-coveralls
   - coveralls --config_file=dev-tools/.coveragerc
-
 
 # Extras
 notifications:
