@@ -11,8 +11,14 @@ from os.path import join, relpath
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
-    "*.out", "*.pyc", "*.pyo", "*parsetab.py", "*lextab.py", ".coverage",
-    "*.fuse_hidden*", "*.egg", "*.tar.gz"
+    # PLY
+    "*.out", "*parsetab.py", "*lextab.py",
+    # Coverage
+    ".coverage",
+    # Sublime Text
+    "*.fuse_hidden*",
+    # setup.py left-overs
+    "*.egg", "*.tar.gz"
 ]
 
 
