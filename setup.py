@@ -46,6 +46,8 @@ metadata = get_metadata()
 setup(
     # Packaging related stuff
     packages=find_packages(),
+
+    # Custom over-rides for generating extra sources
     setup_requires=["ply==3.4"],
     cmdclass={
         'build_py': build_py,
