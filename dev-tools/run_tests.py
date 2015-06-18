@@ -13,19 +13,24 @@ from os.path import join, realpath, dirname
 import nose
 import coverage
 
-# NOTE:: Haven't added a CLI to this file because mixing the CLI with coverage,
-#        nose and remove_files.py is a complicated not-so-important problem.
+# NOTE:: Haven't added a proper CLI to this file because mixing the CLI with
+#        coverage, nose and remove_files.py is a complicated problem.
+#        On the other hand, using source argument for coverage works just fine.
 _dev_tools_dir = realpath(dirname(__file__))
 
 COVERAGERC_FILE = join(_dev_tools_dir, ".coveragerc")
 TEST_DIRECTORY = join(dirname(_dev_tools_dir), "py2c")
+
 GENERATE_REPORT = True
 GENERATE_REPORT_HTML = True
 GENERATE_REPORT_TEXT = True
 
 
 def run_tests():
-    cov = coverage.coverage(config_file=COVERAGERC_FILE)
+    # Any arguments that start with "py2c" or None if no such arguments exist
+    source = list(filter(lambda x: x.startswith("py2c"), sys.argv[1:])) or None
+
+    cov = coverage.coverage(config_file=COVERAGERC_FILE, source=source)
     cov.start()
     success = nose.run(
         env={
