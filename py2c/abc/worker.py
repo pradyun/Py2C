@@ -3,6 +3,7 @@
 
 import abc
 import logging
+import logging.handlers
 
 __all__ = ["Worker"]
 
@@ -22,7 +23,7 @@ class Worker(object, metaclass=abc.ABCMeta):
             "%d-%m-%Y@%H:%M:%S",
             "{"
         )
-        handler = logging.StreamHandler()
+        handler = logging.handlers.RotatingFileHandler("/tmp/py2c.log")
         handler.setFormatter(formatter)
 
         self.logger.addHandler(handler)
