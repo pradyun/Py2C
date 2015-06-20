@@ -84,6 +84,44 @@ class TestAssertMessageContains(Test):
         )
 
 
+
+class TestFail(Test):
+    """py2c.tests.Test.fail
+    """
+
+    def test_does_causes_failure(self):
+        with assert_raises(AssertionError):
+            self.fail()
+
+    def test_does_raises_exception_with_given_message(self):
+        with assert_raises(AssertionError) as context:
+            self.fail("EHK14H0b9DXZaT346nqx")  # random text
+
+        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+
+        assert context.exception.__cause__ is None
+
+    def test_does_raises_exception_with_given_cause(self):
+        err = Exception()
+        try:
+            raise err
+        except Exception as e:
+            with assert_raises(AssertionError) as context:
+                self.fail(cause=e)
+
+        assert context.exception.__cause__ is err, "Unexpected cause"
+
+    def test_does_honours_keyword_arguments(self):
+        err = Exception()
+        try:
+            raise err
+        except Exception as e:
+            with assert_raises(AssertionError) as context:
+                self.fail(cause=e, message="EHK14H0b9DXZaT346nqx")
+
+        assert context.exception.__cause__ is err, "Unexpected cause"
+        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+
 if __name__ == '__main__':
     from py2c.tests import runmodule
 

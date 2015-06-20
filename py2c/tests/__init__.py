@@ -79,8 +79,12 @@ class Test(object):
                 # print(repr(word), "in", repr(msg))
                 assert_in(word, msg)
 
-    def fail(self, message=""):
-        assert False, message
+    def fail(self, message="", cause=None):
+        """Fail a test for whatever reason.
+
+        Because `fail(...)` looks better than `assert False, ...`
+        """
+        raise AssertionError(message) from cause
 
 
 def runmodule(capture=True):
