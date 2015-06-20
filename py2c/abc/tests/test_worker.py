@@ -37,7 +37,7 @@ class TestBaseWorker(Test):
     """py2c.abc.worker.Worker
     """
 
-    def test_does_initialize_a_subclass_with_work_method(self):
+    def test_initializes_a_subclass_with_all_required_methods(self):
         GoodWorker()
 
     def check_bad_initialization(self, manager_class, err, required_phrases):
@@ -60,7 +60,7 @@ class TestBaseWorker(Test):
         with assert_raises(NotImplementedError):
             worker.work()
 
-    def test_does_give_a_logger_instance_to_base_classes(self):
+    def test_provides_a_logger_instance_to_subclass_instances(self):
         worker = GoodWorker()
 
         assert_true(hasattr(worker, 'logger'))
@@ -71,7 +71,7 @@ class TestBaseWorker(Test):
 
         assert_true(worker.logger.debug.called)
 
-    def test_does_recognize_subclass(self):
+    def test_recognizes_subclass(self):
         assert issubclass(GoodWorker, Worker), "Did not recognize subclass"
 
 

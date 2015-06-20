@@ -72,7 +72,7 @@ class TestBaseSourceHandler(Test):
     """py2c.abc.source_handler.SourceHandler
     """
 
-    def test_does_initialize_a_subclass_with_all_required_methods(self):
+    def test_initializes_a_subclass_with_all_required_methods(self):
         GoodSourceHandler()
 
     def check_bad_initialization(self, source_handler_class, err, required_phrases):
@@ -105,7 +105,7 @@ class TestBaseSourceHandler(Test):
             # MARK:: Should I add the only-one method cases as well?
         ], described=True, prefix="does not initialize subclass ")
 
-    def test_blocks_subclass_calling_super_method(self):
+    def test_raises_error_when_subclass_calls_an_abstract_method(self):
         source_handler = SuperCallingSourceHandler()
 
         with assert_raises(NotImplementedError):
@@ -117,7 +117,7 @@ class TestBaseSourceHandler(Test):
         with assert_raises(NotImplementedError):
             source_handler.write_source("", "")
 
-    def test_does_recognize_subclass(self):
+    def test_recognizes_subclass(self):
         assert issubclass(GoodSourceHandler, SourceHandler), (
             "Did not recognize subclass"
         )

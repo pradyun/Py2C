@@ -48,7 +48,7 @@ class TestFileSourceHandler(Test):
             "Should be a SourceHandler instance"
         )
 
-    def test_does_need_an_argument_to_initialize(self):
+    def test_needs_an_argument_to_initialize(self):
         with assert_raises(TypeError) as context:
             FileSourceHandler()
         self.assert_error_message_contains(context.exception, ["require", "1"])
@@ -78,7 +78,7 @@ class TestFileSourceHandler(Test):
             ),
         ], described=True, prefix="does check file name before ")
 
-    def test_does_list_only_passed_file_name(self):
+    def test_lists_only_passed_file_name(self):
         fsh = FileSourceHandler("magic.py")
 
         files = fsh.get_files()
@@ -88,14 +88,14 @@ class TestFileSourceHandler(Test):
 
         assert_equal(list(files), ["magic.py"])
 
-    def test_does_get_source_correctly(self):
+    def test_gets_correct_source_correctly(self):
         file_name = self.get_temporary_file_name()
         self.write_to_file(file_name, "Hello World!")
 
         fsh = FileSourceHandler(file_name)
         assert_equal(fsh.get_source(file_name), "Hello World!")
 
-    def test_does_write_source_correctly(self):
+    def test_writes_source_correctly(self):
         file_name = self.get_temporary_file_name()
 
         fsh = FileSourceHandler(file_name)

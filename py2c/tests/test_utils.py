@@ -21,7 +21,7 @@ class TestVerifyAttribute(Test):
     """py2c.utils.verify_attribute
     """
 
-    def test_does_verify_valid_case(self):
+    def test_verifies_valid_case(self):
         obj = Namespace()
         obj.number = 1
 
@@ -59,7 +59,7 @@ class TestIsValidDottedIdentifier(Test):
     """py2c.utils.is_valid_dotted_identifier
     """
 
-    def test_does_verify_valid_case(self):
+    def test_verifies_valid_case(self):
         # If we see an error, it's a failed test.
         assert utils.is_valid_dotted_identifier("name")
         assert utils.is_valid_dotted_identifier("dotted.name")

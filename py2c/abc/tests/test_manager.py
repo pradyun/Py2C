@@ -51,7 +51,7 @@ class TestBaseManager(Test):
     """py2c.abc.manager.Manager
     """
 
-    def test_does_initialize_a_subclass_with_options_and_run_attributes(self):
+    def test_initializes_a_subclass_with_all_required_methods(self):
         GoodManager()
 
     def check_bad_initialization(self, manager_class, err, required_phrases):
@@ -91,7 +91,7 @@ class TestBaseManager(Test):
         with assert_raises(NotImplementedError):
             manager.run(object())
 
-    def test_does_recognize_subclass(self):
+    def test_recognizes_subclass(self):
         assert issubclass(GoodManager, Manager), "Did not recognize subclass"
 
 if __name__ == '__main__':
