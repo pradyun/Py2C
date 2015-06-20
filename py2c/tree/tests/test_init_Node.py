@@ -136,7 +136,7 @@ class TestNode(Test):
         with assert_raises(error) as context:
             cls(*args, **kwargs)
 
-        self.assert_message_contains(context.exception, required_phrases)
+        self.assert_error_message_contains(context.exception, required_phrases)
 
     def test_does_not_initialize_invalid_node(self):
         yield from self.yield_tests(self.check_invalid_initialization, [
@@ -192,7 +192,7 @@ class TestNode(Test):
         except Exception as err:
             if error_cls is None or not isinstance(err, error_cls):
                 self.fail("Raised Exception for valid assignment")
-            self.assert_message_contains(err, required_phrases or [])
+            self.assert_error_message_contains(err, required_phrases or [])
         else:
             if error_cls is not None:
                 self.fail("Did not raise {} for invalid assignment".format(
@@ -335,7 +335,7 @@ class TestNode(Test):
                 self.fail(
                     "Raised Exception on finalize when values were OK"
                 )
-            self.assert_message_contains(err, required_phrases)
+            self.assert_error_message_contains(err, required_phrases)
         else:
             if required_phrases is not None:
                 self.fail("Did not raise error for invalid finalize")

@@ -44,7 +44,7 @@ class TestBaseWorker(Test):
         with assert_raises(err) as context:
             manager_class()
 
-        self.assert_message_contains(context.exception, required_phrases)
+        self.assert_error_message_contains(context.exception, required_phrases)
 
     def test_does_not_do_bad_initialization(self):
         yield from self.yield_tests(self.check_bad_initialization, [

@@ -59,30 +59,39 @@ class TestYieldTests(Test):
 
 
 class TestAssertMessageContains(Test):
-    """py2c.tests.Test.assert_message_contains
+    """py2c.tests.Test.assert_error_message_contains
     """
 
-    def test_does_match_complete_phrase_with_same_case(self):
-        self.assert_message_contains(
+    def test_does_not_fail_when_given_no_required_phrases(self):
+        self.assert_error_message_contains(
+            Exception("Hello World!"), []
+        )
+
+    def test_matches_complete_phrase_with_same_case(self):
+        self.assert_error_message_contains(
             Exception("Hello World!"), ["Hello World!"]
         )
 
     def test_does_not_match_complete_phrase_with_different_case(self):
         with assert_raises(AssertionError):
-            self.assert_message_contains(
+            self.assert_error_message_contains(
                 Exception("Hello World!"), ["hello world!"]
             )
 
-    def test_does_match_partial_phrases_overlapping(self):
-        self.assert_message_contains(
+    def test_matches_overlapping_partial_phrases(self):
+        self.assert_error_message_contains(
             Exception("Hello World!"), ["lo ", " Wo"]
         )
 
-    def test_does_match_partial_phrases_non_overlapping(self):
-        self.assert_message_contains(
+    def test_matches_non_overlapping_partial_phrases(self):
+        self.assert_error_message_contains(
             Exception("Hello World!"), ["Hello", "World!"]
         )
 
+    def test_matches_regardless_of_order(self):
+        self.assert_error_message_contains(
+            Exception("Hello World!"), ["World!", "Hello"]
+        )
 
 
 class TestFail(Test):

@@ -70,13 +70,12 @@ class Test(object):
                 func = partial(test_method, *test_args[:])
             yield func
 
-    def assert_message_contains(self, error, required_phrases):
+    def assert_error_message_contains(self, error, required_phrases):
         msg = error.args[0]
         for word in required_phrases:
             if word.startswith("!"):
                 assert_not_in(word[1:], msg)
             else:
-                # print(repr(word), "in", repr(msg))
                 assert_in(word, msg)
 
     def fail(self, message="", cause=None):

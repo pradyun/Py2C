@@ -34,7 +34,7 @@ class TestVerifyAttribute(Test):
         with assert_raises(AttributeError) as context:
             utils.verify_attribute(obj, "number", int)
 
-        self.assert_message_contains(
+        self.assert_error_message_contains(
             context.exception,
             ["Namespace", "number", "should have"]
         )
@@ -46,7 +46,7 @@ class TestVerifyAttribute(Test):
         with assert_raises(TypeError) as context:
             utils.verify_attribute(obj, "number", int)
 
-        self.assert_message_contains(
+        self.assert_error_message_contains(
             context.exception,
             ["Namespace", "number", "should be", "instance", "int"]
         )

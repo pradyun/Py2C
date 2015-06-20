@@ -51,7 +51,7 @@ class TestFileSourceHandler(Test):
     def test_does_need_an_argument_to_initialize(self):
         with assert_raises(TypeError) as context:
             FileSourceHandler()
-        self.assert_message_contains(context.exception, ["require", "1"])
+        self.assert_error_message_contains(context.exception, ["require", "1"])
 
     def check_file_name_matches(self, error, method, required_phrases, *args):
         file_name = self.get_temporary_file_name()
@@ -60,7 +60,9 @@ class TestFileSourceHandler(Test):
         with assert_raises(error) as context:
             getattr(fsh, method)(file_name[:-1] + ".non-existent", *args)
 
-        self.assert_message_contains(context.exception, required_phrases)
+        self.assert_error_message_contains(
+            context.exception, ["unexpected", "file name"]
+        )
 
     def test_does_check_file_name_before_operation(self):
         yield from self.yield_tests(self.check_file_name_matches, [
