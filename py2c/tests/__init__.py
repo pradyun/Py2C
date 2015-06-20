@@ -4,10 +4,10 @@
 import inspect
 import warnings
 import traceback
-from functools import partial
+from functools import partial, wraps
 
 from unittest import mock
-from nose.tools import nottest, assert_in, assert_not_in
+from nose.tools import istest, nottest, assert_in, assert_not_in
 
 __all__ = ["Test", "mock", "runmodule"]
 
@@ -60,16 +60,6 @@ class Test(object):
             warnings.warn("Test subclasses' name should start with 'Test'")
         super().__init__()
 
-    @nottest
-    def yield_tests(self, test_method, args, described=False, prefix=""):
-        for test_args in args:
-            if described:
-                func = partial(test_method, *test_args[1:])
-                func.description = prefix + test_args[0]
-            else:
-                func = partial(test_method, *test_args[:])
-            yield func
-
     def assert_error_message_contains(self, error, required_phrases):
         msg = error.args[0]
         for word in required_phrases:
@@ -84,6 +74,43 @@ class Test(object):
         Because `fail(...)` looks better than `assert False, ...`
         """
         raise AssertionError(message) from cause
+
+
+# -----------------------------------------------------------------------------
+# Data Driven Tests
+# -----------------------------------------------------------------------------
+@nottest
+def data_driven_test(data, described=False, prefix="", suffix=""):
+    """Run a test for all the provided data
+
+    Usage::
+
+        data = [['1'], ['2']]
+        @data_driven(data)
+        def decorated(*args):
+            print(args)
+
+        for func in decorated():
+            func()
+
+    """
+
+    def decorator(function):
+        @istest  # MARK:: Should this be here?
+        @wraps(function)
+        def wrapped(*args):
+            nonlocal data, described, prefix, suffix
+            for test_data in data:
+                if described:
+                    func = partial(function, *(list(args) + list(test_data)[1:]))  # noqa
+                    func.description = prefix + test_data[0] + suffix
+                else:
+                    func = partial(function, *(list(args) + list(test_data)))
+                print(func)
+                yield func
+        return wrapped
+
+    return decorator
 
 
 def runmodule(capture=True):

@@ -1,61 +1,96 @@
-"""Unit-tests for `py2c.tests.Test`
+"""Unit-tests for `py2c.tests`
 """
 
-from nose.tools import assert_equal, assert_raises
-
-from py2c.tests import Test
-
-
-def check(a, b):
-    return a + b
+from nose.tools import assert_equal, assert_raises, assert_is
+from py2c.tests import Test, data_driven_test
 
 
-def check_order(a, b):
-    return a, b
-
-
-# I know that the name's horrible but it's how all tests have been named...
-class TestYieldTests(Test):
-    """py2c.tests.Test.yield_tests
+class TestDataDriven(Test):
+    """py2c.tests.data_driven_test
     """
 
-    def test_does_not_yield_values_with_empty_list(self):
-        for test in self.yield_tests(check, []):
+    def test_does_not_yield_values_with_no_arguments(self):
+        @data_driven_test([])
+        def func():
+            pass
+
+        for test in func():
             assert False
 
-    def test_does_yield_values_with_non_empty_list(self):
-        for test in self.yield_tests(check, [("bar", "baz")]):
-            assert_equal(test(), "barbaz")
+    def test_yields_values_in_correct_order_given_arguments(self):
+        @data_driven_test([(0,), (1,), (2,)])
+        def func(a):
+            return a
 
-    def test_does_order_arguments_correctly(self):
-        li = [(0, 3), [0, 4]]
-        for test, args in zip(self.yield_tests(check_order, li), li):
-            assert_equal(list(test()), list(args))
+        iterations = 0
+        for test in func():
+            assert_equal(test(), iterations)
+            iterations += 1
+
+        assert_equal(iterations, 3)
 
     def test_is_a_generator(self):
-        tests = self.yield_tests(check, [[2, 2]])
+        @data_driven_test([[]])
+        def func():
+            return 1
 
-        assert_equal(next(tests)(), 4)
+        obj = func()
+
+        assert_equal(next(obj)(), 1)
         with assert_raises(StopIteration):
-            next(tests)
+            next(obj)
 
-    def test_does_attach_proper_description(self):
-        tests = self.yield_tests(check, [
-            ["Test 0", "some_argument"],
-            ("Test 1", "some_argument"),
-        ], described=True)
+    def test_attaches_proper_description(self):
+        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
 
-        for i, test_method in enumerate(tests):
-            assert_equal(test_method.description, "Test " + str(i))
+        @data_driven_test(test_data, True)
+        def func(arg):
+            assert_equal(arg, "argument")
 
-    def test_does_attach_prefix_to_description(self):
-        tests = self.yield_tests(check, [
-            ["0", 0],
-            ("1", 1),
-        ], described=True, prefix="Test ")
+        for i, test in enumerate(func()):
+            assert_equal(test.description, "Test " + str(i))
+            test()
 
-        for i, test_method in enumerate(tests):
-            assert_equal(test_method.description, "Test " + str(i))
+    def test_attaches_prefix_and_suffix_to_description_correctly(self):
+        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
+
+        @data_driven_test(test_data, described=True, prefix="<", suffix=">")
+        def func(arg):
+            assert_equal(arg, "argument")
+
+        for i, test in enumerate(func()):
+            assert_equal(test.description, "<Test {}>".format(i))
+            test()
+
+    def test_passes_argument_called_with_to_test_function_when_described(self):
+        # This is needed for methods, where "self" argument is passed to
+        # the test function
+        stub = object()
+
+        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
+
+        @data_driven_test(test_data, described=True)
+        def func(passed, arg):
+            assert_is(passed, stub)
+            assert_equal(arg, "argument")
+
+        for i, test in enumerate(func(stub)):
+            test()
+
+    def test_does_pass_argument_in_call_to_test_function_when_not_described(self):  # noqa
+        # This is needed for methods, where "self" argument is passed to
+        # the test function
+        stub = object()
+
+        test_data = [["argument"]]
+
+        @data_driven_test(test_data)
+        def func(passed, arg):
+            assert_is(passed, stub)
+            assert_equal(arg, "argument")
+
+        for i, test in enumerate(func(stub)):
+            test()
 
 
 class TestAssertMessageContains(Test):
