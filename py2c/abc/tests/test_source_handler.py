@@ -1,7 +1,7 @@
 """Unit-tests for `py2c.abc.source_handler.SourceHandler`
 """
 
-from py2c.tests import Test
+from py2c.tests import Test, data_driven_test
 from nose.tools import assert_raises
 
 from py2c.abc.source_handler import SourceHandler
@@ -64,6 +64,29 @@ class SuperCallingSourceHandler(SourceHandler):
     def write_source(self, file_name, source):
         super().write_source(file_name, source)
 
+initialization_invalid_cases = [
+    (
+        "without any method",
+        EmptySourceHandler, TypeError, ["EmptySourceHandler"]
+    ),
+    (
+        "without get_files method",
+        NoGetFilesSourceHandler, TypeError,
+        ["NoGetFilesSourceHandler", "get_files"]
+    ),
+    (
+        "without get_source method",
+        NoGetSourceSourceHandler, TypeError,
+        ["NoGetSourceSourceHandler", "get_source"]
+    ),
+    (
+        "without write_source method",
+        NoWriteSourceSourceHandler, TypeError,
+        ["NoWriteSourceSourceHandler", "write_source"]
+    ),
+    # MARK:: Should I add the only-one method cases as well?
+]
+
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -75,35 +98,12 @@ class TestBaseSourceHandler(Test):
     def test_initializes_a_subclass_with_all_required_methods(self):
         GoodSourceHandler()
 
-    def check_bad_initialization(self, source_handler_class, err, required_phrases):
+    @data_driven_test(initialization_invalid_cases, True, "raises error initializing subclass: ")  # noqa
+    def test_initialization_invalid_cases(self, source_handler_class, err, required_phrases):  # noqa
         with assert_raises(err) as context:
             source_handler_class()
 
         self.assert_error_message_contains(context.exception, required_phrases)
-
-    def test_does_not_do_bad_initialization(self):
-        yield from self.yield_tests(self.check_bad_initialization, [
-            (
-                "without any method",
-                EmptySourceHandler, TypeError, ["EmptySourceHandler"]
-            ),
-            (
-                "without get_files method",
-                NoGetFilesSourceHandler, TypeError,
-                ["NoGetFilesSourceHandler", "get_files"]
-            ),
-            (
-                "without get_source method",
-                NoGetSourceSourceHandler, TypeError,
-                ["NoGetSourceSourceHandler", "get_source"]
-            ),
-            (
-                "without write_source method",
-                NoWriteSourceSourceHandler, TypeError,
-                ["NoWriteSourceSourceHandler", "write_source"]
-            ),
-            # MARK:: Should I add the only-one method cases as well?
-        ], described=True, prefix="does not initialize subclass ")
 
     def test_raises_error_when_subclass_calls_an_abstract_method(self):
         source_handler = SuperCallingSourceHandler()

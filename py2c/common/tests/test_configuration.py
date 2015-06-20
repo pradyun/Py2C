@@ -7,7 +7,7 @@ from py2c.common.configuration import (
 )
 
 from nose.tools import assert_is, assert_raises, assert_equal
-from py2c.tests import Test, runmodule
+from py2c.tests import Test, data_driven_test
 
 
 class TestConfiguration(Test):
@@ -40,27 +40,29 @@ class TestConfiguration(Test):
         val = self.config.get_option("registered_set_option")
         assert_is(val, obj)
 
-    def check_option_registeration(self, option_name, should_work=True):
+    @data_driven_test(described=True, prefix="registers valid option: ", data=[
+        ("a simple name", "a_simple_name"),
+        ("a dotted name", "a.dotted.name"),
+    ])
+    def test_registers_valid_option(self, name):
         try:
-            Configuration().register_option(option_name)
-        except InvalidOptionError:
-            assert not should_work, "Should have registered..."
+            Configuration().register_option(name)
+        except Exception:
+            self.fail("Should have registered name: {}".format(name))
+
+    @data_driven_test(described=True, prefix="raises error when registering invalid option: ", data=[  # noqa
+        ("a name starting with dot", ".invalid"),
+        ("a dotted name starting with dot", ".invalid.name"),
+        ("a name with spaces", "invalid name"),
+        ("a non-string name", 1200),
+    ])
+    def test_raises_error_registering_invalid_option(self, name):
+        try:
+            Configuration().register_option(name)
+        except Exception:
+            pass
         else:
-            assert should_work, "Should not have registered..."
-
-    def test_z_does_valid_option_registeration(self):
-        yield from self.yield_tests(self.check_option_registeration, [
-            ("a simple name", "a_simple_name"),
-            ("a dotted name", "a.dotted.name"),
-        ], described=True, prefix="does register option with ")
-
-    def test_z_does_not_do_invalid_option_registeration(self):
-        yield from self.yield_tests(self.check_option_registeration, [
-            ("a name starting with dot", ".invalid", False),
-            ("a dotted name starting with dot", ".invalid.name", False),
-            ("a name with spaces", "invalid name", False),
-            ("a non-string name", 1200, False),
-        ], described=True, prefix="does not register option with ")
+            self.fail("Should not have registered name: {}".format(name))
 
     def test_does_reset_options_to_default_value_correctly(self):
         self.config.register_option("option_name", "Yo!")
@@ -76,4 +78,6 @@ class TestConfiguration(Test):
         assert_equal(self.config.get_option("option_name"), "Yo!")
 
 if __name__ == '__main__':
+    from py2c.tests import runmodule
+
     runmodule(capture=False)

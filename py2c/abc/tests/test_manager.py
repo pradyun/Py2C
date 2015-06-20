@@ -1,7 +1,7 @@
 """Unit-tests for `py2c.abc.manager.Manager`
 """
 
-from py2c.tests import Test
+from py2c.tests import Test, data_driven_test
 from nose.tools import assert_raises
 
 from py2c.abc.manager import Manager
@@ -43,6 +43,30 @@ class SuperCallingManager(Manager):
     def run(self, node):
         super().run(node)
 
+initialization_invalid_cases = [
+    (
+        "without options attribute or run method",
+        EmptyManager, TypeError, ["EmptyManager"]
+    ),
+    (
+        "without run method",
+        NoRunManager, TypeError, ["NoRunManager", "run"]
+    ),
+    (
+        "without options attribute",
+        NoOptionsManager, AttributeError,
+        ["NoOptionsManager", "options", "attribute"]
+    ),
+    (
+        "with a non-dictionary options attribute",
+        OptionsNotADictManager, TypeError,
+        [
+            "OptionsNotADictManager", "options", "should be", "instance",
+            "dict"
+        ]
+    ),
+]
+
 
 # -----------------------------------------------------------------------------
 # Tests
@@ -54,36 +78,12 @@ class TestBaseManager(Test):
     def test_initializes_a_subclass_with_all_required_methods(self):
         GoodManager()
 
-    def check_bad_initialization(self, manager_class, err, required_phrases):
+    @data_driven_test(initialization_invalid_cases, True, "raises error initializing: ")  # noqa
+    def test_initialization_invalid_cases(self, manager_class, err, required_phrases):  # noqa
         with assert_raises(err) as context:
             manager_class()
 
         self.assert_error_message_contains(context.exception, required_phrases)
-
-    def test_does_not_do_bad_initialization(self):
-        yield from self.yield_tests(self.check_bad_initialization, [
-            (
-                "without options attribute or run method",
-                EmptyManager, TypeError, ["EmptyManager"]
-            ),
-            (
-                "without run method",
-                NoRunManager, TypeError, ["NoRunManager", "run"]
-            ),
-            (
-                "without options attribute",
-                NoOptionsManager, AttributeError,
-                ["NoOptionsManager", "options", "attribute"]
-            ),
-            (
-                "with a non-dictionary options attribute",
-                OptionsNotADictManager, TypeError,
-                [
-                    "OptionsNotADictManager", "options", "should be",
-                    "instance", dict.__qualname__
-                ]
-            ),
-        ], described=True, prefix="does not initialize subclass ")
 
     def test_blocks_subclass_with_calling_super_run_method(self):
         manager = SuperCallingManager()

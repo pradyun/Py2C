@@ -11,7 +11,7 @@ from py2c.abc.source_handler import (
 from py2c.source_handlers import FileSourceHandler
 
 from nose.tools import assert_raises, assert_equal
-from py2c.tests import Test
+from py2c.tests import Test, data_driven_test
 
 
 class TestFileSourceHandler(Test):
@@ -53,7 +53,11 @@ class TestFileSourceHandler(Test):
             FileSourceHandler()
         self.assert_error_message_contains(context.exception, ["require", "1"])
 
-    def check_file_name_matches(self, error, method, required_phrases, *args):
+    @data_driven_test(described=True, prefix="checks file name before ", data=[  # noqa
+        ("getting sources", CouldNotGetSourceError, "get_source"),
+        ("writing sources", CouldNotWriteSourceError, "write_source", ""),
+    ])
+    def check_file_name_matches(self, error, method, *args):
         file_name = self.get_temporary_file_name()
         fsh = FileSourceHandler(file_name)
 
@@ -63,20 +67,6 @@ class TestFileSourceHandler(Test):
         self.assert_error_message_contains(
             context.exception, ["unexpected", "file name"]
         )
-
-    def test_does_check_file_name_before_operation(self):
-        yield from self.yield_tests(self.check_file_name_matches, [
-            (
-                "getting sources",
-                CouldNotGetSourceError, "get_source",
-                ["unexpected", "file name"]
-            ),
-            (
-                "writing sources",
-                CouldNotWriteSourceError, "write_source",
-                ["unexpected", "file name"], ""
-            ),
-        ], described=True, prefix="does check file name before ")
 
     def test_lists_only_passed_file_name(self):
         fsh = FileSourceHandler("magic.py")

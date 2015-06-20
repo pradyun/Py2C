@@ -92,7 +92,7 @@ class Parser(object):
         t.lexer.lineno += 1
 
     def t_error(self, t):
-        raise ParserError("Unable to generate tokens from: " + repr(t.value))
+        raise ParserError("Cannot generate tokens from: " + repr(t.value))
 
     def _reset(self):
         self.seen_node_names = set()
@@ -111,7 +111,7 @@ class Parser(object):
     # Parsing
     # -------------------------------------------------------------------------
     def p_error(self, t):
-        raise ParserError("Unexpected token: " + str(t))
+        raise ParserError("Got unexpected token: " + str(t))
 
     def p_empty(self, p):
         "empty : "
@@ -134,7 +134,7 @@ class Parser(object):
         name, parent, fields = (p[1], p[2], p[3])
         if name in self.seen_node_names:
             raise ParserError(
-                "Multiple declarations of name {!r}".format(name)
+                "{!r} has multiple declarations".format(name)
             )
         self.seen_node_names.add(name)
 
@@ -149,7 +149,7 @@ class Parser(object):
                     seen_fields.append(field_name)
 
             if duplicated_fields:
-                msg = "Multiple declarations in {!r} of attribute{} {!r}"
+                msg = "{!r} has multiple attribute{} named {!r}"
                 raise ParserError(msg.format(
                     name,
                     "s" if len(duplicated_fields) > 1 else "",

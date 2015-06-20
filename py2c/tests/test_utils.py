@@ -58,6 +58,7 @@ class TestVerifyAttribute(Test):
 class TestIsValidDottedIdentifier(Test):
     """py2c.utils.is_valid_dotted_identifier
     """
+    # MARK:: Should this be into a data_driven_test?
 
     def test_verifies_valid_case(self):
         # If we see an error, it's a failed test.

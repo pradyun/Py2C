@@ -6,7 +6,7 @@ import textwrap
 
 from py2c.processing.to_ast import SourceToAST, SourceToASTTranslationError
 
-from py2c.tests import Test
+from py2c.tests import Test, data_driven_test
 from nose.tools import assert_equal, assert_raises
 
 
@@ -14,40 +14,22 @@ class TestPythonSourceToPythonAST(Test):
     """py2c.processing.to_ast.SourceToAST
     """
 
-    def check_conversion(self, code, node, error=None):
-        """Test the conversion of Python source to Python's AST
-        """
-        code = textwrap.dedent(code)
+    # Could make more extensive, I guess don't need to
+    @data_driven_test(described=True, prefix="converts valid input correctly: ", data=[  # noqa
+        ["a pass statement", "pass", ast.Module(body=[ast.Pass()])]
+    ])
+    def test_valid_input_cases(self, code, node):
+        assert_equal(
+            ast.dump(SourceToAST().work(textwrap.dedent(code))),
+            ast.dump(node)
+        )
 
-        convertor = SourceToAST()
-
-        if node is None:
-            if error is None:
-                self.fail("Only one of node and error should be non-zero.")
-            with assert_raises(error):
-                convertor.work(code)
-        else:
-            if error is not None:
-                self.fail("Only one of node and error should be non-zero.")
-            assert_equal(ast.dump(convertor.work(code)), ast.dump(node))
-
-    # Could make more extenstive, I guess don't need to
-    def test_does_source_to_AST_conversion_correctly(self):
-        yield from self.yield_tests(self.check_conversion, [
-            [
-                "a simple statement",
-                "pass", ast.Module(body=[ast.Pass()])
-            ]
-        ], described=True, prefix="does convert correctly ")
-
-    def test_does_not_convert_invalid_code(self):
-        yield from self.yield_tests(self.check_conversion, [
-            [
-                "invalid code",
-                "$", None, SourceToASTTranslationError
-            ]
-        ], described=True, prefix="does not convert ")
-
+    @data_driven_test(described=True, prefix="raises error when given: ", data=[  # noqa
+        ["invalid code", "$", SourceToASTTranslationError]
+    ])
+    def test_invalid_input_cases(self, code, error):
+        with assert_raises(error):
+            SourceToAST().work(textwrap.dedent(code))
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
