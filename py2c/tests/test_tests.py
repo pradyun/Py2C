@@ -1,7 +1,10 @@
 """Unit-tests for `py2c.tests`
 """
 
-from nose.tools import assert_equal, assert_raises, assert_is
+import warnings
+from collections.abc import Iterable
+
+from nose.tools import eq_, assert_raises
 from py2c.tests import Test, data_driven_test
 
 
@@ -9,87 +12,290 @@ class TestDataDriven(Test):
     """py2c.tests.data_driven_test
     """
 
-    def test_does_not_yield_values_with_no_arguments(self):
-        @data_driven_test([])
+    def _check_descriptions(self, val, func):
+        with warnings.catch_warnings(record=True):  # ensure no warnings show in runs
+            for i, test in enumerate(val):
+                eq_(test.description, func(i))
+
+    def assert_is_an_iterable(self, val):
+        assert isinstance(val, Iterable), "{!r} is not an iterable!!".format(val)
+
+    def test_does_not_yield_when_empty_data_is_passed(self):
+        data = []
+
+        @data_driven_test(data)
         def func():
             pass
 
-        for test in func():
-            assert False
+        val = func()
+        self.assert_is_an_iterable(val)
 
-    def test_yields_values_in_correct_order_given_arguments(self):
-        @data_driven_test([(0,), (1,), (2,)])
-        def func(a):
-            return a
+        for test in val:
+            raise self.failureException("Should not have yielded any values.")
 
-        iterations = 0
-        for test in func():
-            assert_equal(test(), iterations)
-            iterations += 1
+    def test_attaches_correct_descriptions(self):
+        data = [
+            {"description": "test-1"},
+            {"description": "test-2"}
+        ]
 
-        assert_equal(iterations, 3)
-
-    def test_is_a_generator(self):
-        @data_driven_test([[]])
+        @data_driven_test(data)
         def func():
-            return 1
+            pass
 
-        obj = func()
+        val = func()
+        self.assert_is_an_iterable(val)
+        self._check_descriptions(val, lambda i: "test-" + str(i + 1))
 
-        assert_equal(next(obj)(), 1)
-        with assert_raises(StopIteration):
-            next(obj)
+    def test_attaches_prefix_to_descriptions(self):
+        data = [
+            {"description": "test-1"},
+            {"description": "test-2"}
+        ]
 
-    def test_attaches_proper_description(self):
-        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
+        @data_driven_test(data, prefix="prefix-")
+        def func():
+            pass
 
-        @data_driven_test(test_data, True)
+        val = func()
+        self.assert_is_an_iterable(val)
+        self._check_descriptions(val, lambda i: "prefix-" + "test-" + str(i + 1))
+
+    def test_attaches_suffix_to_descriptions(self):
+        data = [
+            {"description": "test-1"},
+            {"description": "test-2"}
+        ]
+
+        @data_driven_test(data, suffix="-suffix")
+        def func():
+            pass
+
+        val = func()
+        self.assert_is_an_iterable(val)
+        self._check_descriptions(val, lambda i: "test-" + str(i + 1) + "-suffix")
+
+    def test_attaches_prefix_and_suffix_to_descriptions(self):
+        data = [
+            {"description": "test-1"},
+            {"description": "test-2"}
+        ]
+
+        @data_driven_test(data, prefix="prefix-", suffix="-suffix")
+        def func():
+            pass
+
+        val = func()
+        self.assert_is_an_iterable(val)
+        self._check_descriptions(val, lambda i: "prefix-" + "test-" + str(i + 1) + "-suffix")
+
+    def test_warns_on_same_descriptions(self):
+        data = [
+            {"description": "test-1", "args": [1]},
+            {"description": "test-1", "args": [1]}
+        ]
+
+        @data_driven_test(data)
         def func(arg):
-            assert_equal(arg, "argument")
+            eq_(arg, 1)
 
-        for i, test in enumerate(func()):
-            assert_equal(test.description, "Test " + str(i))
+        val = func()
+        self.assert_is_an_iterable(val)
+
+        with warnings.catch_warnings(record=True) as w:
+            for test in val:
+                eq_("test-1", test.description)
+
+            eq_(len(w), 1, "Did not get expected number of warnings")
+            self.assert_error_message_contains(w[0].message, ["repeated"])
+
+    def test_warns_when_no_arguments_passed(self):
+        data = [
+            {},  # Empty Test
+            {"description": "test-2"},  # Test with only description
+        ]
+
+        @data_driven_test(data)
+        def func():
+            pass
+
+        val = func()
+        self.assert_is_an_iterable(val)
+
+        with warnings.catch_warnings(record=True) as w:
+            for i, test in enumerate(val):
+                eq_(len(w), i+1, "Did not get expected number of warnings")
+                self.assert_error_message_contains(w[-1].message, ["no", "arguments"])
+
+    def test_passes_positional_arguments_to_test_function(self):
+        data = [
+            {
+                "description": "test-1",
+                "args": [1]
+            },
+            {
+                "description": "test-2",
+                "args": [2]
+            }
+        ]
+
+        expected_count = 0
+
+        @data_driven_test(data)
+        def func(argument):
+            eq_(argument, expected_count)
+
+        val = func()
+        self.assert_is_an_iterable(val)
+
+        for test in val:
+            expected_count += 1
             test()
 
-    def test_attaches_prefix_and_suffix_to_description_correctly(self):
-        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
-
-        @data_driven_test(test_data, described=True, prefix="<", suffix=">")
-        def func(arg):
-            assert_equal(arg, "argument")
-
-        for i, test in enumerate(func()):
-            assert_equal(test.description, "<Test {}>".format(i))
-            test()
-
-    def test_passes_argument_called_with_to_test_function_when_described(self):
-        # This is needed for methods, where "self" argument is passed to
-        # the test function
+    # This is needed for methods, where "self" argument is passed to the test function
+    def test_passes_positional_argument_called_with_to_tests_with_positional_arguments(self):
         stub = object()
 
-        test_data = [["Test 0", "argument"], ["Test 1", "argument"]]
+        data = [
+            {
+                "description": "test-1",
+                "args": [1]
+            },
+            {
+                "description": "test-2",
+                "args": [2]
+            }
+        ]
 
-        @data_driven_test(test_data, described=True)
-        def func(passed, arg):
-            assert_is(passed, stub)
-            assert_equal(arg, "argument")
+        expected_count = 0
 
-        for i, test in enumerate(func(stub)):
+        @data_driven_test(data)
+        def func(param, argument):
+            eq_(param, stub)
+            eq_(argument, expected_count)
+
+        val = func(stub)
+        self.assert_is_an_iterable(val)
+
+        for test in val:
+            expected_count += 1
             test()
 
-    def test_does_pass_argument_in_call_to_test_function_when_not_described(self):  # noqa
-        # This is needed for methods, where "self" argument is passed to
-        # the test function
+    def test_passes_keyword_arguments_to_test_function(self):
+        data = [
+            {
+                "description": "test-1",
+                "kwargs": {"arg1": 1, "arg2": 2}
+            },
+            {
+                "description": "test-2",
+                "kwargs": {"arg1": 2, "arg2": 3}
+            }
+        ]
+
+        expected_count = 0
+
+        @data_driven_test(data)
+        def func(*, arg1, arg2):
+            eq_(arg1, expected_count)
+            eq_(arg2, arg1 + 1)
+
+        val = func()
+        self.assert_is_an_iterable(val)
+
+        for test in val:
+            expected_count += 1
+            test()
+
+    # This is needed for methods, where "self" argument is passed to the test function
+    def test_passes_positional_argument_called_with_to_tests_with_keyword_arguments(self):
+        stub = object()
+        data = [
+            {
+                "description": "test-1",
+                "kwargs": {"arg1": 1, "arg2": 2}
+            },
+            {
+                "description": "test-2",
+                "kwargs": {"arg1": 2, "arg2": 3}
+            }
+        ]
+
+        expected_count = 0
+
+        @data_driven_test(data)
+        def func(param, *, arg1, arg2):
+            eq_(param, stub)
+            eq_(arg1, expected_count)
+            eq_(arg2, arg1 + 1)
+
         stub = object()
 
-        test_data = [["argument"]]
+        val = func(stub)
+        self.assert_is_an_iterable(val)
 
-        @data_driven_test(test_data)
-        def func(passed, arg):
-            assert_is(passed, stub)
-            assert_equal(arg, "argument")
+        for test in val:
+            expected_count += 1
+            test()
 
-        for i, test in enumerate(func(stub)):
+    def test_passes_positional_and_keyword_arguments_to_test_function(self):
+        data = [
+            {
+                "description": "test-1",
+                "args": [0],
+                "kwargs": {"arg1": 1, "arg2": 2}
+            },
+            {
+                "description": "test-2",
+                "args": [1],
+                "kwargs": {"arg1": 2, "arg2": 3}
+            }
+        ]
+
+        expected_count = 0
+
+        @data_driven_test(data)
+        def func(arg, *, arg1, arg2):
+            eq_(arg, expected_count - 1)
+            eq_(arg1, expected_count)
+            eq_(arg2, arg1 + 1)
+
+        val = func()
+        self.assert_is_an_iterable(val)
+
+        for test in val:
+            expected_count += 1
+            test()
+
+    def test_passes_positional_argument_called_with_to_tests_with_positional_and_keyword_arguments(self):
+        stub = object()
+        data = [
+            {
+                "description": "test-1",
+                "args": [0],
+                "kwargs": {"arg1": 1, "arg2": 2}
+            },
+            {
+                "description": "test-2",
+                "args": [1],
+                "kwargs": {"arg1": 2, "arg2": 3}
+            }
+        ]
+
+        expected_count = 0
+
+        @data_driven_test(data)
+        def func(param, arg, *, arg1, arg2):
+            eq_(param, stub)
+            eq_(arg, expected_count - 1)
+            eq_(arg1, expected_count)
+            eq_(arg2, arg1 + 1)
+
+        val = func(stub)
+        self.assert_is_an_iterable(val)
+
+        for test in val:
+            expected_count += 1
             test()
 
 
@@ -141,7 +347,7 @@ class TestFail(Test):
         with assert_raises(AssertionError) as context:
             self.fail("EHK14H0b9DXZaT346nqx")  # random text
 
-        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+        eq_(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
 
         assert context.exception.__cause__ is None
 
@@ -164,7 +370,7 @@ class TestFail(Test):
                 self.fail(cause=e, message="EHK14H0b9DXZaT346nqx")
 
         assert context.exception.__cause__ is err, "Unexpected cause"
-        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+        eq_(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
