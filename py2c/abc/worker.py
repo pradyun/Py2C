@@ -19,7 +19,7 @@ class Worker(object, metaclass=abc.ABCMeta):
 
     def _setup_logger(self):
         formatter = logging.Formatter(
-            "{levelname} {asctime} {filename}:{lineno} '{message}'",  # noqa
+            "{levelname} {asctime} {filename}:{lineno} '{message}'",
             "%d-%m-%Y@%H:%M:%S",
             "{"
         )
