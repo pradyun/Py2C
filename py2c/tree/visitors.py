@@ -11,6 +11,12 @@ __all__ = ["RecursiveNodeVisitor", "RecursiveNodeTransformer"]
 
 
 # -----------------------------------------------------------------------------
+# Access Path of a node
+# -----------------------------------------------------------------------------
+Access = collections.namedtuple("Access", "node field_name index")
+
+
+# -----------------------------------------------------------------------------
 # Base Class of NodeVisitors
 # -----------------------------------------------------------------------------
 class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
@@ -27,6 +33,9 @@ class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
         super().__init__()
         self.base_class = base_class
         self.iter_fields = iter_fields
+
+        # A Stack of Access which is used to provide current state to a visitor
+        self.access_path = []
 
     def visit(self, node):
         """Visits a node.
@@ -48,7 +57,9 @@ class BaseNodeVisitor(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     def _visit_value(self, parent, field, value, index=None):
+        self.access_path.append(Access(parent.__class__, field, index))
         val = self._visit(value)
+        self.access_path.pop()
         return val
 
 

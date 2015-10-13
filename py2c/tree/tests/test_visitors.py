@@ -89,6 +89,17 @@ class VisitOrderCheckingTransformer(visitors.RecursiveNodeTransformer):
         return node
 
 
+class AccessPathCheckingTransformer(visitors.RecursiveNodeTransformer):
+
+    def __init__(self):
+        super().__init__()
+        self.recorded_access_path = None
+
+    def visit_BasicNode(self, node):
+        self.recorded_access_path = self.access_path[:]
+        return node
+
+
 class TransformationCheckingTransformer(visitors.RecursiveNodeTransformer):
 
     def visit_BasicNode(self, node):
@@ -123,7 +134,17 @@ class TestRecursiveASTVisitor(Test):
         assert_equal(retval, None)
         assert_equal(visitor.visited, order)
 
+    @data_driven_test("visitors-access_path.yaml", prefix="access path on visit of ")
+    def test_access_path(self, node, access):
+        to_visit = self.load(node)
+        access_path = self.load(access)
+
+        # The main stuff
+        visitor = AccessPathCheckingVisitor()
+        retval = visitor.visit(to_visit)
+
         assert_equal(retval, None)
+        assert_equal(visitor.recorded_access_path, access_path)
 
 
 class TestRecursiveASTTransformer(Test):
@@ -151,6 +172,18 @@ class TestRecursiveASTTransformer(Test):
 
         assert_equal(to_visit, retval)
         assert_equal(visitor.visited, order)
+
+    @data_driven_test("visitors-access_path.yaml", prefix="access path on visit of ")
+    def test_access_path(self, node, access):
+        to_visit = self.load(node)
+        access_path = self.load(access)
+
+        # The main stuff
+        visitor = AccessPathCheckingTransformer()
+        retval = visitor.visit(to_visit)
+
+        assert_equal(retval, to_visit)
+        assert_equal(visitor.recorded_access_path, access_path)
 
     @data_driven_test("visitors-transform.yaml", prefix="transformation of ")
     def test_transformation(self, node, expected):
