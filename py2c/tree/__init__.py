@@ -1,4 +1,9 @@
-"""The internal representation of the Python code-flow.
+"""Custom Syntax trees for the internal representation of the Python code-flow
+
+Has basic construction checking through node type-checking, ensuring the field always
+holds a value of the right type.
+
+(not to be confused with type-checking of the code to be compiled)
 """
 
 import collections
@@ -43,7 +48,7 @@ class FieldError(NodeError, AttributeError):
 
 
 class WrongAttributeValueError(FieldError):
-    """Raised when the value of a field does not match the field's definition.
+    """Raised when the value of a field does not match the field's definition
     """
 
 
@@ -103,7 +108,7 @@ def _invalid_arg_count_err_msg(node):
     else:
         msg += "no"
     msg += " " + str(num_fields) + " positional argument"
-    if num_fields != 1:  # TODO:: Refactor out.
+    if num_fields != 1:  # TODO:: Refactor out
         msg += "s"
     return msg
 
@@ -121,7 +126,7 @@ def _invalid_modifiers_err_msg(node, invalid_modifiers):
             "{} -> '{}'".format(name, modifier)
             for name, modifier in invalid_modifiers
         ),
-        "s" if len(invalid_modifiers) != 1 else ""  # TODO:: Refactor out.
+        "s" if len(invalid_modifiers) != 1 else ""  # TODO:: Refactor out
     )
 
 
@@ -214,25 +219,25 @@ class Node(object):
             raise FieldError(_no_field_by_name_err_msg(self, name))
 
     def check_modifiers(self):
-        """Check the modifiers of the Node's fields.
+        """Check the modifiers of the Node's fields
         """
         invalid_modifiers = []
         for name, type_, modifier in self._fields:
-            if modifier not in ['NEEDED', 'OPTIONAL', 'ZERO_OR_MORE', 'ONE_OR_MORE']:  # noqa
+            if modifier not in ['NEEDED', 'OPTIONAL', 'ZERO_OR_MORE', 'ONE_OR_MORE']:
                 invalid_modifiers.append((name, modifier))
         if invalid_modifiers:
             raise InvalidInitializationError(
                 _invalid_modifiers_err_msg(self, invalid_modifiers)
             )
 
-    def finalize(self):  # noqa
+    def finalize(self):
         """Finalize and check if all attributes exist
         """
         missing = []
         for name, _, modifier in self._fields:
             if hasattr(self, name):
                 if modifier in ('ZERO_OR_MORE', 'ONE_OR_MORE'):
-                    # Not nice, but used for brevity, probably a bad idea...
+                    # Not nice, but used for brevity, probably a bad idea..
                     items = tuple(getattr(self, name))
                     self._set_field_value(name, items)
                 elif modifier in ('NEEDED', 'OPTIONAL'):
@@ -281,10 +286,10 @@ class Node(object):
             ))
 
     def _validate_field_list(self, name, value, type_, min_len):
-        """Checks if a list is a valid one for assigning.
+        """Checks if a list is a valid one for assigning
 
         Raises:
-            WrongTypeError if not a valid list.
+            WrongTypeError if not a valid list
         """
         if not isinstance(value, (list, tuple)) or len(value) < min_len:
             raise WrongTypeError(_invalid_iterable_field_value_err_msg(
