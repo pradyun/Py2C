@@ -1,7 +1,13 @@
 language: python
 python:
-  - 3.3
   - 3.4
+  - 3.5
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.cache/pip
 
 install:
   - python setup.py develop
@@ -11,7 +17,6 @@ script:
   - python dev-tools/run_tests.py py2c
 
 after_success:
-  - pip install wheel
   - pip install python-coveralls
   - coveralls --config_file=dev-tools/.coveragerc
 
