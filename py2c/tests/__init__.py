@@ -4,12 +4,15 @@
 import inspect
 import warnings
 import traceback
+from os.path import abspath, join, dirname
 from functools import partial, wraps
 
-from unittest import mock
-from nose.tools import istest, nottest, assert_in, assert_not_in
 
-__all__ = ["Test", "mock", "runmodule"]
+import yaml
+from unittest import mock
+from nose.tools import nottest, assert_in, assert_not_in
+
+__all__ = ["Test", "mock", "runmodule", "data_driven_test"]
 
 # =============================================================================
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
@@ -45,6 +48,8 @@ class Test(object):
       - Warns when a subclass has test methods but is not named like a test.
     """
 
+    context = None
+
     def __init__(self):
         super().__init__()
 
@@ -65,6 +70,8 @@ class Test(object):
             function.description = function.__doc__.splitlines()[0]
 
     def assert_error_message_contains(self, error, required_phrases):
+        """Assert the error message contains/does not contain the phrases
+        """
         msg = error.args[0]
         for word in required_phrases:
             if word.startswith("!"):
@@ -84,36 +91,53 @@ class Test(object):
 # Data Driven Tests
 # -----------------------------------------------------------------------------
 @nottest
-def data_driven_test(data, described=False, prefix="", suffix=""):
-    """Run a test for all the provided data
-
-    Usage::
-
-        data = [['1'], ['2']]
-        @data_driven(data)
-        def decorated(*args):
-            print(args)
-
-        for func in decorated():
-            func()
-
+def data_driven_test(test_data_or_file, *, prefix="", suffix=""):
+    """Mark a test as a Data-Driven Test
     """
 
     def decorator(function):
-        @istest  # MARK:: Should this be here?
-        @wraps(function)
-        def wrapped(*args):
-            nonlocal data, described, prefix, suffix
-            for test_data in data:
-                if described:
-                    func = partial(function, *(list(args) + list(test_data)[1:]))  # noqa
-                    func.description = prefix + test_data[0] + suffix
-                else:
-                    func = partial(function, *(list(args) + list(test_data)))
-                print(func)
-                yield func
-        return wrapped
 
+        # Wrapper function
+        @wraps(function)
+        def wrapper(*passed_args):
+            # File-name provided, load test-data from file
+            if isinstance(test_data_or_file, str):
+                # Put all data in the data directory of file folder
+                base_path = dirname(abspath(inspect.getsourcefile(function)))
+                data_file_path = join(base_path, "data", test_data_or_file)
+
+                try:
+                    with open(data_file_path) as f:
+                        data = yaml.load(f)
+                except Exception as e:
+                    raise RuntimeError("Could not load test-data") from e
+
+            # Test-data provided, use as is
+            else:
+                data = test_data_or_file
+
+            seen_descriptions = set()
+
+            for di in data:
+                description = di.pop("description", None)
+                if description in seen_descriptions:
+                    warnings.warn("Found repeated description: {!r}".format(description))
+
+                args = di.pop("args", [])
+                kwargs = di.pop("kwargs", {})
+                if not args and not kwargs:
+                    warnings.warn("Got no arguments: {!r}".format(description))
+
+                args = list(passed_args) + list(args)
+
+                val = partial(function, *args, **kwargs)
+                if description is not None:
+                    val.description = prefix + description + suffix
+
+                seen_descriptions.add(description)
+                yield val
+
+        return wrapper
     return decorator
 
 
