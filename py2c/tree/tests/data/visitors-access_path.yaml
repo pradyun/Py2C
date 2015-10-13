@@ -1,0 +1,31 @@
+-
+    description: node without parent
+    kwargs:
+        node: "BasicNode()"
+        access: []
+-
+    description: node with parent
+    kwargs:
+        node: "ParentNode(BasicNode())"
+        access:
+          - '(ParentNode, "child", None)'
+-
+    description: grand child node
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNode()))"
+        access:
+          - '(ParentNode, "child", None)'
+          - '(ParentNode, "child", None)'
+-
+    description: node in list of children
+    kwargs:
+        node: "ParentNodeWithChildrenList([BasicNode()])"
+        access:
+          - '(ParentNodeWithChildrenList, "child", 0)'
+-
+    description: node as grandchild in list of children
+    kwargs:
+        node: "ParentNodeWithChildrenList([BasicNodeDeletable(), ParentNode(BasicNode()), BasicNodeDeletable()])"
+        access:
+          - '(ParentNodeWithChildrenList, "child", 1)'
+          - '(ParentNode, "child", None)'

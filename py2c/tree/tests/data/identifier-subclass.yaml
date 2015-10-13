@@ -1,0 +1,26 @@
+-
+    description: built-in str
+    kwargs:
+        clazz: str
+        is_subclass: True
+-
+    description: an inheriting sub-class
+    kwargs:
+        clazz: SubClass
+        is_subclass: True
+
+-
+    description: built-in object
+    kwargs:
+        clazz: object
+        is_subclass: False
+-
+    description: built-in float
+    kwargs:
+        clazz: float
+        is_subclass: False
+-
+    description: built-in int
+    kwargs:
+        clazz: int
+        is_subclass: False

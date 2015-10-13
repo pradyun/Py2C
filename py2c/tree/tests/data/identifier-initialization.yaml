@@ -1,0 +1,58 @@
+-
+    description: a valid string
+    kwargs:
+        text: "valid_name"
+-
+    description: a really long string
+    kwargs:
+        text: "really_really_really_really_really_really_really_really_really_really_really_really_really_really_really_long_name"
+-
+    description: a single character string
+    kwargs:
+        text: "c"
+-
+    description: a snake_case string
+    kwargs:
+        text: "valid_name"
+-
+    description: a CamelCase string
+    kwargs:
+        text: "ValidName"
+-
+    description: a LOUD_CASE string
+    kwargs:
+        text: "VALID_NAME"
+-
+    description: a string with numbers and underscore
+    kwargs:
+        text: "Valid_1_name"
+-
+    description: a string with leading and trailing underscores
+    kwargs:
+        text: "_valid_name_"
+
+-
+    # Might never be used but support is **very** important! :P
+    description: a string containing a unicode character
+    kwargs:
+        text: "虎"  # In English: tiger
+-
+    description: an empty string
+    kwargs:
+        text: ""
+        error: tree.WrongAttributeValueError
+-
+    description: a string containing spaces
+    kwargs:
+        text: "invalid name"
+        error: tree.WrongAttributeValueError
+-
+    description: a string containing hyphen
+    kwargs:
+        text: "invalid-name"
+        error: tree.WrongAttributeValueError
+-
+    description: a string containing full-stop/dot
+    kwargs:
+        text: "invalid.name"
+        error: tree.WrongAttributeValueError
