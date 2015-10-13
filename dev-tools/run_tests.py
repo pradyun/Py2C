@@ -19,7 +19,7 @@ import coverage
 _dev_tools_dir = realpath(dirname(__file__))
 
 COVERAGERC_FILE = join(_dev_tools_dir, ".coveragerc")
-TEST_DIRECTORY = join(dirname(_dev_tools_dir), "py2c")
+PACKAGE_DIRECTORY = join(dirname(_dev_tools_dir), "py2c")
 
 GENERATE_REPORT = True
 GENERATE_REPORT_HTML = True
@@ -35,11 +35,9 @@ def run_tests():
     success = nose.run(
         env={
             "NOSE_INCLUDE_EXE": "True",
-            "NOSE_WITH_HTML_REPORT": "True",
-            "NOSE_HTML_OUTPUT_FILE": "/tmp/test-html/index.html",
             "NOSE_WITH_SPECPLUGIN": "True"
         },
-        defaultTest=TEST_DIRECTORY,
+        defaultTest=PACKAGE_DIRECTORY,
     )
     cov.stop()
     cov.save()
