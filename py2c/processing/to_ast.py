@@ -42,4 +42,4 @@ class SourceToAST(Worker, RecursiveNodeTransformer):
         except Exception as e:
             raise SourceToASTTranslationError() from e
         else:
-            return node
+            return self.visit(node)
