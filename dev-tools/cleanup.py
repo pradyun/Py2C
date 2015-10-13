@@ -11,6 +11,8 @@ from os.path import join, relpath
 
 FOLDER_PATTERNS = ["__pycache__", "build", "dist", "test-report"]
 FILE_PATTERNS = [
+    # Git
+    "*.orig",
     # PLY
     "*.out", "*parsetab.py", "*lextab.py",
     # Coverage
@@ -63,7 +65,7 @@ def remove_files(directory, remove_generated, verbosity, dry_run):
                 dir_path = join(root, dir_name)
 
                 if verbosity > 0:
-                    print("Deleting Folder:", relpath(dir_path, directory))  # noqa
+                    print("Deleting Folder:", relpath(dir_path, directory))
                 if not dry_run:
                     shutil.rmtree(dir_path)
 
@@ -72,7 +74,7 @@ def remove_files(directory, remove_generated, verbosity, dry_run):
                 file_path = join(root, file_name)
 
                 if verbosity > 1:
-                    print("Deleting File  :", relpath(file_path, directory))  # noqa
+                    print("Deleting File  :", relpath(file_path, directory))
                 if not dry_run:
                     os.remove(file_path)
 

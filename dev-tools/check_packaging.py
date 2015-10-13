@@ -108,16 +108,13 @@ def uninstall_dependency(name):
 # Abstractions
 # -----------------------------------------------------------------------------
 def success_log(*args, important=False):
-    SCP()
     log("important_info" if important else "info", *args)
     try:
         yield
     except Exception:
-        RCP()
         log("error", *args)
         raise
     else:
-        RCP()
         log("success", *args)
 
 
