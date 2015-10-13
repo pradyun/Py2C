@@ -65,25 +65,33 @@ class SuperCallingSourceHandler(SourceHandler):
         super().write_source(file_name, source)
 
 initialization_invalid_cases = [
-    (
-        "without any method",
-        EmptySourceHandler, TypeError, ["EmptySourceHandler"]
-    ),
-    (
-        "without get_files method",
-        NoGetFilesSourceHandler, TypeError,
-        ["NoGetFilesSourceHandler", "get_files"]
-    ),
-    (
-        "without get_source method",
-        NoGetSourceSourceHandler, TypeError,
-        ["NoGetSourceSourceHandler", "get_source"]
-    ),
-    (
-        "without write_source method",
-        NoWriteSourceSourceHandler, TypeError,
-        ["NoWriteSourceSourceHandler", "write_source"]
-    ),
+    {
+        "description": "without any method",
+        "args": [
+            EmptySourceHandler, TypeError, ["EmptySourceHandler"]
+        ]
+    },
+    {
+        "description": "without get_files method",
+        "args": [
+            NoGetFilesSourceHandler, TypeError,
+            ["NoGetFilesSourceHandler", "get_files"]
+        ]
+    },
+    {
+        "description": "without get_source method",
+        "args": [
+            NoGetSourceSourceHandler, TypeError,
+            ["NoGetSourceSourceHandler", "get_source"]
+        ]
+    },
+    {
+        "description": "without write_source method",
+        "args": [
+            NoWriteSourceSourceHandler, TypeError,
+            ["NoWriteSourceSourceHandler", "write_source"]
+        ]
+    },
     # MARK:: Should I add the only-one method cases as well?
 ]
 
@@ -98,7 +106,7 @@ class TestBaseSourceHandler(Test):
     def test_initializes_a_subclass_with_all_required_methods(self):
         GoodSourceHandler()
 
-    @data_driven_test(initialization_invalid_cases, True, "raises error initializing subclass: ")  # noqa
+    @data_driven_test(initialization_invalid_cases, prefix="raises error initializing subclass: ")  # noqa
     def test_initialization_invalid_cases(self, source_handler_class, err, required_phrases):  # noqa
         with assert_raises(err) as context:
             source_handler_class()

@@ -44,27 +44,35 @@ class SuperCallingManager(Manager):
         super().run(node)
 
 initialization_invalid_cases = [
-    (
-        "without options attribute or run method",
-        EmptyManager, TypeError, ["EmptyManager"]
-    ),
-    (
-        "without run method",
-        NoRunManager, TypeError, ["NoRunManager", "run"]
-    ),
-    (
-        "without options attribute",
-        NoOptionsManager, AttributeError,
-        ["NoOptionsManager", "options", "attribute"]
-    ),
-    (
-        "with a non-dictionary options attribute",
-        OptionsNotADictManager, TypeError,
-        [
-            "OptionsNotADictManager", "options", "should be", "instance",
-            "dict"
+    {
+        "description": "without options attribute or run method",
+        "args": [
+            EmptyManager, TypeError, ["EmptyManager"]
         ]
-    ),
+    },
+    {
+        "description": "without run method",
+        "args": [
+            NoRunManager, TypeError, ["NoRunManager", "run"]
+        ]
+    },
+    {
+        "description": "without options attribute",
+        "args": [
+            NoOptionsManager, AttributeError,
+            ["NoOptionsManager", "options", "attribute"]
+        ]
+    },
+    {
+        "description": "with a non-dictionary options attribute",
+        "args": [
+            OptionsNotADictManager, TypeError,
+            [
+                "OptionsNotADictManager", "options", "should be", "instance",
+                "dict"
+            ]
+        ]
+    },
 ]
 
 
@@ -78,8 +86,8 @@ class TestBaseManager(Test):
     def test_initializes_a_subclass_with_all_required_methods(self):
         GoodManager()
 
-    @data_driven_test(initialization_invalid_cases, True, "raises error initializing: ")  # noqa
-    def test_initialization_invalid_cases(self, manager_class, err, required_phrases):  # noqa
+    @data_driven_test(initialization_invalid_cases, prefix="raises error initializing: ")
+    def test_initialization_invalid_cases(self, manager_class, err, required_phrases):
         with assert_raises(err) as context:
             manager_class()
 

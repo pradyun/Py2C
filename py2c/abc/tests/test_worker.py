@@ -30,10 +30,10 @@ class SuperCallingWorker(Worker):
         super().work()
 
 initialization_invalid_cases = [
-    (
-        "without work method",
-        BadWorker, TypeError, ["BadWorker", "work"]
-    ),
+    {
+        "description": "without work method",
+        "args": [BadWorker, TypeError, ["BadWorker", "work"]]
+    },
 ]
 
 
@@ -47,8 +47,8 @@ class TestBaseWorker(Test):
     def test_initializes_a_subclass_with_all_required_methods(self):
         GoodWorker()
 
-    @data_driven_test(initialization_invalid_cases, True, "raises error initializing subclass: ")  # noqa
-    def test_initialization_invalid_cases(self, worker_class, err, required_phrases):  # noqa
+    @data_driven_test(initialization_invalid_cases, prefix="raises error initializing subclass: ")  # noqa
+    def test_initialization_invalid_cases(self, worker_class, err, required_phrases):
         with assert_raises(err) as context:
             worker_class()
 
