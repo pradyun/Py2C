@@ -1,0 +1,79 @@
+# Replacement with node
+-
+    description: replaces - node without parent
+    kwargs:
+        node: "BasicNode()"
+        expected: "BasicNodeReplacement()"
+-
+    description: replaces - node with children
+    kwargs:
+        node: "ParentNode(BasicNode())"
+        expected: "ParentNode(BasicNodeReplacement())"
+-
+    description: replaces - node with grand children
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNode()))"
+        expected: "ParentNode(ParentNode(BasicNodeReplacement()))"
+-
+    description: replaces - node in list of children with grand children
+    kwargs:
+        node: "ParentNodeWithChildrenList([BasicNode(), ParentNode(BasicNode()), BasicNode()])"
+        expected: "ParentNodeWithChildrenList([BasicNodeReplacement(), ParentNode(BasicNodeReplacement()), BasicNodeReplacement()])"
+# Replacement with None
+-
+    description: replaces as None - a node without parent
+    kwargs:
+        node: "BasicNodeReplacement()"
+        expected: "None"
+-
+    description: replaces as None - a node with children
+    kwargs:
+        node: "ParentNode(BasicNodeReplacement())"
+        expected: "ParentNode(None)"
+-
+    description: replaces as None - a node with grand children
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNodeReplacement()))"
+        expected: "ParentNode(ParentNode(None))"
+-
+    description: replaces as None - a node in list of children with grand children
+    kwargs:
+        node: "ParentNodeWithChildrenList([ParentNode(BasicNodeReplacement())])"
+        expected: "ParentNodeWithChildrenList([ParentNode(None)])"
+# Replacement with List
+-
+    description: replaces as multiple nodes - a node without parent
+    kwargs:
+        node: "BasicNodeWithListReplacement()"
+        expected: "[BasicNode(), BasicNodeReplacement()]"
+-
+    description: replaces as multiple nodes - a node in list of children with grand children
+    kwargs:
+        node: "ParentNodeWithChildrenList([BasicNodeWithListReplacement()])"
+        expected: "ParentNodeWithChildrenList([BasicNode(), BasicNodeReplacement()])"
+# Deletion
+-
+    description: deletes - node without parent
+    kwargs:
+        node: "BasicNodeDeletable()"
+        expected: "None"
+-
+    description: deletes - node with children
+    kwargs:
+        node: "ParentNode(BasicNodeDeletable())"
+        expected: "ParentNode()"
+-
+    description: deletes - node with grand children
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNodeDeletable()))"
+        expected: "ParentNode(ParentNode())"
+-
+    description: deletes - node in list of children
+    kwargs:
+        node: "ParentNodeWithChildrenList([BasicNodeDeletable()])"
+        expected: "ParentNodeWithChildrenList([])"
+-
+    description: deletes - node in list of children with grand children
+    kwargs:
+        node: "ParentNodeWithChildrenList([ParentNode(BasicNodeDeletable())])"
+        expected: "ParentNodeWithChildrenList([ParentNode()])"

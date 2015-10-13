@@ -1,0 +1,35 @@
+-
+    description: node without children
+    kwargs:
+        node: "BasicNode()"
+        order: ["BasicNode"]
+-
+    description: node without children (calls overidden method)
+    kwargs:
+        node: "BasicNodeReplacement()"
+        order: ["visited Copy!"]
+-
+    description: node with children
+    kwargs:
+        node: "ParentNode(BasicNode())"
+        order: ["ParentNode", "BasicNode"]
+-
+    description: node with children (calls overidden method)
+    kwargs:
+        node: "ParentNode(BasicNodeReplacement())"
+        order: ["ParentNode", "visited Copy!"]
+-
+    description: node with grand children
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNode()))"
+        order: ["ParentNode", "ParentNode", "BasicNode"]
+-
+    description: node with grand children (calls overidden method)
+    kwargs:
+        node: "ParentNode(ParentNode(BasicNodeReplacement()))"
+        order: ["ParentNode", "ParentNode", "visited Copy!"]
+-
+    description: node with list of children with grand children (calls overidden method)
+    kwargs:
+        node: "ParentNodeWithChildrenList([ParentNode(BasicNode()), BasicNodeReplacement()])"
+        order: ["ParentNodeWithChildrenList", "ParentNode", "BasicNode", "visited Copy!"]
