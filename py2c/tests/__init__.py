@@ -46,19 +46,23 @@ class Test(object):
     """
 
     def __init__(self):
-        has_tests = False
+        super().__init__()
+
+        # Process test functions
         for attr, value in self.__dict__.items():
             if attr.startswith("test_") and inspect.isfunction(value):
-                has_tests = True
-                if value.__doc__ is not None:
-                    value.description = value.__doc__.splitlines()[0]
-            elif attr.startswith("Test"):
-                has_tests = True
-                print(attr)
+                self._process_test_function(attr, value)
+
+        # Check name
+        has_tests = any(key.lower().startswith("test") for key in self.__dict__)
         if has_tests and not self.__name__.startswith("Test"):
             traceback.print_stack(inspect.currentframe(), 2)
             warnings.warn("Test subclasses' name should start with 'Test'")
-        super().__init__()
+
+    def _process_test_function(self, name, function):
+        # Set a description if not already set, using the doc-string if it's there
+        if not (function.__doc__ is None or hasattr(function, "description")):
+            function.description = function.__doc__.splitlines()[0]
 
     def assert_error_message_contains(self, error, required_phrases):
         msg = error.args[0]
