@@ -126,6 +126,16 @@ class Test(object):
 
         return func(value, context)
 
+    # TODO:: Add tests for this!
+    def template_valid_invalid(self, valid_func, invalid_func, *, error=None, **kwargs):
+        if error is None:
+            if valid_func is not None:
+                valid_func(**kwargs)
+        else:
+            if invalid_func is not None:
+                error = self.load(error)
+                invalid_func(error=error, **kwargs)
+
 
 # -----------------------------------------------------------------------------
 # Data Driven Tests
