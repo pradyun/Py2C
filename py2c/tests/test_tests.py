@@ -1,7 +1,7 @@
 """Unit-tests for `py2c.tests`
 """
 
-from nose.tools import assert_equal, assert_raises, assert_is
+from nose.tools import eq_, assert_is, assert_raises
 from py2c.tests import Test, data_driven_test
 
 
@@ -141,7 +141,7 @@ class TestFail(Test):
         with assert_raises(AssertionError) as context:
             self.fail("EHK14H0b9DXZaT346nqx")  # random text
 
-        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+        eq_(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
 
         assert context.exception.__cause__ is None
 
@@ -164,7 +164,7 @@ class TestFail(Test):
                 self.fail(cause=e, message="EHK14H0b9DXZaT346nqx")
 
         assert context.exception.__cause__ is err, "Unexpected cause"
-        assert_equal(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
+        eq_(context.exception.args[0], "EHK14H0b9DXZaT346nqx")
 
 if __name__ == '__main__':
     from py2c.tests import runmodule
