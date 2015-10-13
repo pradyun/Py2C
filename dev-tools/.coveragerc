@@ -3,9 +3,7 @@ exe=1
 
 [run]
 branch = True
-
-source =
-    py2c
+source = py2c
 
 omit =
     **/tests/*.py
@@ -13,6 +11,7 @@ omit =
     py2c/tree/python.py
 
 [report]
+precision=2
 exclude_lines =
     # Changed pragma
     coverage: not missing
