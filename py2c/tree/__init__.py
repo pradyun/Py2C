@@ -52,6 +52,11 @@ class WrongAttributeValueError(FieldError):
     """
 
 
+class FinalizationError(FieldError):
+    """Raised when the node cannot be finalized
+    """
+
+
 # -----------------------------------------------------------------------------
 # Helper
 # -----------------------------------------------------------------------------
