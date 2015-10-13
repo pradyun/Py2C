@@ -99,21 +99,16 @@ def _dump_node(node, indentor):
 
 
 # -----------------------------------------------------------------------------
-# Final stuff
+# The whole point of the stuff above
 # -----------------------------------------------------------------------------
 def dump_ast(node, indent_with="   "):
     return _dump(node, Indentor())
 
 
-def main():
-    import textwrap
-    dump_ast(ast.parse(textwrap.dedent("""
-for x, y in iterable:
-    if something( x ):
-        break
-else:
-    otherwise()
-    """)))
+# def main():
+#     import textwrap
+#     dump_ast(ast.parse(textwrap.dedent("""
+# """)))
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
