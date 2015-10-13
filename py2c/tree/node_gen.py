@@ -283,7 +283,7 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
     # Discover files
     files_to_convert = [
         fname for fname in os.listdir(os.path.realpath(source_dir))
-        if fname.endswith(".tree")
+        if fname.endswith(".tree") and fname.startswith("tree_")
     ]
 
     # Writing the node-declaration files
@@ -292,7 +292,7 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
 
     for fname in files_to_convert:
         infile_name = os.path.join(source_dir, fname)
-        outfile_name = os.path.join(output_dir, fname[:-5] + ".py")
+        outfile_name = os.path.join(output_dir, fname[5:-5] + ".py")
         if os.path.exists(outfile_name) and not update:
             continue
 
