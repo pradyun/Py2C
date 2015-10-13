@@ -39,6 +39,8 @@ else:
 
 # -----------------------------------------------------------------------------
 # Base-class for all Test classes.
+#    Implements extras for checking names of tests, adding descriptions from
+#    docstring and (BIG) loading from string, sourced from YAML files.
 # -----------------------------------------------------------------------------
 class Test(object):
     """Base class for all tests for py2c
@@ -85,6 +87,44 @@ class Test(object):
         Because `fail(...)` looks better than `assert False, ...`
         """
         raise AssertionError(message) from cause
+
+    # Helpers for data-driven testing
+    def load(self, value, context=None):
+        """Load data in given context
+        """
+        # NOTE:: Folks at python-ideas are working on a nicer version for this...
+        #        Keep track.
+        if context is None:
+            context = self.context if self.context is not None else {}
+
+        def _eval(value, context):
+            if isinstance(value, str):
+                return _eval_str(value, context)
+            else:
+                return value
+
+        def _eval_str(string, context):
+            # Errors should propagate upward
+            return eval(string, context, context)
+
+        def _eval_list(li, context):
+            for i, elem in enumerate(li.copy()):
+                li[i] = _eval(elem, context)
+            return li
+
+        def _eval_dict(di, context):
+            for key, elem in di.items():
+                di[key] = _eval(elem, context)
+            return di
+
+        if isinstance(value, list):
+            func = _eval_list
+        elif isinstance(value, dict):
+            func = _eval_dict
+        else:
+            func = _eval
+
+        return func(value, context)
 
 
 # -----------------------------------------------------------------------------
