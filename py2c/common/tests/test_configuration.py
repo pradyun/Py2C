@@ -40,22 +40,22 @@ class TestConfiguration(Test):
         val = self.config.get_option("registered_set_option")
         assert_is(val, obj)
 
-    @data_driven_test(described=True, prefix="registers valid option: ", data=[
-        ("a simple name", "a_simple_name"),
-        ("a dotted name", "a.dotted.name"),
-    ])
+    @data_driven_test([
+        {"description": "a simple name", "args": ["a_simple_name"]},
+        {"description": "a dotted name", "args": ["a.dotted.name"]},
+    ], prefix="registers valid option: ")
     def test_registers_valid_option(self, name):
         try:
             Configuration().register_option(name)
         except Exception:
             self.fail("Should have registered name: {}".format(name))
 
-    @data_driven_test(described=True, prefix="raises error when registering invalid option: ", data=[  # noqa
-        ("a name starting with dot", ".invalid"),
-        ("a dotted name starting with dot", ".invalid.name"),
-        ("a name with spaces", "invalid name"),
-        ("a non-string name", 1200),
-    ])
+    @data_driven_test([
+        {"description": "a name starting with dot", "args": [".invalid"]},
+        {"description": "a dotted name starting with dot", "args": [".invalid.name"]},
+        {"description": "a name with spaces", "args": ["invalid name"]},
+        {"description": "a non-string name", "args": [1200]},
+    ], prefix="raises error when registering invalid option: ")
     def test_raises_error_registering_invalid_option(self, name):
         try:
             Configuration().register_option(name)
