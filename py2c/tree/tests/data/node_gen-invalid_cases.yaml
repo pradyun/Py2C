@@ -1,0 +1,25 @@
+-
+    description: errors when node has multiple attributes with same name
+    kwargs:
+        in_text: "foo: [int bar, str bar]"  # type should not matter
+        phrases: ["multiple", "attribute", "foo", "bar"]
+-
+    description: errors when node with same name has multiple declarations
+    kwargs:
+        in_text: "foo: []\nfoo: []\n"
+        phrases: ["multiple", "declaration", "foo"]
+-
+    description: errors when unable to tokenize
+    kwargs:
+        in_text: "$foo: []"
+        phrases: ["not", "generate", "token", "$foo"]
+-
+    description: errors when node had field with no data-type
+    kwargs:
+        in_text: "foo: [bar, baz]"
+        phrases: ["unexpected", "','"]
+-
+    description: errors when a node inherits fields, without a parent
+    kwargs:
+        in_text: "foo: inherit"
+        phrases: ['inherit', 'foo', 'need', 'parent']

@@ -1,0 +1,34 @@
+-
+    description: "an empty string"
+    kwargs:
+        in_text: ""
+        out_text: ""
+-
+    description: "a string with full line comment without trailing newline"
+    kwargs:
+        in_text: "#test: [a,string]"
+        out_text: ""
+-
+    description: "a string with full line comment with a trailing newline"
+    kwargs:
+        in_text: "# test: [a,string]\n"
+        out_text: "\n"
+-
+    description: "a string with full line comment with a trailing newline and text on next line"
+    kwargs:
+        in_text: "# test: [a,string]\nbar: []"
+        out_text: "\nbar: []"
+-
+    description: "a string with inline comment with a trailing newline"
+    kwargs:
+        in_text: "foo: [] # test: [a,string]"
+        out_text: "foo: [] "
+-
+    description: "a string with inline comment with a trailing newline and text on next line"
+    kwargs:
+        in_text: |
+            foo: []# test: [a,string]
+            bar: []
+        out_text: |
+            foo: []
+            bar: []

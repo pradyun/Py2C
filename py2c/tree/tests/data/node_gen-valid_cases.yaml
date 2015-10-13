@@ -1,0 +1,154 @@
+-
+    description: single node with no parent and no fields
+    kwargs:
+        in_text: "FooBar"
+        node:
+            - "Definition(name='FooBar', parent=None, fields=[])"
+        out_text: |
+            class FooBar(object):
+                @fields_decorator
+                def _fields(cls):
+                    return []
+-
+    description: single node with parent and zero fields
+    kwargs:
+        in_text: "FooBar(Base)"
+        node:
+            - "Definition(name='FooBar', parent='Base', fields=[])"
+        out_text: |
+            class FooBar(Base):
+                @fields_decorator
+                def _fields(cls):
+                    return []
+-
+    description: single node with no parent and zero fields
+    kwargs:
+        in_text: "FooBar: []"
+        node:
+            - "Definition(name='FooBar', parent=None, fields=[])"
+        out_text: |
+            class FooBar(object):
+                @fields_decorator
+                def _fields(cls):
+                    return []
+-
+    description: single node with parent and inherited fields
+    kwargs:
+        in_text: "FooBar(AST): inherit"
+        node:
+            - "Definition(name='FooBar', parent='AST', fields='inherit')"
+        out_text: |
+            class FooBar(AST):
+                pass
+-
+    description: single node with no parent and one field
+    kwargs:
+        in_text: "FooBar: [int bar]"
+        node:
+            - "Definition(name='FooBar', parent=None, fields=[('bar', 'int', 'NEEDED')])"
+        out_text: |
+            class FooBar(object):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('bar', int, 'NEEDED'),
+                    ]
+-
+    description: single node with parent and one field
+    kwargs:
+        in_text: "FooBar(AST): [int bar]"
+        node:
+            - "Definition(name='FooBar', parent='AST', fields=[('bar', 'int', 'NEEDED')])"
+        out_text: |
+            class FooBar(AST):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('bar', int, 'NEEDED'),
+                    ]
+-
+    description: single node with no parent and 4 fields of all types
+    kwargs:
+        in_text: "FooBar: [int f1, int+ f2, int* f3, int? f4]"
+        node:
+            - >
+                Definition(name='FooBar', parent=None, fields=[
+                    ('f1', 'int', 'NEEDED'),
+                    ('f2', 'int', 'ONE_OR_MORE'),
+                    ('f3', 'int', 'ZERO_OR_MORE'),
+                    ('f4', 'int', 'OPTIONAL')
+                ])
+        out_text: |
+            class FooBar(object):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('f1', int, 'NEEDED'),
+                        ('f2', int, 'ONE_OR_MORE'),
+                        ('f3', int, 'ZERO_OR_MORE'),
+                        ('f4', int, 'OPTIONAL'),
+                    ]
+-
+    description: multiple nodes with inheritance
+    kwargs:
+        in_text: |
+            base1: [int field1]
+            base2(base1): [int field2]
+            obj(base2): []
+        node:
+            - "Definition(name='base1', parent=None, fields=[('field1', 'int', 'NEEDED')])"
+            - "Definition(name='base2', parent='base1', fields=[('field2', 'int', 'NEEDED')])"
+            - "Definition(name='obj', parent='base2', fields=[])"
+        out_text: |
+            class base1(object):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('field1', int, 'NEEDED'),
+                    ]
+
+
+            class base2(base1):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('field2', int, 'NEEDED'),
+                    ]
+
+
+            class obj(base2):
+                @fields_decorator
+                def _fields(cls):
+                    return []
+-
+    description: multiple nodes without bothering about the indentation
+    kwargs:
+        in_text: |
+            base1: [int field1]
+                base2(base1): [int field2]
+                obj: []
+        node:
+            - "Definition(name='base1', parent=None, fields=[('field1', 'int', 'NEEDED')])"
+            - "Definition(name='base2', parent='base1', fields=[('field2', 'int', 'NEEDED')])"
+            - "Definition(name='obj', parent=None, fields=[])"
+        out_text: |
+            class base1(object):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('field1', int, 'NEEDED'),
+                    ]
+
+
+            class base2(base1):
+                @fields_decorator
+                def _fields(cls):
+                    return [
+                        ('field2', int, 'NEEDED'),
+                    ]
+
+
+            class obj(object):
+                @fields_decorator
+                def _fields(cls):
+                    return []
