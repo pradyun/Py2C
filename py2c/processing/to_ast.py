@@ -5,6 +5,9 @@ import ast
 
 from py2c.abc.worker import Worker
 from py2c.processing import ProcessingError
+from py2c.tree.visitors import RecursiveNodeTransformer
+
+from py2c.utils import get_temp_variable_name
 
 __all__ = ["SourceToASTTranslationError", "SourceToAST"]
 
@@ -23,12 +26,16 @@ class SourceToASTTranslationError(ProcessingError):
 # -----------------------------------------------------------------------------
 # Translator
 # -----------------------------------------------------------------------------
-class SourceToAST(Worker):
-    """Translates Python code into AST
+class SourceToAST(Worker, RecursiveNodeTransformer):
+    """Translates Python code into an simplified AST
     """
 
+    def __init__(self):
+        Worker.__init__(self)
+        RecursiveNodeTransformer.__init__(self, ast.AST, ast.iter_fields)
+
     def work(self, code):
-        """Translate the passed code into a valid Python AST, if the code is valid.
+        """Translate the passed code into a Python AST and simplify it.
         """
         try:
             node = ast.parse(code)

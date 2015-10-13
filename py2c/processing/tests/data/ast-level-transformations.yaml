@@ -1,0 +1,7 @@
+-
+  description: "a pass statement"
+  kwargs:
+    input_text: |
+      pass
+    output_text: |
+      pass
