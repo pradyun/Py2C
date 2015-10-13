@@ -92,12 +92,12 @@ def fields_decorator(func):
 
 
 # -----------------------------------------------------------------------------
-# Refactored out the error messages, as they create noise in the implemetation.
+# Re-factored out the error messages, as they create noise in the implementation
 # -----------------------------------------------------------------------------
 def _invalid_arg_count_err_msg(node):
-    # Complicated thanks to English..
+    # Complicated? Thank English!
     num_fields = len(node._fields)
-    msg = node.__class__.__name__ + " constructor takes "
+    msg = node.__class__.__qualname__ + " constructor takes "
     if num_fields != 0:
         msg += "either 0 or"
     else:
@@ -110,13 +110,13 @@ def _invalid_arg_count_err_msg(node):
 
 def _missing_fields_err_msg(node, missing):
     return "{} is missing {}".format(
-        node.__class__.__name__, ", ".join(missing)
+        node.__class__.__qualname__, ", ".join(missing)
     )
 
 
 def _invalid_modifiers_err_msg(node, invalid_modifiers):
     return "{0}'s field{2} used invalid modifier{2}: {1}".format(
-        node.__class__.__name__,
+        node.__class__.__qualname__,
         ", ".join(
             "{} -> '{}'".format(name, modifier)
             for name, modifier in invalid_modifiers
@@ -126,7 +126,7 @@ def _invalid_modifiers_err_msg(node, invalid_modifiers):
 
 
 def _no_field_by_name_err_msg(node, name):
-    return "{} has no field {!r}".format(node.__class__.__name__, name)
+    return "{} has no field {!r}".format(node.__class__.__qualname__, name)
 
 
 def _invalid_field_value_type_err_msg(node, name, type_, value):
@@ -134,8 +134,8 @@ def _invalid_field_value_type_err_msg(node, name, type_, value):
         "Expected {0} {1} for attribute {2}.{3}, got {4!r} which is not {0} "
         "{1}"
     ).format(
-        get_article(type_), type_.__name__, node.__class__.__name__, name,
-        value
+        get_article(type_), type_.__qualname__, node.__class__.__qualname__,
+        name, value
     )
 
 
@@ -143,7 +143,7 @@ def _invalid_iterable_field_value_err_msg(node, name, min_len, type_, index=None
     msg = (
         "{}.{} should be an sequence containing {} or more items of type {}"
     ).format(
-        node.__class__.__name__, name, min_len, type_.__name__
+        node.__class__.__qualname__, name, min_len, type_.__qualname__
     )
 
     if index is not None:
@@ -185,9 +185,16 @@ class Node(object):
             )
 
     def __repr__(self):
-        # Should this be changed into a loop and list.append?
+        # # Should this be changed into a loop and list.append?
+        # return "{}.{}({})".format(
+        #     self.__class__.__module__.rsplit(".", 1)[1],
+        #     self.__class__.__qualname__,
+        #     ", ".join(
+        #         "{}={!r}".format(a, b) for a, b in iter_fields(self)
+        #     )
+        # )
         return "{}({})".format(
-            self.__class__.__name__,
+            self.__class__.__qualname__,
             ", ".join(
                 "{}={!r}".format(a, b) for a, b in iter_fields(self)
             )
@@ -246,7 +253,7 @@ class Node(object):
                 assert False, "Should not have reached this branch!!"
 
         if missing:
-            raise AttributeError(_missing_fields_err_msg(self, missing))
+            raise FinalizationError(_missing_fields_err_msg(self, missing))
 
     def _validate_value_for_field(self, field, value):
         """Check if 'value' is valid to assign to field
@@ -293,9 +300,9 @@ class Node(object):
     def _set_field_value(self, name, value):
         self.__dict__[name] = value
 
-    # Make sure sub-classes don't use this.
-    @property
-    def _fields(self):
+    # Make sure sub-classes don't use this
+    @fields_decorator
+    def _fields(cls):
         raise InvalidInitializationError(
             "Node sub-classes need to define an iterable _fields attribute."
         )

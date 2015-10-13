@@ -3,93 +3,192 @@
 
 from py2c import tree
 
-from nose.tools import assert_raises, assert_equal, assert_not_equal
-from py2c.tests import Test, data_driven_test    # noqa
+from nose.tools import (
+    assert_raises,
+    assert_equal, assert_not_equal,
+    assert_is_instance, assert_not_is_instance,
+)
+from py2c.tests import Test, data_driven_test
 
-import py2c.tree.tests.data_init as data
+
+# =============================================================================
+# Helper classes
+# =============================================================================
+class NodeWithoutFieldsAttribute(tree.Node):
+    """A base node that doesn't define the fields attribute
+    """
+
+
+class EmptyNode(tree.Node):
+    """An empty node with no fields
+    """
+    _fields = []
+
+
+class BasicNode(tree.Node):
+    """Basic node
+    """
+    _fields = [
+        ('f1', int, "NEEDED"),
+    ]
+
+
+class InheritingNodeWithoutFieldsAttributeNode(BasicNode):
+    """A node that inherits from BasicNode but doesn't declare fields.
+
+    (It should inherit the fields from parent)
+    """
+
+
+class BasicNodeCopy(tree.Node):
+    """Equivalent but not equal to BasicNode
+    """
+    _fields = [
+        ('f1', int, "NEEDED"),
+    ]
+
+
+class AllIntModifiersNode(tree.Node):
+    """Node with all modifiers
+    """
+    _fields = [
+        ('f1', int, "NEEDED"),
+        ('f2', int, "OPTIONAL"),
+        ('f3', int, "ZERO_OR_MORE"),
+        ('f4', int, "ONE_OR_MORE"),
+    ]
+
+
+class NodeWithANodeField(tree.Node):
+    """Node with another node as child
+    """
+    _fields = [
+        ('child', BasicNode, "NEEDED"),
+    ]
+
+
+class InvalidModifierNode(tree.Node):
+    """Node with invalid modifier
+    """
+    _fields = [
+        ('f1', int, "..."),
+    ]
 
 
 # -----------------------------------------------------------------------------
+class SubClass(tree.identifier):
+    """A subclass of identifier.
+
+    Used for checking identifier's behaviour with subclasses.
+    """
+
+
+# =============================================================================
 # Tests
-# -----------------------------------------------------------------------------
+# =============================================================================
 class TestNode(Test):
     """py2c.tree.Node
     """
+    context = globals()
 
-    @data_driven_test(data.Node_initialization_valid_cases, True, "initializes successfully: subclass with ")  # noqa
-    def test_initialization_valid_cases(self, cls, args, kwargs, expected_dict):  # noqa
+    @data_driven_test("node-initialization.yaml")
+    def test_initialization(self, **kwargs):
+        self.template_valid_invalid(
+            self._initialization_valid, self._initialization_invalid, **kwargs
+        )
+
+    def _initialization_valid(self, node, expect):
+        expect = self.load(expect)
         try:
-            node = cls(*args, **kwargs)
-        except tree.WrongTypeError:
+            node = self.load(node)
+        except tree.NodeError:
             self.fail("Unexpectedly raised exception")
         else:
-            for name, value in expected_dict.items():
+            for name, value in expect.items():
                 assert_equal(getattr(node, name), value)
 
-    @data_driven_test(data.Node_initialization_invalid_cases, True, "raises error initializing: subclass with ")  # noqa
-    def test_initialization_invalid_cases(self, cls, args, kwargs, error, required_phrases):  # noqa
+    def _initialization_invalid(self, node, expect, error):
         with assert_raises(error) as context:
-            cls(*args, **kwargs)
+            self.load(node)
 
-        self.assert_error_message_contains(context.exception, required_phrases)
+        self.assert_error_message_contains(context.exception, expect)
 
-    @data_driven_test(data.Node_assignment_valid_cases, True, "assigns to: ")  # noqa
-    def test_assignment_valid_cases(self, cls, attr, value):  # noqa
-        node = cls()
+    @data_driven_test("node-assignment.yaml")
+    def test_assignment(self, **kwargs):
+        self.template_valid_invalid(
+            self._assignment_valid, self._assignment_invalid, **kwargs
+        )
+
+    def _assignment_valid(self, node, attr, value):
+        value = self.load(value)
+
+        cls = self.load(node)
+        obj = cls()
 
         try:
-            setattr(node, attr, value)
+            setattr(obj, attr, value)
         except Exception as e:
             self.fail("Raised error for valid assignment", e)
         else:
             assert_equal(
-                getattr(node, attr), value,
+                getattr(obj, attr), value,
                 "Expected value to be set after assignment"
             )
 
-    @data_driven_test(data.Node_assignment_invalid_cases, True, "raises error assigning to: ")  # noqa
-    def test_assignment_invalid_cases(self, cls, attr, value, error_cls, required_phrases=None):  # noqa
-        node = cls()
+    def _assignment_invalid(self, node, attr, value, error, phrases=None):
+        value = self.load(value)
+
+        cls = self.load(node)
+        obj = cls()
 
         try:
-            setattr(node, attr, value)
-        except error_cls as err:
-            self.assert_error_message_contains(err, required_phrases or [])
+            setattr(obj, attr, value)
+        except error as err:
+            self.assert_error_message_contains(err, phrases or [])
         else:
             self.fail("Did not raise {} for invalid assignment".format(
-                error_cls.__name__
+                error.__name__
             ))
 
-    @data_driven_test(data.Node_finalization_valid_cases, True, "finalizes: subclass with ")  # noqa
-    def test_finalization_valid_cases(self, node, final_attrs):  # noqa
+    @data_driven_test("node-finalization.yaml")
+    def test_finalization(self, **kwargs):
+        self.template_valid_invalid(
+            self._finalization_valid, self._finalization_invalid, **kwargs
+        )
+
+    def _finalization_valid(self, node, expect):
+        node = self.load(node)
+        expected_attrs = self.load(expect)
+
         node.finalize()
-        for attr, val in final_attrs.items():
+        for attr, val in expected_attrs.items():
             assert_equal(getattr(node, attr), val)
 
-    @data_driven_test(data.Node_finalization_invalid_cases, True, "raises error while finalizing: subclass with ")  # noqa
-    def test_finalization_invalid_cases(self, node, required_phrases):  # noqa
-        try:
+    def _finalization_invalid(self, node, phrases, error):
+        node = self.load(node)
+        with assert_raises(error) as context:
             node.finalize()
-        except Exception as err:
-            self.assert_error_message_contains(err, required_phrases)
+        self.assert_error_message_contains(context.exception, phrases)
+
+    @data_driven_test("node-equality.yaml")
+    def test_equality(self, node1, node2, is_equal):
+        node1 = self.load(node1)
+        node2 = self.load(node2)
+        is_equal = self.load(is_equal)
+
+        node1.finalize()
+        node2.finalize()
+
+        if is_equal:
+            assert_equal(node1, node2)
         else:
-            self.fail("Did not raise an exception for invalid finalize")
+            assert_not_equal(node1, node2)
 
-    @data_driven_test(data.Node_equality_equal_cases, True, "reports equality correctly: ")  # noqa
-    def test_equality_equal_cases(self, node1, node2):  # noqa
-        node1.finalize()
-        node2.finalize()
-        assert_equal(node1, node2)
+    @data_driven_test("node-repr.yaml")
+    def test_repr(self, node, expect):
+        node = self.load(node)
 
-    @data_driven_test(data.Node_equality_not_equal_cases, True, "reports in-equality correctly: ")  # noqa
-    def test_equality_not_equal_cases(self, node1, node2):  # noqa
-        node1.finalize()
-        node2.finalize()
-        assert_not_equal(node1, node2)
-
-    @data_driven_test(data.Node_repr_cases, True, "gives correct representation: ")  # noqa
-    def test_repr_cases(self, node, expected):  # noqa
-        assert_equal(repr(node), expected)
+        assert_equal(repr(node), expect)
 
 
 # -----------------------------------------------------------------------------
@@ -98,37 +197,45 @@ class TestNode(Test):
 class TestIdentifier(Test):
     """py2c.tree.identifier
     """
+    context = globals()
 
-    @data_driven_test(data.identifier_valid_cases, True, "initializes successfully: ")  # noqa
-    def test_initialization_valid_cases(self, arg):
-        obj = tree.identifier(arg)
-        assert_equal(obj, arg)
+    @data_driven_test("identifier-initialization.yaml", prefix="initializes ")
+    def test_initialization(self, **kwargs):
+        self.template_valid_invalid(
+            self._initialization_valid, self._initialization_invalid, **kwargs
+        )
 
-    @data_driven_test(data.identifier_invalid_cases, True, "raises error when initialized: ")  # noqa
-    def test_initialization_invalid_cases(self, arg):
-        with assert_raises(tree.WrongAttributeValueError):
-            tree.identifier(arg)
+    def _initialization_valid(self, text):
+        assert_equal(tree.identifier(text), text)
 
-    @data_driven_test(data.identifier_valid_cases, True, "should be an instance: ")  # noqa
-    def test_is_instance_cases(self, value):
-        assert isinstance(value, tree.identifier)
+    def _initialization_invalid(self, text, error):
+        with assert_raises(error):
+            tree.identifier(text)
 
-    @data_driven_test(data.identifier_invalid_cases, True, "should not be an instance: ")  # noqa
-    def test_is_instance_not_cases(self, value):
-        assert not isinstance(value, tree.identifier)
+    @data_driven_test("identifier-initialization.yaml", prefix="equality of ")
+    def test_equality(self, **kwargs):
+        self.template_valid_invalid(
+            self._isinstance_valid, self._isinstance_invalid, **kwargs
+        )
 
-    @data_driven_test(data.identifier_is_subclass_cases, True, "should be a subclass: ")  # noqa
-    def test_is_subclass_cases(self, value):
-        assert issubclass(value, tree.identifier)
+    def _isinstance_valid(self, text):
+        assert_is_instance(text, tree.identifier)
+        assert_equal(tree.identifier(text), text)
 
-    @data_driven_test(data.identifier_not_is_subclass_cases, True, "should not be a subclass: ")  # noqa
-    def test_is_subclass_not_cases(self, value):
-        assert not issubclass(value, tree.identifier)
+    def _isinstance_invalid(self, text, error):
+        assert_not_is_instance(text, tree.identifier)
 
-    @data_driven_test(data.identifier_valid_cases, True, "returns argument passed as is: ")  # noqa
-    def test_returns_the_value_passed(self, name):
-        assert_equal(tree.identifier(name), name)
-        assert type(tree.identifier(name)) == str, "Should give a str"
+    @data_driven_test("identifier-subclass.yaml", prefix="is-subclass of ")
+    def test_subclass(self, **kwargs):
+        self.template_valid_invalid(
+            self._issubclass, lambda *args: None, **kwargs
+        )
+
+    def _issubclass(self, clazz, is_subclass):
+        if is_subclass:
+            assert issubclass(self.load(clazz), tree.identifier)
+        else:
+            assert not issubclass(self.load(clazz), tree.identifier)
 
 
 # -----------------------------------------------------------------------------

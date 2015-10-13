@@ -1,0 +1,30 @@
+-
+    description: same nodes with equal attributes are equal
+    kwargs:
+        node1: BasicNode(1)
+        node2: BasicNode(1)
+        is_equal: True
+-
+    description: same nodes with node children with equal attributes are equal
+    kwargs:
+        node1: NodeWithANodeField(BasicNode(1))
+        node2: NodeWithANodeField(BasicNode(1))
+        is_equal: True
+-
+    description: same nodes with non-equal attributes are not equal
+    kwargs:
+        node1: BasicNode(0)
+        node2: BasicNode(1)
+        is_equal: False
+-
+    description: same nodes with node children with non-equal attributes are not equal
+    kwargs:
+        node1: NodeWithANodeField(BasicNode(0))
+        node2: NodeWithANodeField(BasicNode(1))
+        is_equal: False
+-
+    description: different nodes with same attributes are not equal
+    kwargs:
+        node1: BasicNode(1)
+        node2: BasicNodeCopy(1)
+        is_equal: False

@@ -1,0 +1,31 @@
+# TODO:: Improve.
+-
+    description: finalizes with valid attributes
+    kwargs:
+        node: "AllIntModifiersNode(1, 2, [], [3])"
+        expect:
+            f1: 1
+            f2: 2
+            f3: ()
+            f4: (3,)
+-
+    description: finalizes with valid attributes (optionals not given)
+    kwargs:
+        node: "AllIntModifiersNode(f1=1, f4=[2])"
+        expect:
+            f1: 1
+            f2: None
+            f3: ()
+            f4: (2,)
+-
+    description: does not finalize without parameters when needed
+    kwargs:
+        node: "AllIntModifiersNode()"
+        error: tree.FinalizationError
+        phrases: ["missing", "f1", "f4", "!f2", "!f3"]
+-
+    description: does not finalize with a child without parameters
+    kwargs:
+        node: "NodeWithANodeField(BasicNode())"
+        error: tree.FinalizationError
+        phrases: ["missing", "f1"]

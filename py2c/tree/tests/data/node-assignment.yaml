@@ -1,0 +1,171 @@
+# -- Valid Assignment --------------------------------------------------------------------
+-
+    description: assigns NEEDED with False-ish value
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f1
+        value: "0"
+-
+    description: assigns NEEDED with True-ish value
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f1
+        value: "1"
+-
+    description: assigns OPTIONAL with False-ish value
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f2
+        value: "0"
+-
+    description: assigns OPTIONAL with True-ish value
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f2
+        value: "1"
+-
+    description: assigns OPTIONAL with None
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f2
+        value: "None"
+-
+    description: assigns ZERO_OR_MORE with an empty tuple
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "()"
+-
+    description: assigns ZERO_OR_MORE with a tuple with one element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "(1,)"
+-
+    description: assigns ZERO_OR_MORE with a tuple with four element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "(1, 2, 3, 4)"
+-
+    description: assigns ZERO_OR_MORE with an empty list
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "[]"
+-
+    description: assigns ZERO_OR_MORE with a list with one element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "[1]"
+-
+    description: assigns ZERO_OR_MORE with a list with four element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f3
+        value: "[1, 2, 3, 4]"
+-
+    description: assigns ONE_OR_MORE with a tuple with one element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f4
+        value: "(1,)"
+-
+    description: assigns ONE_OR_MORE with a tuple with four element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f4
+        value: "(1, 2, 3, 4)"
+-
+    description: assigns ONE_OR_MORE with a list with one element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f4
+        value: "[1]"
+-
+    description: assigns ONE_OR_MORE with a list with four element
+    kwargs:
+        node: AllIntModifiersNode
+        attr: f4
+        value: "[1, 2, 3, 4]"
+# -- Invalid Assignment ------------------------------------------------------------------
+
+-
+    description: does not assign non-existent field
+    kwargs:
+        node: BasicNode
+        attr: "bar"
+        value: "1"
+        error: tree.FieldError
+        phrases: ["bar", "no field"]
+-
+    description: does not assign NEEDED field with incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f1"
+        value: "''"
+        error: tree.WrongTypeError
+-
+    description: does not assign OPTIONAL field with incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f2"
+        value: "''"
+        error: tree.WrongTypeError
+-
+    description: does not assign ZERO_OR_MORE field with incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f3"
+        value: "''"
+        error: tree.WrongTypeError
+-
+    description: does not assign ZERO_OR_MORE field with tuple containing incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f3"
+        value: "('',)"
+        error: tree.WrongTypeError
+-
+    description: does not assign ZERO_OR_MORE field with list containing incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f3"
+        value: "['']"
+        error: tree.WrongTypeError
+-
+    description: does not assign ONE_OR_MORE field with incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f4"
+        value: "''"
+        error: tree.WrongTypeError
+-
+    description: does not assign ONE_OR_MORE field with empty tuple
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f4"
+        value: "()"
+        error: tree.WrongTypeError
+-
+    description: does not assign ONE_OR_MORE field with empty list
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f4"
+        value: "[]"
+        error: tree.WrongTypeError
+-
+    description: does not assign ONE_OR_MORE field with tuple containing incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f4"
+        value: "('',)"
+        error: tree.WrongTypeError
+-
+    description: does not assign ONE_OR_MORE field with list containing incorrect type
+    kwargs:
+        node: AllIntModifiersNode
+        attr: "f4"
+        value: "['']"
+        error: tree.WrongTypeError

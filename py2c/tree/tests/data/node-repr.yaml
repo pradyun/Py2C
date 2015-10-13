@@ -1,0 +1,40 @@
+-
+    description: repr of no-field node
+    kwargs:
+        node:   "BasicNode()"
+        expect: "BasicNode()"
+-
+    description: repr of no-field node with a different name
+    kwargs:
+        node:   "BasicNodeCopy()"
+        expect: "BasicNodeCopy()"
+-
+    description: repr of multi-field node with no arguments
+    kwargs:
+        node:   "AllIntModifiersNode()"
+        expect: "AllIntModifiersNode()"
+-
+    description: repr of node with node fields but no arguments
+    kwargs:
+        node:   "NodeWithANodeField()"
+        expect: "NodeWithANodeField()"
+-
+    description: repr of node with node fields with no arguments to child
+    kwargs:
+        node:   "NodeWithANodeField(BasicNode())"
+        expect: "NodeWithANodeField(child=BasicNode())"
+-
+    description: repr of node with node fields with minimal number of positional arguments
+    kwargs:
+        node:   "NodeWithANodeField(BasicNode(1))"
+        expect: "NodeWithANodeField(child=BasicNode(f1=1))"
+-
+    description: repr of multi-field node with minimal number of arguments
+    kwargs:
+        node:   "AllIntModifiersNode(f1=1, f2=None)"
+        expect: "AllIntModifiersNode(f1=1, f2=None)"
+-
+    description: repr of multi-field node with optional arguments provided
+    kwargs:
+        node:   "AllIntModifiersNode(f4=(4, 5, 6), f1=1, f3=[3], f2=None)"
+        expect: "AllIntModifiersNode(f1=1, f2=None, f3=[3], f4=(4, 5, 6))"

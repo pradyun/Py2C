@@ -1,0 +1,101 @@
+# -- Valid Initialization ----------------------------------------------------------------
+-
+    description: initializes zero field without arguments
+    kwargs:
+        node: EmptyNode()
+        expect: {}
+-
+    description: initializes single NEEDED field without arguments
+    kwargs:
+        node: BasicNode()
+        expect: {}
+-
+    description: initializes when single inherited NEEDED field without arguments
+    kwargs:
+        node: InheritingNodeWithoutFieldsAttributeNode()
+        expect: {}
+-
+    description: initializes single NEEDED field with positional argument
+    kwargs:
+        node: BasicNode(1)
+        expect:
+            f1: 1
+-
+    description: initializes single NEEDED field with keyword argument
+    kwargs:
+        node: BasicNode(f1=1)
+        expect:
+            f1: 1
+-
+    description: initializes single inherited NEEDED field with positional argument
+    kwargs:
+        node: InheritingNodeWithoutFieldsAttributeNode(1)
+        expect:
+            f1: 1
+-
+    description: initializes single inherited NEEDED field with keyword argument
+    kwargs:
+        node: InheritingNodeWithoutFieldsAttributeNode(f1=1)
+        expect:
+            f1: 1
+-
+    description: initializes all types of fields; with minimal valid positional arguments
+    kwargs:
+        node: "AllIntModifiersNode(1, None, (), (2,))"
+        expect:
+            f1: 1
+            f2: None
+            f3: ()
+            f4: (2,)
+-
+    description: initializes all types of fields; with valid positional arguments
+    kwargs:
+        node: "AllIntModifiersNode(1, 2, [3, 4, 5], (6, 7, 8))"
+        expect:
+            f1: 1
+            f2: 2
+            f3: [3, 4, 5]
+            f4: (6, 7, 8)
+# -- Invalid Initialization --------------------------------------------------------------
+-
+    description: does not initialize a node with no fields attribute defined
+    kwargs:
+        node: NodeWithoutFieldsAttribute()
+        error: tree.InvalidInitializationError
+        expect: ["iterable", "_fields"]
+-
+    description: does not initialize a node with zero fields with some argument
+    kwargs:
+        node: EmptyNode(1)
+        error: tree.InvalidInitializationError
+        expect: ["no", "arguments"]
+-
+    description: does not initialize a node with one field with extra arguments
+    kwargs:
+        node: BasicNode(1, 2)
+        error: tree.InvalidInitializationError
+        expect: ["0 or 1", "argument", "!arguments"]
+-
+    description: does not initialize a node with modifiers with incorrect number of arguments
+    kwargs:
+        node: AllIntModifiersNode(1)
+        error: tree.InvalidInitializationError
+        expect: ["0 or 4", "arguments"]
+-
+    description: does not initialize a node with missing arguments
+    kwargs:
+        node: AllIntModifiersNode(1)
+        error: tree.InvalidInitializationError
+        expect: ["AllIntModifiersNode", "0 or 4", "arguments"]
+-
+    description: does not initialize a node with a child with missing arguments
+    kwargs:
+        node: NodeWithANodeField(AllIntModifiersNode(1))
+        error: tree.InvalidInitializationError
+        expect: ["AllIntModifiersNode", "0 or 4", "arguments"]
+-
+    description: does not initialize a node with an invalid/unknown modifier
+    kwargs:
+        node: InvalidModifierNode()
+        error: tree.InvalidInitializationError
+        expect: ["InvalidModifierNode", "f1", "invalid modifier"]
