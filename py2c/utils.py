@@ -1,8 +1,10 @@
 """Miscellaneous things done multiple times in the package, moved here.
-(Implementation detail)
 """
 
-__all__ = ["verify_attribute", "get_article", "is_valid_dotted_identifier"]
+__all__ = [
+    "verify_attribute", "get_article", "is_valid_dotted_identifier",
+    "get_temp_variable_name"
+]
 
 
 def verify_attribute(obj, name, clazz):
@@ -36,3 +38,31 @@ def is_valid_dotted_identifier(string):
     """Check if the given string is a valid dotted identifier.
     """
     return all(part.isidentifier() for part in string.split("."))
+
+# -----------------------------------------------------------------------------
+# Internal variable name related stuff
+# -----------------------------------------------------------------------------
+_TEMP_NAME_PREFIX = "_PY2C_"
+
+# Prevent over-write on reload or reimport
+try:
+    _temp_var_dict
+except NameError:
+    _temp_var_dict = {}
+
+
+def is_py2c_temp_var(name):
+    """Is the passed name a py2c internal variable
+    """
+    return name.startswith(_TEMP_NAME_PREFIX)
+
+
+def get_temp_variable_name(name, node=None):
+    """Gives a unique variable name for use as an internal variable.
+
+    A node may be for type-specific name assignments.
+    """
+    key = (type(node), name)
+
+    _temp_var_dict[key] = _temp_var_dict.get(key, 0) + 1
+    return "{}{}{}".format(_TEMP_NAME_PREFIX, name, _temp_var_dict[key])
