@@ -40,7 +40,12 @@ def _normalize(options):
     # Long description from file
     description_file = retval.pop("long_description_file", None)
     if description_file:
-        with open(description_file) as fdesc:
-            retval["long_description"] = fdesc.read()
+        try:
+            with open(description_file) as fdesc:
+                retval["long_description"] = fdesc.read()
+        except IOError:
+            retval["long_description"] = "Read the accompanying {}".format(
+                description_file
+            )
 
     return retval
