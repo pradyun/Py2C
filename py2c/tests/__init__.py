@@ -15,7 +15,7 @@ __all__ = ["Test", "mock", "runmodule"]
 # BE VERY CAREFUL HERE. Changes here are capable of breaking all tests...
 # =============================================================================
 
-# MARK:: Bad, monkey patches spec to show nice-output,
+# MARK:: Bad!!! We monkey-patch spec to show nice-output.
 try:
     import spec.plugin
 except ImportError:
@@ -113,8 +113,11 @@ def data_driven_test(data, described=False, prefix="", suffix=""):
     return decorator
 
 
+# -----------------------------------------------------------------------------
+# Running tests directly from a module
+# -----------------------------------------------------------------------------
 def runmodule(capture=True):
-    """A shorthand for running tests in test modules
+    """A convenience function for running tests in test modules
     """
     import os
     import nose
@@ -122,8 +125,7 @@ def runmodule(capture=True):
     env = {
         "NOSE_WITH_HTML_REPORT": "True",
         "NOSE_HTML_OUTPUT_FILE": "/tmp/test-html/index.html",
-        "NOSE_WITH_SPECPLUGIN": "True",
-        "NOSE_NO_SPEC_COLOR": "True"
+        "NOSE_WITH_SPECPLUGIN": "True"
     }
     if not capture:
         env["NOSE_NOCAPTURE"] = "1"
