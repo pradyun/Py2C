@@ -1,6 +1,6 @@
 # Contributing
 ## Issues
-Found a critcal bug or some typo, feel free to create a PR or an issue for it.
+Found a critical bug or some typo, feel free to create a PR or an issue for it.
 
 Just 3 things:
 
@@ -10,4 +10,3 @@ Just 3 things:
  3. Base your work off the `develop` branch.
 
  [pep-8]: http://python.org/dev/peps/pep-0008/
-
