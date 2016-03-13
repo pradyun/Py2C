@@ -7,11 +7,13 @@
 
 # Py2C
 
-[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-pre-alpha-badge]
+[![Build Status][travis-badge]][travis-page] [![Coverage Status][coveralls-badge]][coveralls-page] [![Gitter][gitter-image]][gitter-page] ![Project Status][project-on-hold-badge]
 
 > The project is **not** functional yet. It's just in pre-alpha/planning stage...
 
 A trans-compiler for compiling Python code into human-readable C++ code, somewhat like what humans might actually write. It would have to be really smart and that's the aim!
+
+> I have not been able to find the required amount of time to invest in this project to get it working. And it does not seem likely I will get it in the near future. See [#11](https://github.com/pradyunsg/Py2C/issues/11) for more.
 
 This project is currently focused on statically typed programs and optimizing them. This means the current scope of the project is limited. On some future date, this project may also support all of Python's dynamic nature, subject to whether such a change is helpful and feasible for the project.
 
