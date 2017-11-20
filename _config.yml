@@ -20,3 +20,5 @@ relative_permalinks: true
 # Dependencies
 markdown: redcarpet
 highlighter: pygments
+
+theme: jekyll-theme-cayman
