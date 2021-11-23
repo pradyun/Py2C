@@ -276,7 +276,7 @@ def generate(source_dir, output_dir=None, update=False):  # coverage: not missin
     if output_dir is None:
         output_dir = source_dir
 
-    # A convinience function for printing the notifications
+    # A convenience function for printing the notifications
     def report(*args):
         print("[py2c.tree.node_gen]", *args)
 
